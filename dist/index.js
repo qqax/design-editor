@@ -15076,8 +15076,7 @@ var Objects = class extends Base_default {
     const refItem = item;
     const object = await objectImporter.import(refItem, options);
     if (this.config.clipToFrame) {
-      const frame = this.editor.frame.frame;
-      object.clipPath = frame;
+      object.clipPath = this.editor.frame.frame;
     }
     const isBackgroundImage = refItem.type === "BackgroundImage" /* BACKGROUND_IMAGE */;
     let currentBackgrounImage;
@@ -15367,8 +15366,7 @@ var Objects = class extends Base_default {
             top: object.top + 10
           });
           if (this.config.clipToFrame) {
-            const frame2 = this.editor.frame.frame;
-            clone.clipPath = frame2;
+            clone.clipPath = this.editor.frame.frame;
           }
           this.canvas.add(clone);
           callback([clone]);
@@ -15413,10 +15411,9 @@ var Objects = class extends Base_default {
   };
   list = () => {
     const objects = this.canvas.getObjects();
-    const filteredObjects = objects.filter((o) => {
+    return objects.filter((o) => {
       return o.type !== "Frame" /* FRAME */ && o.type !== "Background" /* BACKGROUND */;
     });
-    return filteredObjects;
   };
   copyStyle = () => {
     const activeObject = this.canvas.getActiveObject();
@@ -15533,8 +15530,7 @@ var Objects = class extends Base_default {
         const refTop = refObject.top;
         this.canvas.discardActiveObject();
         selectedObjects.forEach((object) => {
-          const currentObject = object;
-          currentObject.set({
+          object.set({
             top: refTop
           });
         });
@@ -15544,8 +15540,7 @@ var Objects = class extends Base_default {
         this.canvas.setActiveObject(selection);
         this.state.setActiveObject(selection);
       } else {
-        const currentObject = refObject;
-        currentObject.set({
+        refObject.set({
           top: frame.top
         });
       }
@@ -15644,8 +15639,7 @@ var Objects = class extends Base_default {
         const refLeft = refObject.left;
         this.canvas.discardActiveObject();
         selectedObjects.forEach((object) => {
-          const currentObject = object;
-          currentObject.set({
+          object.set({
             left: refLeft
           });
         });
@@ -15655,8 +15649,7 @@ var Objects = class extends Base_default {
         this.canvas.setActiveObject(selection);
         this.state.setActiveObject(selection);
       } else {
-        const currentObject = refObject;
-        currentObject.set({
+        refObject.set({
           left: frame.left
         });
       }
@@ -29211,7 +29204,7 @@ function Section({
           display: "flex",
           gap: 8,
           overflowX: "auto",
-          paddingBottom: 4,
+          padding: 4,
           scrollbarWidth: "none",
           msOverflowStyle: "none"
         },

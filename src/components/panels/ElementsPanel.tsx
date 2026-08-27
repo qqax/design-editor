@@ -127,7 +127,7 @@ function Section({
           display: 'flex',
           gap: 8,
           overflowX: 'auto',
-          paddingBottom: 4,
+          padding: 4,
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         } as React.CSSProperties}
