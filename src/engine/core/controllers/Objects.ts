@@ -1,16 +1,16 @@
-import { Object as FabricObject, Group, ActiveSelection, Gradient } from "fabric";
-import { StaticText } from "../../objects/StaticText";
-import { StaticImage } from "../../objects/StaticImage";
-import { BackgroundImage } from "../../objects/BackgroundImage";
-import { isArray, pick } from "lodash"
-import { generateId } from "../utils/id"
+import {ActiveSelection, Gradient, Group, Object as FabricObject} from "fabric";
+import {StaticText} from "../../objects/StaticText";
+import {StaticImage} from "../../objects/StaticImage";
+import {BackgroundImage} from "../../objects/BackgroundImage";
+import {isArray, pick} from "lodash"
+import {generateId} from "../utils/id"
 import Base from "./Base"
-import { ILayer, ILayerOptions } from "../../types"
-import { copyStyleProps, getCopyStyleCursor, LayerType } from "../common/constants"
-import { Direction, GradientOptions, ScaleType, ShadowOptions, Size } from "../common/interfaces"
+import {ILayer, ILayerOptions} from "../../types"
+import {copyStyleProps, getCopyStyleCursor, LayerType} from "../common/constants"
+import {Direction, GradientOptions, ScaleType, ShadowOptions, Size} from "../common/interfaces"
 import ObjectImporter from "../utils/object-importer"
-import setObjectGradient, { setObjectShadow } from "../utils/fabric"
-import { loadImageFromURL } from "../utils/image-loader"
+import setObjectGradient, {setObjectShadow} from "../utils/fabric"
+import {loadImageFromURL} from "../utils/image-loader"
 
 class Objects extends Base {
   public clipboard: any
@@ -25,9 +25,8 @@ class Objects extends Base {
 
     const object: FabricObject = await objectImporter.import(refItem, options)
     if (this.config.clipToFrame) {
-      const frame = this.editor.frame.frame
       // @ts-ignore
-      object.clipPath = frame
+      object.clipPath = this.editor.frame.frame
     }
 
     const isBackgroundImage = refItem.type === LayerType.BACKGROUND_IMAGE
@@ -354,9 +353,8 @@ class Objects extends Base {
             top: object.top! + 10,
           })
           if (this.config.clipToFrame) {
-            const frame = this.editor.frame.frame
-      // @ts-ignore
-            clone.clipPath = frame
+            // @ts-ignore
+            clone.clipPath = this.editor.frame.frame
           }
           this.canvas.add(clone)
           callback([clone])
@@ -402,18 +400,15 @@ class Objects extends Base {
       this.canvas.remove(refObject)
     }
 
-      // @ts-ignore
-    this.canvas.discardActiveObject().renderAll()
-    this.editor.history.save()
-    this.updateContextObjects()
+    this.canvas.discardActiveObject();
+    this.canvas.renderAll();
   }
 
   public list = () => {
     const objects = this.canvas.getObjects()
-    const filteredObjects = objects.filter((o) => {
+    return objects.filter((o) => {
       return o.type !== LayerType.FRAME && o.type !== LayerType.BACKGROUND
     })
-    return filteredObjects
   }
 
   public copyStyle = () => {
@@ -547,8 +542,7 @@ class Objects extends Base {
         const refTop = refObject.top
         this.canvas.discardActiveObject()
         selectedObjects.forEach((object) => {
-          const currentObject = object
-          currentObject.set({
+          object.set({
             top: refTop,
           })
         })
@@ -558,8 +552,7 @@ class Objects extends Base {
         this.canvas.setActiveObject(selection)
         this.state.setActiveObject(selection)
       } else {
-        const currentObject = refObject
-        currentObject.set({
+        refObject.set({
           top: frame.top,
         })
       }
@@ -663,8 +656,7 @@ class Objects extends Base {
         const refLeft = refObject.left
         this.canvas.discardActiveObject()
         selectedObjects.forEach((object) => {
-          const currentObject = object
-          currentObject.set({
+          object.set({
             left: refLeft,
           })
         })
@@ -674,8 +666,7 @@ class Objects extends Base {
         this.canvas.setActiveObject(selection)
         this.state.setActiveObject(selection)
       } else {
-        const currentObject = refObject
-        currentObject.set({
+        refObject.set({
           left: frame.left,
         })
       }
