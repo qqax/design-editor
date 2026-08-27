@@ -6,7 +6,7 @@
  *    "./theme.css": "./dist/theme.css" export map entry. tsup does not process
  *    static CSS assets, so the copy must happen here.
  */
-import { copyFileSync, readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
@@ -23,7 +23,8 @@ function walk(dir) {
       walk(full)
     } else if (full.endsWith('.js') || full.endsWith('.cjs')) {
       const content = readFileSync(full, 'utf8')
-      if (!content.startsWith("'use client'")) {
+      const hasUseClient = /^\s*['"]use client['"]/.test(content)
+      if (!hasUseClient) {
         writeFileSync(full, `'use client'\n${content}`)
         console.log(`[use-client] prepended to: ${full}`)
       }
