@@ -1,12 +1,13 @@
-import React from 'react'
-import { Image as ImageIcon, Type, Video, Shapes, Folder } from 'lucide-react'
+import React from 'react';
+
+import { Folder, Image as ImageIcon, Shapes, Type, Video } from 'lucide-react';
 
 export interface LayerItem {
-  id: string
-  type: string
-  name: string
-  visible: boolean
-  children?: LayerItem[]
+  id: string;
+  type: string;
+  name: string;
+  visible: boolean;
+  children?: LayerItem[];
 }
 
 export const TYPE_ICONS: Record<string, React.ReactNode> = {
@@ -18,7 +19,7 @@ export const TYPE_ICONS: Record<string, React.ReactNode> = {
   StaticPath: React.createElement(Shapes, { size: 14 }),
   StaticVector: React.createElement(Shapes, { size: 14 }),
   Group: React.createElement(Folder, { size: 14 }),
-}
+};
 
 export const ICON_BTN: React.CSSProperties = {
   background: 'none',
@@ -31,12 +32,12 @@ export const ICON_BTN: React.CSSProperties = {
   color: 'var(--color-text)',
   borderRadius: 4,
   transition: 'background 0.1s',
-}
+};
 
 export interface LayerCallbacks {
-  onSelect: (id: string, multi: boolean) => void
-  onVisibilityChange: (id: string, visible: boolean) => void
-  onDelete: (id: string) => void
-  onDuplicate: (id: string) => void
-  onRename: (id: string, name: string) => void
+  onSelect: (id: string, multi: boolean) => void;
+  onVisibilityChange: (id: string, visible: boolean) => void;
+  onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  onRename: (id: string, name: string) => void;
 }

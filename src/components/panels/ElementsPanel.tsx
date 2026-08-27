@@ -1,21 +1,28 @@
-'use client'
-import React, { useEffect, useRef, useState } from 'react'
-import { ChevronRight } from 'lucide-react'
-import { useSceneThumbnail } from './_shared/useSceneThumbnail'
-import { SHAPES } from './ShapesPanel'
-import { STICKERS } from './StickersPanel'
-import type { TextDesign, TextDesignProvider } from '../../providers/textDesigns'
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
+
+import { ChevronRight } from 'lucide-react';
+
+import { useSceneThumbnail } from './_shared/useSceneThumbnail';
+import { SHAPES } from './ShapesPanel';
+import { STICKERS } from './StickersPanel';
+
+import type {
+  TextDesign,
+  TextDesignProvider,
+} from '../../providers/textDesigns';
 
 // ─────────────────────────────────────────────────────────────
 // PROPS
 // ─────────────────────────────────────────────────────────────
 
 interface ElementsPanelProps {
-  textDesignProvider: TextDesignProvider
-  onApplyTextDesign: (design: TextDesign) => void
-  onAddShape: (shape: string) => void
-  onAddSticker: (sticker: string) => void
-  onSeeAll: (panel: 'text' | 'shapes' | 'stickers') => void
+  textDesignProvider: TextDesignProvider;
+  onApplyTextDesign: (design: TextDesign) => void;
+  onAddShape: (shape: string) => void;
+  onAddSticker: (sticker: string) => void;
+  onSeeAll: (panel: 'text' | 'shapes' | 'stickers') => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -29,56 +36,91 @@ export function ElementsPanel({
   onAddSticker,
   onSeeAll,
 }: ElementsPanelProps) {
-  const [textDesigns, setTextDesigns] = useState<TextDesign[]>([])
+  const [textDesigns, setTextDesigns] = useState<TextDesign[]>([]);
 
   useEffect(() => {
-    textDesignProvider.list({ limit: 6 }).then(result => {
-      setTextDesigns(result.items)
-    }).catch(() => {/* ignore */})
-  }, [textDesignProvider])
+    textDesignProvider
+      .list({ limit: 6 })
+      .then((result) => {
+        setTextDesigns(result.items);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+  }, [textDesignProvider]);
 
   // First 6 shapes & stickers
-  const previewShapes = SHAPES.slice(0, 6)
-  const previewStickers = STICKERS.slice(0, 6)
+  const previewShapes = SHAPES.slice(0, 6);
+  const previewStickers = STICKERS.slice(0, 6);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', padding: '8px 0 24px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflowY: 'auto',
+        padding: '8px 0 24px',
+      }}
+    >
       {/* TEXT DESIGNS */}
       <Section
-        title="Text"
-        count={SHAPES.length /* placeholder; text provider total unknown without extra call */}
         onSeeAll={() => onSeeAll('text')}
+        title="Text"
         totalOverride={textDesigns.length > 0 ? undefined : undefined}
+        count={
+          SHAPES.length /* placeholder; text provider total unknown without extra call */
+        }
       >
-        {textDesigns.map(design => (
-          <TextDesignThumb key={design.id} design={design} onClick={() => onApplyTextDesign(design)} />
+        {textDesigns.map((design) => (
+          <TextDesignThumb
+            key={design.id}
+            design={design}
+            onClick={() => onApplyTextDesign(design)}
+          />
         ))}
-        {textDesigns.length === 0 && (
-          <PlaceholderThumb label="Text" />
-        )}
+        {textDesigns.length === 0 && <PlaceholderThumb label="Text" />}
       </Section>
 
       {/* SHAPES */}
-      <Section title="Shapes" count={SHAPES.length} onSeeAll={() => onSeeAll('shapes')}>
-        {previewShapes.map(shape => {
-          const src = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`
+      <Section
+        count={SHAPES.length}
+        onSeeAll={() => onSeeAll('shapes')}
+        title="Shapes"
+      >
+        {previewShapes.map((shape) => {
+          const src = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`;
           return (
-            <ImageThumb key={shape.id} src={src} label={shape.label} onClick={() => onAddShape(src)} />
-          )
+            <ImageThumb
+              key={shape.id}
+              label={shape.label}
+              onClick={() => onAddShape(src)}
+              src={src}
+            />
+          );
         })}
       </Section>
 
       {/* STICKERS */}
-      <Section title="Stickers" count={STICKERS.length} onSeeAll={() => onSeeAll('stickers')}>
-        {previewStickers.map(sticker => {
-          const src = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/stickers/${sticker.category}/${sticker.file}`
+      <Section
+        count={STICKERS.length}
+        onSeeAll={() => onSeeAll('stickers')}
+        title="Stickers"
+      >
+        {previewStickers.map((sticker) => {
+          const src = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/stickers/${sticker.category}/${sticker.file}`;
           return (
-            <ImageThumb key={sticker.id} src={src} label={sticker.label} onClick={() => onAddSticker(src)} />
-          )
+            <ImageThumb
+              key={sticker.id}
+              label={sticker.label}
+              onClick={() => onAddSticker(src)}
+              src={src}
+            />
+          );
         })}
       </Section>
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -92,18 +134,29 @@ function Section({
   totalOverride,
   children,
 }: {
-  title: string
-  count: number
-  onSeeAll: () => void
-  totalOverride?: number
-  children: React.ReactNode
+  title: string;
+  count: number;
+  onSeeAll: () => void;
+  totalOverride?: number;
+  children: React.ReactNode;
 }) {
-  const displayCount = totalOverride ?? count
+  const displayCount = totalOverride ?? count;
   return (
     <div style={{ padding: '12px 16px 0' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}>{title}</span>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 8,
+        }}
+      >
+        <span
+          style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}
+        >
+          {title}
+        </span>
         <button
           onClick={onSeeAll}
           style={{
@@ -130,25 +183,36 @@ function Section({
           padding: 4,
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-        } as React.CSSProperties}
+        }}
       >
         {children}
       </div>
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
 // TEXT DESIGN THUMB  (renders scene via useSceneThumbnail)
 // ─────────────────────────────────────────────────────────────
 
-function TextDesignThumb({ design, onClick }: { design: TextDesign; onClick: () => void }) {
-  const ref = useRef<HTMLButtonElement>(null!)
+function TextDesignThumb({
+  design,
+  onClick,
+}: {
+  design: TextDesign;
+  onClick: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null!);
   const { src, loading } = useSceneThumbnail(
-    { id: design.id, scene: design.scene, thumbnailUrl: design.thumbnailUrl, canvasBg: design.canvasBg },
-    ref as React.RefObject<HTMLElement>,
-  )
-  const [hovered, setHovered] = useState(false)
+    {
+      id: design.id,
+      scene: design.scene,
+      thumbnailUrl: design.thumbnailUrl,
+      canvasBg: design.canvasBg,
+    },
+    ref
+  );
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
@@ -175,26 +239,43 @@ function TextDesignThumb({ design, onClick }: { design: TextDesign; onClick: () 
     >
       {src ? (
         <img
-          src={src}
           alt={design.name}
           draggable={false}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }}
+          src={src}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            pointerEvents: 'none',
+          }}
         />
       ) : loading ? (
-        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>…</span>
+        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+          …
+        </span>
       ) : (
-        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>{design.name}</span>
+        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+          {design.name}
+        </span>
       )}
     </button>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
 // IMAGE THUMB  (shapes / stickers)
 // ─────────────────────────────────────────────────────────────
 
-function ImageThumb({ src, label, onClick }: { src: string; label: string; onClick: () => void }) {
-  const [hovered, setHovered] = useState(false)
+function ImageThumb({
+  src,
+  label,
+  onClick,
+}: {
+  src: string;
+  label: string;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
 
   return (
     <button
@@ -219,14 +300,21 @@ function ImageThumb({ src, label, onClick }: { src: string; label: string; onCli
       }}
     >
       <img
-        src={src}
         alt={label}
         draggable={false}
-        style={{ width: '78%', height: '78%', objectFit: 'contain', pointerEvents: 'none' }}
-        onError={e => { e.currentTarget.style.display = 'none' }}
+        src={src}
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+        }}
+        style={{
+          width: '78%',
+          height: '78%',
+          objectFit: 'contain',
+          pointerEvents: 'none',
+        }}
       />
     </button>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -251,5 +339,5 @@ function PlaceholderThumb({ label }: { label: string }) {
     >
       {label}
     </div>
-  )
+  );
 }

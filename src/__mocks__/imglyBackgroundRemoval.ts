@@ -8,6 +8,6 @@
  */
 export async function removeBackground(): Promise<Blob> {
   throw new Error(
-    '@imgly/background-removal is not installed. Install it as a peer dependency.',
-  )
+    '@imgly/background-removal is not installed. Install it as a peer dependency.'
+  );
 }

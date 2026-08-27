@@ -5,8 +5,8 @@
  */
 export interface BackgroundRemovalProvider {
   /** Remove the background from the given image and return a transparent-PNG Blob. */
-  remove(
+  remove: (
     input: string | Blob,
-    opts?: { signal?: AbortSignal; onProgress?: (pct: number) => void },
-  ): Promise<Blob>
+    opts?: { signal?: AbortSignal; onProgress?: (pct: number) => void }
+  ) => Promise<Blob>;
 }

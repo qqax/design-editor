@@ -1,28 +1,39 @@
-import { EditorState } from "./common/interfaces"
+import type { EditorState } from './common/interfaces';
 
 export default class State implements EditorState {
-  public frame = null
-  public activeObject = null
-  public objects = []
-  public zoomRatio = 1
-  public contextMenuRequest = null
-  public editor = null
+  public frame = null;
+
+  public activeObject = null;
+
+  public objects = [];
+
+  public zoomRatio = 1;
+
+  public contextMenuRequest = null;
+
+  public editor = null;
+
   public setFrame(o: any) {
-    this.frame = o
+    this.frame = o;
   }
+
   public setActiveObject(o: any) {
-    this.activeObject = o
+    this.activeObject = o;
   }
+
   public setObjects(o: any) {
-    this.objects = o
+    this.objects = o;
   }
+
   public setZoomRatio(o: any) {
-    this.zoomRatio = o
+    this.zoomRatio = o;
   }
+
   public setContextMenuRequest(o: any) {
-    this.contextMenuRequest = o
+    this.contextMenuRequest = o;
   }
+
   public setEditor(o: any) {
-    this.editor = o
+    this.editor = o;
   }
 }

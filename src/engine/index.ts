@@ -2,77 +2,77 @@
 // See src/engine/README.md for attribution
 
 // ── types ── (canonical source for shared names: Dimension, LayerType, etc.)
-export * from './types'
+export * from './types';
 
 // ── objects ──
-export * from './objects'
+export * from './objects';
 
 // ── react ──
-export * from './react'
+export * from './react';
 
 // ── core ─────────────────────────────────────────────────────────────────────
 // Main classes (exported as default from their modules)
-export { Editor } from './core/editor'
-export { default as Canvas } from './core/canvas'
-export { default as EditorState } from './core/state'
-export { default as EventManager } from './core/event-manager'
+export { Editor } from './core/editor';
+export { default as Canvas } from './core/canvas';
+export { default as EditorState } from './core/state';
+export { default as EventManager } from './core/event-manager';
 
 // constants — omit LayerType (comes from ./types)
 export {
-  PROPERTIES_TO_INCLUDE,
+  commonParams,
+  copyStyleProps,
+  defaultBackgroundOptions,
   defaultEditorConfig,
   defaultFrameOptions,
-  defaultBackgroundOptions,
-  commonParams,
   getCopyStyleCursor,
-  copyStyleProps,
-} from './core/common/constants'
+  PROPERTIES_TO_INCLUDE,
+} from './core/common/constants';
 
 // interfaces — omit Dimension (comes from ./types)
 export type {
-  Direction,
-  Size,
-  ScaleType,
-  FabricWheelEvent,
-  ControllerOptions,
   CanvasOptions,
-  FabricCanvasOption,
-  FabricCanvas,
-  Template,
-  GradientOptions,
-  ShadowOptions,
+  ControllerOptions,
+  Direction,
   EditorState as IEditorState,
-} from './core/common/interfaces'
+  FabricCanvas,
+  FabricCanvasOption,
+  FabricWheelEvent,
+  GradientOptions,
+  ScaleType,
+  ShadowOptions,
+  Size,
+  Template,
+} from './core/common/interfaces';
 
 // event-manager types
 export type {
+  Emitter,
+  EventHandlerList,
+  EventHandlerMap,
   EventType,
   Handler,
-  WildcardHandler,
-  EventHandlerList,
   WildCardEventHandlerList,
-  EventHandlerMap,
-  Emitter,
-} from './core/event-manager'
+  WildcardHandler,
+} from './core/event-manager';
 
 // controllers
-export * from './core/controllers/Base'
-export * from './core/controllers/History'
-export * from './core/controllers/Objects'
-export * from './core/controllers/Scene'
-export * from './core/controllers/Frame'
-export * from './core/controllers/Events'
-export * from './core/controllers/Guidelines'
-export * from './core/controllers/Zoom'
-export * from './core/controllers/Personalization'
-export * from './core/controllers/Renderer'
+export * from './core/controllers/Base';
+export * from './core/controllers/History';
+export * from './core/controllers/Objects';
+export * from './core/controllers/Scene';
+export * from './core/controllers/Frame';
+export * from './core/controllers/Events';
+export * from './core/controllers/Guidelines';
+export * from './core/controllers/Zoom';
+export * from './core/controllers/Personalization';
+export * from './core/controllers/Renderer';
 
 // parser
-export * from './core/parser'
+export * from './core/parser';
 
 // utils
-export * from './core/utils/image-loader'
-export * from './core/utils/object-exporter'
-export * from './core/utils/object-importer'
-export * from './core/utils/text'
-export * from './core/utils/get-selection-type'
+export * from './core/utils/image-loader';
+export * from './core/utils/object-exporter';
+export * from './core/utils/object-importer';
+export * from './core/utils/text';
+export * from './core/utils/get-selection-type';

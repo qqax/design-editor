@@ -1,6 +1,6 @@
-export * from './fonts'
-export * from './backgroundRemoval'
-export * from './persistence'
-export * from './defaults'
-export * from './templates'
-export * from './textDesigns'
+export type * from './fonts';
+export type * from './backgroundRemoval';
+export type * from './persistence';
+export * from './defaults';
+export type * from './templates';
+export type * from './textDesigns';

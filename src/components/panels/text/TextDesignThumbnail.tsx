@@ -1,26 +1,34 @@
-'use client'
-import * as React from 'react'
-import type { TextDesign } from '../../../providers/textDesigns'
-import { useSceneThumbnail } from '../_shared/useSceneThumbnail'
+'use client';
+
+import * as React from 'react';
+
+import { useSceneThumbnail } from '../_shared/useSceneThumbnail';
+
+import type { TextDesign } from '../../../providers/textDesigns';
 
 interface Props {
-  textDesign: TextDesign
-  onClick: (t: TextDesign) => void
+  textDesign: TextDesign;
+  onClick: (t: TextDesign) => void;
 }
 
 export function TextDesignThumbnail({ textDesign, onClick }: Props) {
-  const ref = React.useRef<HTMLButtonElement>(null)
-  const { src, loading } = useSceneThumbnail({
-    id: textDesign.id,
-    scene: textDesign.scene,
-    thumbnailUrl: textDesign.thumbnailUrl,
-    canvasBg: textDesign.canvasBg,
-  }, ref as any)
+  const ref = React.useRef<HTMLButtonElement>(null);
+  const { src, loading } = useSceneThumbnail(
+    {
+      id: textDesign.id,
+      scene: textDesign.scene,
+      thumbnailUrl: textDesign.thumbnailUrl,
+      canvasBg: textDesign.canvasBg,
+    },
+    ref
+  );
 
   const aspectRatio =
-    textDesign.scene?.frame && textDesign.scene.frame.width && textDesign.scene.frame.height
+    textDesign.scene?.frame &&
+    textDesign.scene.frame.width &&
+    textDesign.scene.frame.height
       ? `${textDesign.scene.frame.width} / ${textDesign.scene.frame.height}`
-      : '1 / 1'
+      : '1 / 1';
 
   return (
     <button
@@ -41,9 +49,14 @@ export function TextDesignThumbnail({ textDesign, onClick }: Props) {
     >
       {src ? (
         <img
-          src={src}
           alt={textDesign.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          src={src}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+          }}
         />
       ) : (
         <div
@@ -59,5 +72,5 @@ export function TextDesignThumbnail({ textDesign, onClick }: Props) {
         />
       )}
     </button>
-  )
+  );
 }

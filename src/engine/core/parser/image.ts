@@ -19,4 +19,4 @@
 //     metadata,
 //   }
 // }
-export default {}
+export default {};

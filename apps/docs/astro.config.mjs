@@ -1,5 +1,5 @@
-import { defineConfig } from 'astro/config'
-import starlight from '@astrojs/starlight'
+import starlight from '@astrojs/starlight';
+import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://fastlabai.github.io',
@@ -7,8 +7,8 @@ export default defineConfig({
 
   vite: {
     ssr: {
-      noExternal: ['nanoid']
-    }
+      noExternal: ['nanoid'],
+    },
   },
 
   integrations: [
@@ -16,7 +16,11 @@ export default defineConfig({
       title: '@fastlabai/design-editor',
       customCss: ['./src/styles/custom.css'],
       social: [
-        { icon: 'github', label: 'GitHub', href: 'https://github.com/fastlabai/design-editor' },
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/fastlabai/design-editor',
+        },
       ],
       sidebar: [
         { label: 'Getting Started', link: '/getting-started' },
@@ -27,7 +31,10 @@ export default defineConfig({
           items: [
             { label: 'Media', link: '/providers/media' },
             { label: 'Fonts', link: '/providers/fonts' },
-            { label: 'Background Removal', link: '/providers/background-removal' },
+            {
+              label: 'Background Removal',
+              link: '/providers/background-removal',
+            },
             { label: 'Persistence', link: '/providers/persistence' },
           ],
         },
@@ -35,4 +42,4 @@ export default defineConfig({
       ],
     }),
   ],
-})
+});

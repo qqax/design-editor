@@ -1,17 +1,17 @@
 export default function (selection: any): string[] | null {
-  const types = new Set<string>()
+  const types = new Set<string>();
   if (!selection) {
-    return null
+    return null;
   }
   if (selection._objects) {
     for (const object of selection._objects) {
-      types.add(object.type)
+      types.add(object.type);
     }
   } else {
-    types.add(selection.type)
+    types.add(selection.type);
   }
 
-  const typesArray = Array.from(types)
+  const typesArray = Array.from(types);
 
-  return typesArray
+  return typesArray;
 }

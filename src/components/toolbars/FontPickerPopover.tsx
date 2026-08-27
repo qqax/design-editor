@@ -1,71 +1,96 @@
-'use client'
-import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { ChevronDown, Upload } from 'lucide-react'
-import { Popover, Input } from '../primitives'
-import type { FontProvider, FontDescriptor } from '../../providers/fonts'
+'use client';
+
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+import { ChevronDown, Upload } from 'lucide-react';
+
+import { Input, Popover } from '../primitives';
+
+import type { FontDescriptor, FontProvider } from '../../providers/fonts';
 
 interface FontPickerPopoverProps {
-  fontProvider: FontProvider
-  currentFamily: string | undefined
-  onChange: (family: string) => void
+  fontProvider: FontProvider;
+  currentFamily: string | undefined;
+  onChange: (family: string) => void;
 }
 
-export function FontPickerPopover({ fontProvider, currentFamily, onChange }: FontPickerPopoverProps) {
-  const [open, setOpen] = useState(false)
-  const [fonts, setFonts] = useState<FontDescriptor[]>([])
-  const [search, setSearch] = useState('')
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function FontPickerPopover({
+  fontProvider,
+  currentFamily,
+  onChange,
+}: FontPickerPopoverProps) {
+  const [open, setOpen] = useState(false);
+  const [fonts, setFonts] = useState<FontDescriptor[]>([]);
+  const [search, setSearch] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Subscribe to provider changes (e.g. upload)
   useEffect(() => {
-    if (!fontProvider.onChange) return
+    if (!fontProvider.onChange) return;
     const unsub = fontProvider.onChange(() => {
-      fontProvider.list().then(setFonts)
-    })
-    return unsub
-  }, [fontProvider])
+      fontProvider.list().then(setFonts);
+    });
+    return unsub;
+  }, [fontProvider]);
 
   // When popover opens: load list and fire-and-forget loads for previews
-  const handleOpenChange = useCallback((next: boolean) => {
-    setOpen(next)
-    if (next) {
-      fontProvider.list().then(list => {
-        setFonts(list)
-        // Fire-and-forget: load each font for preview rendering
-        list.forEach(f => { fontProvider.load(f.family).catch(() => {/* ignore */}) })
-      })
-    } else {
-      setSearch('')
-    }
-  }, [fontProvider])
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      setOpen(next);
+      if (next) {
+        fontProvider.list().then((list) => {
+          setFonts(list);
+          // Fire-and-forget: load each font for preview rendering
+          list.forEach((f) => {
+            fontProvider.load(f.family).catch(() => {
+              /* ignore */
+            });
+          });
+        });
+      } else {
+        setSearch('');
+      }
+    },
+    [fontProvider]
+  );
 
-  const filtered = fonts.filter(f =>
-    f.family.toLowerCase().includes(search.toLowerCase()),
-  )
+  const filtered = fonts.filter((f) =>
+    f.family.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const handleSelect = useCallback(async (family: string) => {
-    await fontProvider.load(family).catch(() => {/* ignore */})
-    onChange(family)
-    setOpen(false)
-    setSearch('')
-  }, [fontProvider, onChange])
+  const handleSelect = useCallback(
+    async (family: string) => {
+      await fontProvider.load(family).catch(() => {
+        /* ignore */
+      });
+      onChange(family);
+      setOpen(false);
+      setSearch('');
+    },
+    [fontProvider, onChange]
+  );
 
-  const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    try {
-      await fontProvider.upload(file)
-      // onChange subscriber will refresh the list
-    } catch {
-      // Upload failed — silently ignore; list stays unchanged
-    }
-    e.target.value = ''
-  }, [fontProvider])
+  const handleUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        await fontProvider.upload(file);
+        // onChange subscriber will refresh the list
+      } catch {
+        // Upload failed — silently ignore; list stays unchanged
+      }
+      e.target.value = '';
+    },
+    [fontProvider]
+  );
 
   const trigger = (
     <button
       style={{
-        display: 'flex', alignItems: 'center', gap: 4,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
         padding: '4px 8px',
         background: 'var(--color-bg)',
         border: '1px solid var(--color-border)',
@@ -74,7 +99,9 @@ export function FontPickerPopover({ fontProvider, currentFamily, onChange }: Fon
         fontSize: 12,
         cursor: 'pointer',
         outline: 'none',
-        fontFamily: currentFamily ? `'${currentFamily}', sans-serif` : 'inherit',
+        fontFamily: currentFamily
+          ? `'${currentFamily}', sans-serif`
+          : 'inherit',
         maxWidth: 140,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
@@ -86,56 +113,74 @@ export function FontPickerPopover({ fontProvider, currentFamily, onChange }: Fon
       </span>
       <ChevronDown size={12} style={{ flexShrink: 0 }} />
     </button>
-  )
+  );
 
   const popoverContent = (
-    <div style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 0 }}>
+    <div
+      style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 0 }}
+    >
       {/* Search */}
       <div style={{ padding: '8px 8px 4px' }}>
         <Input
-          placeholder="Search fonts…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ width: '100%', fontSize: 12 }}
           autoFocus
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search fonts…"
+          style={{ width: '100%', fontSize: 12 }}
+          value={search}
         />
       </div>
 
       {/* Scrollable font list */}
       <div style={{ maxHeight: 360, overflowY: 'auto', padding: '4px 0' }}>
-        {filtered.map(f => (
+        {filtered.map((f) => (
           <div
             key={f.family}
-            onClick={() => handleSelect(f.family)}
+            onClick={async () => handleSelect(f.family)}
+            onMouseEnter={(e) => {
+              if (f.family !== currentFamily) {
+                e.currentTarget.style.background =
+                  'color-mix(in srgb, var(--color-text) 6%, var(--color-surface))';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (f.family !== currentFamily) {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
             style={{
               padding: '6px 12px',
               cursor: 'pointer',
-              background: f.family === currentFamily
-                ? 'color-mix(in srgb, var(--color-primary) 12%, var(--color-surface))'
-                : 'transparent',
-              borderLeft: f.family === currentFamily
-                ? '2px solid var(--color-primary)'
-                : '2px solid transparent',
+              background:
+                f.family === currentFamily
+                  ? 'color-mix(in srgb, var(--color-primary) 12%, var(--color-surface))'
+                  : 'transparent',
+              borderLeft:
+                f.family === currentFamily
+                  ? '2px solid var(--color-primary)'
+                  : '2px solid transparent',
               display: 'flex',
               flexDirection: 'column',
               gap: 1,
             }}
-            onMouseEnter={e => {
-              if (f.family !== currentFamily) {
-                (e.currentTarget as HTMLDivElement).style.background =
-                  'color-mix(in srgb, var(--color-text) 6%, var(--color-surface))'
-              }
-            }}
-            onMouseLeave={e => {
-              if (f.family !== currentFamily) {
-                (e.currentTarget as HTMLDivElement).style.background = 'transparent'
-              }
-            }}
           >
-            <span style={{ fontSize: 10, color: 'var(--color-text-muted)', fontWeight: 600 }}>
+            <span
+              style={{
+                fontSize: 10,
+                color: 'var(--color-text-muted)',
+                fontWeight: 600,
+              }}
+            >
               {f.family}
               {f.source === 'custom' && (
-                <span style={{ marginLeft: 4, fontSize: 9, color: 'var(--color-primary)' }}>Custom</span>
+                <span
+                  style={{
+                    marginLeft: 4,
+                    fontSize: 9,
+                    color: 'var(--color-primary)',
+                  }}
+                >
+                  Custom
+                </span>
               )}
             </span>
             <span
@@ -151,7 +196,14 @@ export function FontPickerPopover({ fontProvider, currentFamily, onChange }: Fon
           </div>
         ))}
         {filtered.length === 0 && (
-          <div style={{ padding: '12px', fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center' }}>
+          <div
+            style={{
+              padding: '12px',
+              fontSize: 12,
+              color: 'var(--color-text-muted)',
+              textAlign: 'center',
+            }}
+          >
             No fonts found
           </div>
         )}
@@ -167,12 +219,22 @@ export function FontPickerPopover({ fontProvider, currentFamily, onChange }: Fon
         <button
           onClick={() => fileInputRef.current?.click()}
           style={{
-            width: '100%', padding: '7px',
-            background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)',
-            border: '1px dashed color-mix(in srgb, var(--color-primary) 35%, transparent)',
-            borderRadius: 6, color: 'var(--color-primary)', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-            fontSize: 11, fontWeight: 600, outline: 'none',
+            width: '100%',
+            padding: '7px',
+            background:
+              'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+            border:
+              '1px dashed color-mix(in srgb, var(--color-primary) 35%, transparent)',
+            borderRadius: 6,
+            color: 'var(--color-primary)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 5,
+            fontSize: 11,
+            fontWeight: 600,
+            outline: 'none',
           }}
         >
           <Upload size={14} />
@@ -180,23 +242,23 @@ export function FontPickerPopover({ fontProvider, currentFamily, onChange }: Fon
         </button>
         <input
           ref={fileInputRef}
-          type="file"
           accept=".ttf,.otf,.woff,.woff2"
-          style={{ display: 'none' }}
           onChange={handleUpload}
+          style={{ display: 'none' }}
+          type="file"
         />
       </div>
     </div>
-  )
+  );
 
   return (
     <Popover
       content={popoverContent}
-      open={open}
       onOpenChange={handleOpenChange}
+      open={open}
       placement="top"
     >
       {trigger}
     </Popover>
-  )
+  );
 }

@@ -1,67 +1,65 @@
-import { Group, classRegistry, loadSVGFromURL } from "fabric"
-import type { GroupProps } from "fabric"
-import groupBy from "lodash/groupBy"
+import { classRegistry, Group, loadSVGFromURL } from 'fabric';
+import groupBy from 'lodash/groupBy';
 
 export class StaticVector extends Group {
-  static type = "StaticVector"
-  
-  get type() {
-    return "StaticVector"
-  }
+  static type = 'StaticVector';
+
   set type(_value: string) {
     // fixed value — intentional no-op
   }
 
-  public src: string
-  public objectColors: Record<string, any[]> = {}
-  public colorMap: Record<string, string> = {}
+  public src: string;
+
+  public objectColors: Record<string, any[]> = {};
+
+  public colorMap: Record<string, string> = {};
 
   constructor(objects: any[], options: any, others: any) {
-    const existingColorMap = others.colorMap
-    const objectColors = groupBy(objects, "fill")
-    
+    const existingColorMap = others.colorMap;
+    const objectColors = groupBy(objects, 'fill');
+
     // set colorMap
     if (existingColorMap) {
       Object.keys(existingColorMap).forEach((color) => {
-        const colorObjects = objectColors[color]
+        const colorObjects = objectColors[color];
         if (colorObjects) {
           colorObjects.forEach((c: any) => {
-            c.fill = existingColorMap[color]
-          })
+            c.fill = existingColorMap[color];
+          });
         }
-      })
+      });
     }
 
-    const colorMap: Record<string, string> = {}
+    const colorMap: Record<string, string> = {};
 
     Object.keys(objectColors).forEach((c) => {
-      colorMap[c] = c
-    })
+      colorMap[c] = c;
+    });
     if (existingColorMap) {
       Object.keys(existingColorMap).forEach((c) => {
-        colorMap[c] = existingColorMap[c]
-      })
+        colorMap[c] = existingColorMap[c];
+      });
     }
 
     // Fabric 6 groups don't have util.groupSVGElements in the same way,
-    // usually loadSVGFromURL returns { objects, options }. 
+    // usually loadSVGFromURL returns { objects, options }.
     // We just pass objects to Group directly.
-    super(objects, { ...options, ...others, colorMap } as any)
+    super(objects, { ...options, ...others, colorMap });
 
-    this.objectColors = objectColors
-    this.colorMap = colorMap
-    this.src = others.src
+    this.objectColors = objectColors;
+    this.colorMap = colorMap;
+    this.src = others.src;
   }
 
   public updateLayerColor(prev: string, next: string) {
-    const sameObjects = this.objectColors[prev]
+    const sameObjects = this.objectColors[prev];
 
     if (sameObjects) {
       sameObjects.forEach((c) => {
-        c.fill = next
-      })
-      this.canvas?.requestRenderAll()
-      this.colorMap[prev] = next
+        c.fill = next;
+      });
+      this.canvas?.requestRenderAll();
+      this.colorMap[prev] = next;
     }
   }
 
@@ -70,7 +68,7 @@ export class StaticVector extends Group {
     return {
       ...super.toObject(propertiesToInclude as any),
       src: this.src,
-    }
+    };
   }
 
   // @ts-ignore
@@ -78,26 +76,26 @@ export class StaticVector extends Group {
     return {
       ...super.toObject(propertiesToInclude as any),
       src: this.src,
-    }
+    };
   }
 
   static async fromObject(options: any): Promise<StaticVector> {
     return new Promise((resolve, reject) => {
       loadSVGFromURL(options.src)
         .then(({ objects, options: svgOptions }) => {
-          resolve(new StaticVector(objects as any, svgOptions, options))
+          resolve(new StaticVector(objects as any, svgOptions, options));
         })
-        .catch(reject)
-    })
+        .catch(reject);
+    });
   }
 }
 
-classRegistry.setClass(StaticVector, StaticVector.type)
+classRegistry.setClass(StaticVector, StaticVector.type);
 
-export type SvgOptions = Group & { text: string }
+export type SvgOptions = Group & { text: string };
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface StaticVector {}
 }
 
-export default StaticVector
+export default StaticVector;

@@ -1,26 +1,34 @@
-'use client'
-import * as React from 'react'
-import type { DesignTemplate } from '../../../providers/templates'
-import { useSceneThumbnail } from '../_shared/useSceneThumbnail'
+'use client';
+
+import * as React from 'react';
+
+import { useSceneThumbnail } from '../_shared/useSceneThumbnail';
+
+import type { DesignTemplate } from '../../../providers/templates';
 
 interface Props {
-  template: DesignTemplate
-  onClick: (t: DesignTemplate) => void
+  template: DesignTemplate;
+  onClick: (t: DesignTemplate) => void;
 }
 
 export function TemplateThumbnail({ template, onClick }: Props) {
-  const ref = React.useRef<HTMLButtonElement>(null)
-  const { src, loading } = useSceneThumbnail({
-    id: template.id,
-    scene: template.scene,
-    thumbnailUrl: template.thumbnailUrl,
-    canvasBg: template.canvasBg,
-  }, ref as any)
+  const ref = React.useRef<HTMLButtonElement>(null);
+  const { src, loading } = useSceneThumbnail(
+    {
+      id: template.id,
+      scene: template.scene,
+      thumbnailUrl: template.thumbnailUrl,
+      canvasBg: template.canvasBg,
+    },
+    ref
+  );
 
   const aspectRatio =
-    template.scene?.frame && template.scene.frame.width && template.scene.frame.height
+    template.scene?.frame &&
+    template.scene.frame.width &&
+    template.scene.frame.height
       ? `${template.scene.frame.width} / ${template.scene.frame.height}`
-      : '1 / 1'
+      : '1 / 1';
 
   return (
     <button
@@ -41,9 +49,14 @@ export function TemplateThumbnail({ template, onClick }: Props) {
     >
       {src ? (
         <img
-          src={src}
           alt={template.name}
-          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          src={src}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+          }}
         />
       ) : (
         <div
@@ -59,5 +72,5 @@ export function TemplateThumbnail({ template, onClick }: Props) {
         />
       )}
     </button>
-  )
+  );
 }

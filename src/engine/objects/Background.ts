@@ -1,36 +1,38 @@
-import { Rect, Shadow, classRegistry } from "fabric"
-import type { RectProps, SerializedRectProps, ObjectEvents } from "fabric"
+import { classRegistry, Rect, Shadow } from 'fabric';
+
+import type { ObjectEvents, RectProps, SerializedRectProps } from 'fabric';
 
 const defaultShadow = {
   blur: 10,
-  color: "#C7C7C7",
+  color: '#C7C7C7',
   offsetX: 0,
   offsetY: 0,
-}
+};
 
 export interface BackgroundOptions extends RectProps {
-  id: string
-  name: string
-  description?: string
+  id: string;
+  name: string;
+  description?: string;
 }
 
 export class Background extends Rect {
-  static type = "Background"
+  static type = 'Background';
 
   get type() {
-    return "Background"
+    return 'Background';
   }
+
   set type(_value: string) {
     // fixed value — intentional no-op
   }
 
   constructor(options: BackgroundOptions) {
-    const shadowOptions = options.shadow ? options.shadow : defaultShadow
+    const shadowOptions = options.shadow ? options.shadow : defaultShadow;
     const shadow = new Shadow({
       affectStroke: false,
       ...(shadowOptions as any),
-    })
-    
+    });
+
     super({
       ...options,
       selectable: false,
@@ -40,37 +42,37 @@ export class Background extends Rect {
       lockMovementX: true,
       strokeWidth: 0,
       evented: true,
-      hoverCursor: "default",
+      hoverCursor: 'default',
       shadow,
-    })
+    });
 
-    this.on("mouseup", ({ target }) => {
+    this.on('mouseup', ({ target }) => {
       // @ts-ignore — vendored: canvas is non-null at runtime when object is on canvas
-      const activeSelection = this.canvas?.getActiveObject()
+      const activeSelection = this.canvas?.getActiveObject();
       if (!activeSelection && target === this) {
         // @ts-ignore — vendored
-        this.canvas?.fire("background:selected")
+        this.canvas?.fire('background:selected');
       }
-    })
+    });
   }
 
   // @ts-ignore
   toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any)
+    return super.toObject(propertiesToInclude as any);
   }
 
   // @ts-ignore
   toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any)
+    return super.toObject(propertiesToInclude as any);
   }
 
   static async fromObject(options: BackgroundOptions) {
-    return new Background(options)
+    return new Background(options);
   }
 }
 
-classRegistry.setClass(Background, Background.type)
+classRegistry.setClass(Background, Background.type);
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface Background {}
 }

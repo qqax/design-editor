@@ -1,26 +1,35 @@
-'use client'
-import * as React from 'react'
-import * as RadixSlider from '@radix-ui/react-slider'
+'use client';
 
-export type SliderProps = {
-  value: number
-  onValueChange: (v: number) => void
-  min?: number
-  max?: number
-  step?: number
-  disabled?: boolean
-  'aria-label'?: string
+import * as React from 'react';
+
+import * as RadixSlider from '@radix-ui/react-slider';
+
+export interface SliderProps {
+  value: number;
+  onValueChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  step?: number;
+  disabled?: boolean;
+  'aria-label'?: string;
 }
 
-export function Slider({ value, onValueChange, min = 0, max = 100, step = 1, ...rest }: SliderProps) {
+export function Slider({
+  value,
+  onValueChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  ...rest
+}: SliderProps) {
   return (
     <RadixSlider.Root
       className="de-slider-root"
-      value={[value]}
-      onValueChange={(v) => onValueChange(v[0] ?? 0)}
-      min={min}
       max={max}
+      min={min}
+      onValueChange={(v) => onValueChange(v[0] ?? 0)}
       step={step}
+      value={[value]}
       {...rest}
     >
       <RadixSlider.Track className="de-slider-track">
@@ -28,5 +37,5 @@ export function Slider({ value, onValueChange, min = 0, max = 100, step = 1, ...
       </RadixSlider.Track>
       <RadixSlider.Thumb className="de-slider-thumb" />
     </RadixSlider.Root>
-  )
+  );
 }

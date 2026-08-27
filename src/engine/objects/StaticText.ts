@@ -1,22 +1,26 @@
-import { Textbox, classRegistry } from "fabric"
-import type { TextboxProps } from "fabric"
+import { classRegistry, Textbox } from 'fabric';
 
-export type StaticTextOptions = TextboxProps & { text: string; fontURL?: string }
+import type { TextboxProps } from 'fabric';
+
+export type StaticTextOptions = TextboxProps & {
+  text: string;
+  fontURL?: string;
+};
 
 export class StaticText extends Textbox {
-  static type = "StaticText"
+  static type = 'StaticText';
 
   set type(_value: string) {
     // fixed value — intentional no-op
   }
 
-  public fontURL?: string
+  public fontURL?: string;
 
   constructor(options: StaticTextOptions) {
-    const { text, ...textOptions } = options
-    super(text, { ...textOptions } as any)
+    const { text, ...textOptions } = options;
+    super(text, { ...textOptions });
     if (options.fontURL) {
-      this.fontURL = options.fontURL
+      this.fontURL = options.fontURL;
     }
   }
 
@@ -25,7 +29,7 @@ export class StaticText extends Textbox {
     return {
       ...super.toObject(propertiesToInclude as any),
       fontURL: this.fontURL,
-    }
+    };
   }
 
   // @ts-ignore
@@ -33,16 +37,16 @@ export class StaticText extends Textbox {
     return {
       ...super.toObject(propertiesToInclude as any),
       fontURL: this.fontURL,
-    }
+    };
   }
 
   static async fromObject(options: StaticTextOptions) {
-    return new StaticText(options)
+    return new StaticText(options);
   }
 }
 
-classRegistry.setClass(StaticText, StaticText.type)
+classRegistry.setClass(StaticText, StaticText.type);
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface StaticText {}
 }

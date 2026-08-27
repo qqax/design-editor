@@ -1,4 +1,4 @@
-'use client'
+'use client';
 // import React, { useState } from 'react'
 // import { Tooltip } from 'antd'
 // import { SearchOutlined, DownOutlined, UpOutlined } from '@ant-design/icons'
@@ -44,7 +44,7 @@
 // export function ShapesPanel({ onAddShape }: Props) {
 //   const [search, setSearch] = useState('')
 
-//   const filteredShapes = search.trim() 
+//   const filteredShapes = search.trim()
 //     ? SHAPES.filter(s => s.label.toLowerCase().includes(search.toLowerCase()) || s.id.toLowerCase().includes(search.toLowerCase()))
 //     : SHAPES
 
@@ -68,7 +68,7 @@
 //         <ShapeCategory title="Outline" styleType="outline" shapes={filteredShapes} onAddShape={onAddShape} />
 //         <ShapeCategory title="Gradient" styleType="gradient" shapes={filteredShapes} onAddShape={onAddShape} />
 //         <ShapeCategory title="Image" styleType="image" shapes={filteredShapes} onAddShape={onAddShape} />
-        
+
 //         {filteredShapes.length === 0 && (
 //            <div className="mt-8 text-center text-[var(--color-text-muted)] text-sm">
 //              No shapes found for "{search}"
@@ -79,11 +79,11 @@
 //   )
 // }
 
-// function ShapeCategory({ 
-//   title, styleType, shapes, onAddShape 
-// }: { 
+// function ShapeCategory({
+//   title, styleType, shapes, onAddShape
+// }: {
 //   title: string, styleType: ShapeStyleType, shapes: ShapeDef[],
-//   onAddShape: (d: string, viewBox: string, styleType: ShapeStyleType) => void 
+//   onAddShape: (d: string, viewBox: string, styleType: ShapeStyleType) => void
 // }) {
 //   const [expanded, setExpanded] = useState(false)
 //   if (shapes.length === 0) return null
@@ -93,7 +93,7 @@
 //       <div className="flex items-center justify-between mb-3">
 //         <h3 className="text-sm font-bold text-[var(--color-text)] tracking-tight">{title}</h3>
 //         {shapes.length > 3 && (
-//           <button 
+//           <button
 //             onClick={() => setExpanded(!expanded)}
 //             className="flex items-center text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors bg-transparent border-none cursor-pointer"
 //           >
@@ -102,7 +102,7 @@
 //           </button>
 //         )}
 //       </div>
-      
+
 //       <div className={`gap-2 ${expanded ? 'grid grid-cols-3' : 'flex overflow-x-auto scrollbar-hide snap-x'}`}>
 //         {shapes.map((shape) => (
 //           <div key={shape.id} className={expanded ? 'w-full' : 'snap-start shrink-0'}>
@@ -116,7 +116,7 @@
 
 // function ShapeTile({ shape, styleType, onClick }: { shape: ShapeDef; styleType: ShapeStyleType; onClick: () => void }) {
 //   const [hov, setHov] = useState(false)
-  
+
 //   // Use the downloaded PNGs from public folder
 //   const imgUrl = `/shapes/thumbnails/${styleType}-${shape.id}.png`
 
@@ -158,14 +158,11 @@
 //   )
 // }
 
-import React, { useState } from 'react'
-import { Tooltip } from '../primitives'
-import {
-  Search,
-  ChevronDown,
-  ChevronUp,
-  ChevronRight,
-} from 'lucide-react'
+import React, { useState } from 'react';
+
+import { ChevronDown, ChevronRight, ChevronUp, Search } from 'lucide-react';
+
+import { Tooltip } from '../primitives';
 
 export type ShapeCategoryType =
   | 'filled'
@@ -175,65 +172,65 @@ export type ShapeCategoryType =
   | 'abstract'
   | 'abstract_outline'
   | 'abstract_gradient'
-  | 'abstract_image'
+  | 'abstract_image';
 
 export interface ShapeDef {
-  id: string
-  label: string
-  category: ShapeCategoryType
-  file: string
+  id: string;
+  label: string;
+  category: ShapeCategoryType;
+  file: string;
 }
 interface Props {
-  onAddShape: (src: string) => void
+  onAddShape: (src: string) => void;
 }
 
 const SHAPE_FILES: Record<ShapeCategoryType, string[]> = {
   filled: [
     // Geometric shapes
-  'filled-line.png',
-  'filled-square.png',
-  'filled-rectangle.png',
-  'filled-rounded-rectangle.png',
-  'filled-ellipse.png',
-  'filled-oval.png',
-  'filled-pill.png',
-  'filled-ring.png',
-  // Circular / arc shapes
-  'filled-pie.png',
-  'filled-semicircle.png',
-  'filled-quarter-circle.png',
-  'filled-quarter-circle-outline.png',
-  'filled-crescent.png',
-  // Polygon shapes
-  'filled-triangle.png',
-  'filled-triangle-right.png',
-  'filled-polygon.png',
-  'filled-rhombus.png',
-  'filled-kite.png',
-  // Decorative shapes
-  'filled-star.png',
-  'filled-star-round.png',
-  'filled-four-star.png',
-  'filled-sun.png',
-  'filled-cross.png',
-  'filled-heart.png',
-  'filled-trefoil.png',
-  'filled-quarterfoil.png',
-  // Organic / abstract shapes
-  'filled-blob.png',
-  'filled-cloud.png',
-  'filled-wiggle.png',
-  'filled-ziczac.png',
-  // Frames & masks
-  'filled-frame.png',
-  'filled-round-mask.png',
-  'filled-rectangle-mask.png',
-  // Arrows
-  'filled-arrow-thin.png',
-  'filled-arrow-thin-rounded.png',
-  'filled-arrow-wide.png',
-  'filled-arrow-fat.png',
-  'filled-arrow-archer.png',
+    'filled-line.png',
+    'filled-square.png',
+    'filled-rectangle.png',
+    'filled-rounded-rectangle.png',
+    'filled-ellipse.png',
+    'filled-oval.png',
+    'filled-pill.png',
+    'filled-ring.png',
+    // Circular / arc shapes
+    'filled-pie.png',
+    'filled-semicircle.png',
+    'filled-quarter-circle.png',
+    'filled-quarter-circle-outline.png',
+    'filled-crescent.png',
+    // Polygon shapes
+    'filled-triangle.png',
+    'filled-triangle-right.png',
+    'filled-polygon.png',
+    'filled-rhombus.png',
+    'filled-kite.png',
+    // Decorative shapes
+    'filled-star.png',
+    'filled-star-round.png',
+    'filled-four-star.png',
+    'filled-sun.png',
+    'filled-cross.png',
+    'filled-heart.png',
+    'filled-trefoil.png',
+    'filled-quarterfoil.png',
+    // Organic / abstract shapes
+    'filled-blob.png',
+    'filled-cloud.png',
+    'filled-wiggle.png',
+    'filled-ziczac.png',
+    // Frames & masks
+    'filled-frame.png',
+    'filled-round-mask.png',
+    'filled-rectangle-mask.png',
+    // Arrows
+    'filled-arrow-thin.png',
+    'filled-arrow-thin-rounded.png',
+    'filled-arrow-wide.png',
+    'filled-arrow-fat.png',
+    'filled-arrow-archer.png',
   ],
 
   outline: [
@@ -317,58 +314,58 @@ const SHAPE_FILES: Record<ShapeCategoryType, string[]> = {
   ],
 
   image: [
-  // Geometric shapes
-  'image-line.png',
-  'image-square.png',
-  'image-rectangle.png',
-  'image-rounded-rectangle.png',
-  'image-ellipse.png',
-  'image-oval.png',
-  'image-pill.png',
-  'image-ring.png',
+    // Geometric shapes
+    'image-line.png',
+    'image-square.png',
+    'image-rectangle.png',
+    'image-rounded-rectangle.png',
+    'image-ellipse.png',
+    'image-oval.png',
+    'image-pill.png',
+    'image-ring.png',
 
-  // Circular / arc shapes
-  'image-pie.png',
-  'image-semicircle.png',
-  'image-quarter-circle.png',
-  'image-quarter-circle-outline.png',
-  'image-crescent.png',
+    // Circular / arc shapes
+    'image-pie.png',
+    'image-semicircle.png',
+    'image-quarter-circle.png',
+    'image-quarter-circle-outline.png',
+    'image-crescent.png',
 
-  // Polygon shapes
-  'image-triangle.png',
-  'image-triangle-right.png',
-  'image-polygon.png',
-  'image-rhombus.png',
-  'image-kite.png',
+    // Polygon shapes
+    'image-triangle.png',
+    'image-triangle-right.png',
+    'image-polygon.png',
+    'image-rhombus.png',
+    'image-kite.png',
 
-  // Decorative shapes
-  'image-star.png',
-  'image-star-round.png',
-  'image-four-star.png',
-  'image-sun.png',
-  'image-cross.png',
-  'image-heart.png',
-  'image-trefoil.png',
-  'image-quarterfoil.png',
+    // Decorative shapes
+    'image-star.png',
+    'image-star-round.png',
+    'image-four-star.png',
+    'image-sun.png',
+    'image-cross.png',
+    'image-heart.png',
+    'image-trefoil.png',
+    'image-quarterfoil.png',
 
-  // Organic / abstract shapes
-  'image-blob.png',
-  'image-cloud.png',
-  'image-wiggle.png',
-  'image-ziczac.png',
+    // Organic / abstract shapes
+    'image-blob.png',
+    'image-cloud.png',
+    'image-wiggle.png',
+    'image-ziczac.png',
 
-  // Frames & masks
-  'image-frame.png',
-  'image-round-mask.png',
-  'image-rectangle-mask.png',
+    // Frames & masks
+    'image-frame.png',
+    'image-round-mask.png',
+    'image-rectangle-mask.png',
 
-  // Arrows
-  'image-arrow-thin.png',
-  'image-arrow-thin-rounded.png',
-  'image-arrow-wide.png',
-  'image-arrow-fat.png',
-  'image-arrow-archer.png',
-],
+    // Arrows
+    'image-arrow-thin.png',
+    'image-arrow-thin-rounded.png',
+    'image-arrow-wide.png',
+    'image-arrow-fat.png',
+    'image-arrow-archer.png',
+  ],
 
   abstract: [
     'filled-organic-1.png',
@@ -421,48 +418,43 @@ const SHAPE_FILES: Record<ShapeCategoryType, string[]> = {
     'image-splash-3.png',
     'image-splash-4.png',
   ],
-}
-export const SHAPES: ShapeDef[] = Object.entries(
-  SHAPE_FILES
-).flatMap(([category, files]) =>
-  files.map((file) => ({
-    id: file
-      .replace(/\.(svg|png)$/i, '')
-      .replace(/_/g, '-'),
+};
+export const SHAPES: ShapeDef[] = Object.entries(SHAPE_FILES).flatMap(
+  ([category, files]) =>
+    files.map((file) => ({
+      id: file.replace(/\.(svg|png)$/i, '').replace(/_/g, '-'),
 
-    label: file
-      .replace(/\.(svg|png)$/i, '')
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (l) => l.toUpperCase()),
+      label: file
+        .replace(/\.(svg|png)$/i, '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase()),
 
-    category: category as ShapeCategoryType,
+      category: category as ShapeCategoryType,
 
-    file,
-  }))
-)
+      file,
+    }))
+);
 // ─────────────────────────────────────────────────────────────
 // CATEGORY ORDER  (mirrors StickersPanel pattern)
 // ─────────────────────────────────────────────────────────────
 
 const CATEGORY_ORDER: { key: ShapeCategoryType; label: string }[] = [
-  { key: 'filled',   label: 'Filled'   },
-  { key: 'outline',  label: 'Outline'  },
+  { key: 'filled', label: 'Filled' },
+  { key: 'outline', label: 'Outline' },
   { key: 'gradient', label: 'Gradient' },
-  { key: 'image',    label: 'Image'    },
-  { key: 'abstract',   label: 'Abstract'},
-  { key: 'abstract_outline', label: 'Abstract Outline'},
-  { key: 'abstract_gradient', label:'Abstract Gradient'},
-  { key: 'abstract_image', label:'Abstract Image'},
-]
-
-
+  { key: 'image', label: 'Image' },
+  { key: 'abstract', label: 'Abstract' },
+  { key: 'abstract_outline', label: 'Abstract Outline' },
+  { key: 'abstract_gradient', label: 'Abstract Gradient' },
+  { key: 'abstract_image', label: 'Abstract Image' },
+];
 
 // ─────────────────────────────────────────────────────────────
 // MAIN PANEL
 // ─────────────────────────────────────────────────────────────
 
 export function ShapesPanel({ onAddShape }: Props) {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
 
   const filteredShapes = search.trim()
     ? SHAPES.filter(
@@ -470,51 +462,49 @@ export function ShapesPanel({ onAddShape }: Props) {
           s.label.toLowerCase().includes(search.toLowerCase()) ||
           s.id.toLowerCase().includes(search.toLowerCase())
       )
-    : SHAPES
+    : SHAPES;
 
   return (
-    <div className="flex flex-col h-full bg-surface">
-
+    <div className="bg-surface flex h-full flex-col">
       {/* SEARCH */}
-      <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--color-border)] focus-within:border-[var(--color-primary)] transition-colors">
-          <Search size={14} className="text-[var(--color-text-muted)] mr-2" />
+      <div className="px-4 pb-2 pt-4">
+        <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--color-primary)]">
+          <Search className="mr-2 text-[var(--color-text-muted)]" size={14} />
           <input
-            type="text"
-            placeholder="Search shapes..."
-            value={search}
+            className="flex-1 border-none bg-transparent text-sm text-[var(--color-text)] outline-none"
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border-none outline-none flex-1 text-[var(--color-text)] text-sm"
+            placeholder="Search shapes..."
+            type="text"
+            value={search}
           />
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide px-4">
+      <div className="scrollbar-hide flex-1 overflow-y-auto px-4 pb-6">
+        {CATEGORY_ORDER.map((category) => {
+          const categoryShapes = filteredShapes.filter(
+            (shape) => shape.category === category.key
+          );
 
-       {CATEGORY_ORDER.map((category) => {
-  const categoryShapes = filteredShapes.filter(
-    (shape) => shape.category === category.key
-  )
-
-  return (
-    <ShapeCategory
-      key={category.key}
-      title={category.label}
-      shapes={categoryShapes}
-      onAddShape={onAddShape}
-    />
-  )
-})}
+          return (
+            <ShapeCategory
+              key={category.key}
+              onAddShape={onAddShape}
+              shapes={categoryShapes}
+              title={category.label}
+            />
+          );
+        })}
 
         {filteredShapes.length === 0 && (
-          <div className="mt-8 text-center text-[var(--color-text-muted)] text-sm">
+          <div className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
             No shapes found for "{search}"
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -526,46 +516,43 @@ function ShapeCategory({
   shapes,
   onAddShape,
 }: {
-  title: string
-  shapes: ShapeDef[]
-  onAddShape: (src: string) => void
+  title: string;
+  shapes: ShapeDef[];
+  onAddShape: (src: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
-  if (shapes.length === 0) return null
+  if (shapes.length === 0) return null;
 
-  const hasMore = shapes.length > 0
+  const hasMore = shapes.length > 0;
 
   return (
     <div className="mt-5">
-
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-[var(--color-text)] tracking-tight">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-bold tracking-tight text-[var(--color-text)]">
           {title}
         </h3>
 
-        {hasMore && (
+        {hasMore ? (
           <button
+            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors bg-transparent border-none cursor-pointer"
           >
-            {expanded
-              ? 'Less'
-              : `More (${shapes.length})`}
+            {expanded ? 'Less' : `More (${shapes.length})`}
 
             {expanded ? (
-              <ChevronUp size={10} className="ml-1" />
+              <ChevronUp className="ml-1" size={10} />
             ) : (
-              <ChevronDown size={10} className="ml-1" />
+              <ChevronDown className="ml-1" size={10} />
             )}
           </button>
-        )}
+        ) : null}
       </div>
 
       {expanded ? (
         /* EXPANDED — 3-col grid */
-        <div className="grid grid-cols-3 gap-2 mt-1 auto-rows-fr">
+        <div className="mt-1 grid auto-rows-fr grid-cols-3 gap-2">
           {shapes.map((shape) => (
             <ShapeTile
               key={shape.id}
@@ -580,10 +567,10 @@ function ShapeCategory({
         </div>
       ) : (
         /* COLLAPSED — horizontal scroll, scrollbar hidden, with arrow hint */
-        <ScrollRow shapes={shapes} onAddShape={onAddShape} />
+        <ScrollRow onAddShape={onAddShape} shapes={shapes} />
       )}
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -594,22 +581,22 @@ function ScrollRow({
   shapes,
   onAddShape,
 }: {
-  shapes: ShapeDef[]
-  onAddShape: (src: string) => void
+  shapes: ShapeDef[];
+  onAddShape: (src: string) => void;
 }) {
-  const scrollRef = React.useRef<HTMLDivElement>(null)
-  const [canScrollRight, setCanScrollRight] = useState(true)
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const checkScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
+    const el = scrollRef.current;
+    if (!el) return;
     // Hide arrow when scrolled to the end (within 4px)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
 
   const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' })
-  }
+    scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' });
+  };
 
   return (
     <div className="relative">
@@ -621,18 +608,22 @@ function ScrollRow({
           - py-[3px] gives the 2px ring room top & bottom             */}
       <div
         ref={scrollRef}
-        className="sticker-hscroll flex gap-2 py-[3px] mx-[-16px] px-[16px]"
+        className="sticker-hscroll mx-[-16px] flex gap-2 px-[16px] py-[3px]"
+        onScroll={checkScroll}
         style={{
           overflowX: 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
-        onScroll={checkScroll}
       >
         {shapes.map((shape) => (
-          <div key={shape.id} className="shrink-0"  style={{
-        width: 'calc((100% - 24px) / 4)',
-      }}>
+          <div
+            key={shape.id}
+            className="shrink-0"
+            style={{
+              width: 'calc((100% - 24px) / 4)',
+            }}
+          >
             <ShapeTile
               shape={shape}
               onClick={() =>
@@ -646,10 +637,10 @@ function ScrollRow({
       </div>
 
       {/* Right arrow — fades out when fully scrolled */}
-      {canScrollRight && (
+      {canScrollRight ? (
         <button
+          className="absolute right-0 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center border-none outline-none"
           onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer border-none outline-none"
           style={{
             width: 22,
             height: 22,
@@ -658,11 +649,14 @@ function ScrollRow({
             boxShadow: '-8px 0 14px 8px var(--color-surface, #fff)',
           }}
         >
-          <ChevronRight size={14} style={{ color: 'var(--color-text-muted)' }} />
+          <ChevronRight
+            size={14}
+            style={{ color: 'var(--color-text-muted)' }}
+          />
         </button>
-      )}
+      ) : null}
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -674,52 +668,34 @@ function ShapeTile({
   onClick,
   expanded = false,
 }: {
-  shape: ShapeDef
-  onClick: () => void
-  expanded?: boolean
+  shape: ShapeDef;
+  onClick: () => void;
+  expanded?: boolean;
 }) {
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered] = useState(false);
 
-  const imageUrl = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`
+  const imageUrl = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`;
 
-  const handleDragStart = (
-    e: React.DragEvent<HTMLButtonElement>
-  ) => {
-    e.dataTransfer.effectAllowed = 'copy'
-    e.dataTransfer.setData('text/x-fastlabai-type', 'shape')
-    e.dataTransfer.setData(
-      'text/x-fastlabai-shape-src',
-      imageUrl
-    )
-  }
+  const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/x-fastlabai-type', 'shape');
+    e.dataTransfer.setData('text/x-fastlabai-shape-src', imageUrl);
+  };
 
   return (
-    <Tooltip title={shape.label} placement="top">
+    <Tooltip placement="top" title={shape.label}>
       <button
-        onClick={onClick}
         draggable
+        className="flex w-full shrink-0 cursor-pointer items-center justify-center rounded-xl border-none outline-none transition-all duration-200"
+        onClick={onClick}
         onDragStart={handleDragStart}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="
-          w-full
-          rounded-xl
-          flex
-          items-center
-          justify-center
-          cursor-pointer
-          border-none
-          outline-none
-          transition-all
-          duration-200
-          shrink-0
-        "
         style={{
           width: '100%',
           aspectRatio: '1 / 1',
 
-          background:
-            'color-mix(in srgb, var(--color-text) 5%, transparent)',
+          background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
 
           boxShadow: hovered
             ? '0 0 0 2px var(--color-border, #d1d5db)'
@@ -729,26 +705,18 @@ function ShapeTile({
         }}
       >
         <img
-          src={imageUrl}
           alt={shape.label}
+          className="pointer-events-none h-[78%] w-[78%] select-none object-contain transition-opacity duration-200"
           draggable={false}
-          className="
-            w-[78%]
-            h-[78%]
-            object-contain
-            pointer-events-none
-            select-none
-            transition-opacity
-            duration-200
-          "
+          src={imageUrl}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
           style={{
             opacity: hovered ? 0.85 : 1,
-          }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
           }}
         />
       </button>
     </Tooltip>
-  )
+  );
 }

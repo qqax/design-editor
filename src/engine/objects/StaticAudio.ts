@@ -1,23 +1,25 @@
-import { Object as FabricObject, classRegistry } from "fabric"
-import type { FabricObjectProps } from "fabric"
+import { classRegistry, Object as FabricObject } from 'fabric';
+
+import type { FabricObjectProps } from 'fabric';
 
 export interface StaticAudioOptions extends FabricObjectProps {
-  id: string
-  name: string
-  src: string
+  id: string;
+  name: string;
+  src: string;
 }
 
 export class StaticAudio extends FabricObject {
-  static type = "StaticAudio"
+  static type = 'StaticAudio';
 
-  
   get type() {
-    return "StaticAudio"
+    return 'StaticAudio';
   }
+
   set type(_value: string) {
     // fixed value — intentional no-op
   }
-constructor(options: StaticAudioOptions) {
+
+  constructor(options: StaticAudioOptions) {
     super({
       width: 0,
       height: 0,
@@ -25,17 +27,17 @@ constructor(options: StaticAudioOptions) {
       evented: false,
       visible: false,
       ...(options as any),
-    })
+    });
   }
 
   // @ts-ignore
   static async fromObject(options: any) {
-    return new StaticAudio(options)
+    return new StaticAudio(options);
   }
 }
 
-classRegistry.setClass(StaticAudio, StaticAudio.type)
+classRegistry.setClass(StaticAudio, StaticAudio.type);
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface StaticAudio {}
 }

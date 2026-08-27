@@ -1,12 +1,12 @@
-import { path as base } from "./constants"
+import { path as base } from './constants';
 
 export default function (object: any) {
-  let position = {
+  const position = {
     top: object.top,
     left: object.left,
-  }
+  };
 
-  const { top, left, fill, path } = object
+  const { top, left, fill, path } = object;
 
   return {
     ...base,
@@ -20,6 +20,6 @@ export default function (object: any) {
     strokeMiterLimit: object.strokeMiterLimit,
     strokeDashOffset: object.strokeDashOffset,
     fill,
-    path: path,
-  }
+    path,
+  };
 }

@@ -1,48 +1,64 @@
-'use client'
+'use client';
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 
 interface LayerNameProps {
-  id: string
-  name: string
-  visible: boolean
-  isActive: boolean
-  editing: boolean
-  onCommit: (id: string, name: string) => void
-  onCancel: () => void
+  id: string;
+  name: string;
+  visible: boolean;
+  isActive: boolean;
+  editing: boolean;
+  onCommit: (id: string, name: string) => void;
+  onCancel: () => void;
 }
 
-export function LayerName({ id, name, visible, isActive, editing, onCommit, onCancel }: LayerNameProps) {
-  const [val, setVal] = useState(name)
-  const inputRef = useRef<HTMLInputElement>(null)
+export function LayerName({
+  id,
+  name,
+  visible,
+  isActive,
+  editing,
+  onCommit,
+  onCancel,
+}: LayerNameProps) {
+  const [val, setVal] = useState(name);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { setVal(name) }, [name])
+  useEffect(() => {
+    setVal(name);
+  }, [name]);
 
   useEffect(() => {
     if (editing) {
-      inputRef.current?.focus()
-      inputRef.current?.select()
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
-  }, [editing])
+  }, [editing]);
 
   const commit = () => {
-    const trimmed = val.trim()
-    if (trimmed && trimmed !== name) onCommit(id, trimmed)
-    else onCancel()
-  }
+    const trimmed = val.trim();
+    if (trimmed && trimmed !== name) onCommit(id, trimmed);
+    else onCancel();
+  };
 
   if (editing) {
     return (
       <input
         ref={inputRef}
-        value={val}
-        onChange={(e) => setVal(e.target.value)}
         onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') { e.preventDefault(); commit() }
-          if (e.key === 'Escape') { setVal(name); onCancel() }
-        }}
+        onChange={(e) => setVal(e.target.value)}
         onClick={(e) => e.stopPropagation()}
+        value={val}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            commit();
+          }
+          if (e.key === 'Escape') {
+            setVal(name);
+            onCancel();
+          }
+        }}
         style={{
           flex: 1,
           minWidth: 0,
@@ -55,7 +71,7 @@ export function LayerName({ id, name, visible, isActive, editing, onCommit, onCa
           outline: 'none',
         }}
       />
-    )
+    );
   }
 
   return (
@@ -73,5 +89,5 @@ export function LayerName({ id, name, visible, isActive, editing, onCommit, onCa
     >
       {name}
     </span>
-  )
+  );
 }

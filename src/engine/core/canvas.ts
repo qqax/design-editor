@@ -1,106 +1,122 @@
-import { Canvas as FabricCanvasClass, Point } from "fabric"
-import { FabricCanvas } from "./common/interfaces"
-import { EditorConfig } from "../types"
-import type { Editor } from "."
+import { Canvas as FabricCanvasClass, Point } from 'fabric';
+
+import type { Editor } from '.';
+import type { EditorConfig } from '../types';
+import type { FabricCanvas } from './common/interfaces';
 
 class Canvas {
-  private editor: Editor
-  public container: HTMLDivElement
-  public canvasContainer: HTMLDivElement
-  public canvasElement: HTMLCanvasElement
-  public canvas: FabricCanvas
-  public canvasId: string
+  private editor: Editor;
+
+  public container: HTMLDivElement;
+
+  public canvasContainer: HTMLDivElement;
+
+  public canvasElement: HTMLCanvasElement;
+
+  public canvas: FabricCanvas;
+
+  public canvasId: string;
+
   private options = {
     width: 0,
     height: 0,
-  }
-  private config: EditorConfig
+  };
 
-  constructor({ id, config, editor }: { id: string; config: EditorConfig; editor: Editor }) {
-    this.config = config
-    this.editor = editor
-    this.canvasId = id
-    this.initialize()
+  private config: EditorConfig;
+
+  constructor({
+    id,
+    config,
+    editor,
+  }: {
+    id: string;
+    config: EditorConfig;
+    editor: Editor;
+  }) {
+    this.config = config;
+    this.editor = editor;
+    this.canvasId = id;
+    this.initialize();
   }
 
   public initialize = () => {
     // In Fabric 6, you must pass the canvas element or id
-    const canvas = new FabricCanvasClass(this.canvasId as any, {
+    const canvas = new FabricCanvasClass(this.canvasId, {
       backgroundColor: this.config.background,
       preserveObjectStacking: true,
       fireRightClick: true,
       height: this.config.size.height,
       width: this.config.size.width,
-    })
-    this.canvas = canvas as FabricCanvas
+    });
+    this.canvas = canvas;
 
     this.canvas.disableEvents = function () {
       // no-op in v6
-    }
+    };
 
     this.canvas.enableEvents = function () {
       // no-op in v6
-    }
-  }
+    };
+  };
 
   public destroy = () => {
     // this.canvas.dispose()
-  }
+  };
 
   public resize({ width, height }: any) {
-    this.canvas.setDimensions({ width, height })
-    this.canvas.renderAll()
-    const diffWidth = width / 2 - this.options.width / 2
-    const diffHeight = height / 2 - this.options.height / 2
+    this.canvas.setDimensions({ width, height });
+    this.canvas.renderAll();
+    const diffWidth = width / 2 - this.options.width / 2;
+    const diffHeight = height / 2 - this.options.height / 2;
 
-    this.options.width = width
-    this.options.height = height
+    this.options.width = width;
+    this.options.height = height;
 
-    const deltaPoint = new Point(diffWidth, diffHeight)
-    this.canvas.relativePan(deltaPoint)
+    const deltaPoint = new Point(diffWidth, diffHeight);
+    this.canvas.relativePan(deltaPoint);
   }
 
   public getBoundingClientRect() {
-    const canvasEl = document.getElementById("canvas")
+    const canvasEl = document.getElementById('canvas');
     const position = {
       left: canvasEl?.getBoundingClientRect().left,
       top: canvasEl?.getBoundingClientRect().top,
-    }
-    return position
+    };
+    return position;
   }
 
   public requestRenderAll() {
-    this.canvas.requestRenderAll()
+    this.canvas.requestRenderAll();
   }
 
   public get backgroundColor() {
-    return this.canvas.backgroundColor
+    return this.canvas.backgroundColor;
   }
 
   public setBackgroundColor(color: string) {
     // In Fabric 6, setBackgroundColor takes the color and renders
-    this.canvas.backgroundColor = color
-    this.canvas.requestRenderAll()
-    this.editor.emit("canvas:updated")
+    this.canvas.backgroundColor = color;
+    this.canvas.requestRenderAll();
+    this.editor.emit('canvas:updated');
   }
 }
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface Canvas {
-    __fire: any
-    enableEvents: () => void
-    disableEvents: () => void
+    __fire: any;
+    enableEvents: () => void;
+    disableEvents: () => void;
   }
   export interface Object {
-    id: string
-    name: string
-    locked: boolean
+    id: string;
+    name: string;
+    locked: boolean;
     duration?: {
-      start?: number
-      stop?: number
-    }
-    metadata?: Record<string, any>
+      start?: number;
+      stop?: number;
+    };
+    metadata?: Record<string, any>;
   }
 }
 
-export default Canvas
+export default Canvas;

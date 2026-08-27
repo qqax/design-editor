@@ -1,0 +1,92 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "plugins": [
+    "stylelint-order"
+  ],
+  "ignoreFiles": [
+    "coverage/**"
+  ],
+  "rules": {
+    "selector-class-pattern": [
+      "^[a-z][a-zA-Z0-9]*$",
+      {
+        "resolveNestedSelectors": true
+      }
+    ],
+    "order/properties-order": [
+      {
+        "groupName": "positioning",
+        "emptyLineBefore": "never",
+        "properties": [
+          "position",
+          "top",
+          "right",
+          "bottom",
+          "left",
+          "z-index"
+        ]
+      },
+      {
+        "groupName": "box-model-and-layout",
+        "emptyLineBefore": "always",
+        "properties": [
+          "display",
+          "flex-direction",
+          "align-items",
+          "box-sizing",
+          "width",
+          "height",
+          "margin",
+          "margin-top",
+          "margin-right",
+          "margin-bottom",
+          "margin-left",
+          "padding",
+          "padding-top",
+          "padding-right",
+          "padding-bottom",
+          "padding-left",
+          "border"
+        ]
+      },
+      {
+        "groupName": "typography",
+        "emptyLineBefore": "always",
+        "properties": [
+          "font-family",
+          "font-size",
+          "font-style",
+          "text-decoration",
+          "color"
+        ]
+      },
+      {
+        "groupName": "visuals",
+        "emptyLineBefore": "always",
+        "properties": [
+          "background",
+          "opacity"
+        ]
+      },
+      {
+        "groupName": "animations",
+        "emptyLineBefore": "always",
+        "properties": [
+          "transform",
+          "animation"
+        ]
+      }
+    ],
+    "order/properties-alphabetical-order": null,
+    "declaration-empty-line-before": [
+      "never",
+      {
+        "ignore": [
+          "after-comment"
+        ]
+      }
+    ]
+  }
+}

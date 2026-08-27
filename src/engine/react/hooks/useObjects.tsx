@@ -1,5 +1,6 @@
-import React from "react";
-import { Context } from "../context";
+import React from 'react';
+
+import { Context } from '../context';
 
 export function useObjects<T>() {
   const { objects } = React.useContext(Context);

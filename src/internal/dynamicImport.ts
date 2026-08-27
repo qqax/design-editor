@@ -5,10 +5,14 @@
 // dist/index.js, it tries to resolve the package at build time and fails
 // when the optional peer is not installed. Hiding the specifier behind
 // `new Function` defeats every static analyser because the body is a string.
-const dynamicImport = new Function('specifier', 'return import(specifier)') as <T>(
-  specifier: string,
-) => Promise<T>
+const dynamicImport = new Function('specifier', 'return import(specifier)') as <
+  T,
+>(
+  specifier: string
+) => Promise<T>;
 
-export function importOptionalPeer<T = unknown>(specifier: string): Promise<T> {
-  return dynamicImport<T>(specifier)
+export async function importOptionalPeer<T = unknown>(
+  specifier: string
+): Promise<T> {
+  return dynamicImport<T>(specifier);
 }

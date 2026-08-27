@@ -1,56 +1,65 @@
-import {
+import { LayerType } from '../common/constants';
+
+import type {
+  IBackground,
+  IBackgroundImage,
+  IGroup,
   ILayer,
   IStaticAudio,
   IStaticImage,
+  IStaticPath,
   IStaticText,
   IStaticVector,
   IStaticVideo,
-  IStaticPath,
-  IBackground,
-  IGroup,
-  IBackgroundImage,
-} from "../../types"
-import { LayerType } from "../common/constants"
+} from '../../types';
 
 class ObjectExporter {
-  public export(item: ILayer, options: Required<ILayer>, inGroup = false): ILayer {
-    let object
+  public export(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup = false
+  ): ILayer {
+    let object;
     switch (item.type) {
       case LayerType.STATIC_IMAGE:
-        object = this.staticImage(item, options, inGroup)
-        break
+        object = this.staticImage(item, options, inGroup);
+        break;
       case LayerType.BACKGROUND_IMAGE:
-        object = this.backgroundImage(item, options, inGroup)
-        break
+        object = this.backgroundImage(item, options, inGroup);
+        break;
       case LayerType.STATIC_VIDEO:
-        object = this.staticVideo(item, options, inGroup)
-        break
+        object = this.staticVideo(item, options, inGroup);
+        break;
       case LayerType.STATIC_TEXT:
-        object = this.staticText(item, options, inGroup)
-        break
+        object = this.staticText(item, options, inGroup);
+        break;
       case LayerType.STATIC_VECTOR:
-        object = this.staticVector(item, options, inGroup)
-        break
+        object = this.staticVector(item, options, inGroup);
+        break;
       case LayerType.STATIC_PATH:
-        object = this.staticPath(item, options, inGroup)
-        break
+        object = this.staticPath(item, options, inGroup);
+        break;
       case LayerType.BACKGROUND:
-        object = this.background(item, options, inGroup)
-        break
+        object = this.background(item, options, inGroup);
+        break;
       case LayerType.GROUP.toLowerCase():
-        object = this.group(item, options, inGroup)
-        break
+        object = this.group(item, options, inGroup);
+        break;
       case LayerType.STATIC_AUDIO:
-        object = this.staticAudio(item, options, inGroup)
-        break
+        object = this.staticAudio(item, options, inGroup);
+        break;
       default:
-        object = this.background(item, options, inGroup)
+        object = this.background(item, options, inGroup);
     }
-    return object
+    return object;
   }
 
-  public staticText(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticText {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
+  public staticText(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticText {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
     const {
       fontFamily,
       textAlign,
@@ -63,7 +72,7 @@ class ObjectExporter {
       underline,
       fontURL,
       metadata,
-    } = item as IStaticText
+    } = item as IStaticText;
     const object = {
       ...baseOptions,
       charSpacing,
@@ -77,115 +86,151 @@ class ObjectExporter {
       underline,
       fontURL,
       metadata,
-    }
-    return object
+    };
+    return object;
   }
 
-  public staticImage(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticImage {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { src, cropX, cropY, metadata } = item as IStaticImage
+  public staticImage(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticImage {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, cropX, cropY, metadata } = item as IStaticImage;
     const object = {
       ...baseOptions,
       src,
       cropX,
       cropY,
       metadata,
-    }
+    };
 
-    return object
+    return object;
   }
 
-  public backgroundImage(item: ILayer, options: Required<ILayer>, inGroup: boolean): IBackgroundImage {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { src, cropX, cropY, metadata } = item as IBackgroundImage
+  public backgroundImage(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IBackgroundImage {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, cropX, cropY, metadata } = item as IBackgroundImage;
     const object = {
       ...baseOptions,
       src,
       cropX,
       cropY,
       metadata,
-    }
+    };
 
-    return object
+    return object;
   }
 
-  public staticAudio(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticAudio {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { src, metadata } = item as IStaticAudio
+  public staticAudio(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticAudio {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, metadata } = item as IStaticAudio;
     const object: IStaticAudio = {
       ...baseOptions,
       src,
       metadata,
       speedFactor: 1,
-    }
-    return object
+    };
+    return object;
   }
 
-  public staticVideo(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticVideo {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { src } = item as IStaticVideo
+  public staticVideo(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticVideo {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src } = item as IStaticVideo;
     const object = {
       ...baseOptions,
-      src: src,
+      src,
       metadata: {},
       speedFactor: 1,
-    }
-    return object
+    };
+    return object;
   }
 
-  public staticVector(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticVector {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { src, colorMap, metadata } = item as IStaticVector
+  public staticVector(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticVector {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, colorMap, metadata } = item as IStaticVector;
     const object = {
       ...baseOptions,
       src,
       colorMap,
       metadata,
-    }
+    };
 
-    return object
+    return object;
   }
 
-  public staticPath(item: ILayer, options: Required<ILayer>, inGroup: boolean): IStaticPath {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { path, fill, metadata } = item as IStaticPath
+  public staticPath(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IStaticPath {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { path, fill, metadata } = item as IStaticPath;
     const object = {
       ...baseOptions,
       path,
       fill,
       metadata,
-    }
+    };
 
-    return object
+    return object;
   }
 
-  public background(item: ILayer, options: Required<ILayer>, inGroup: boolean): IBackground {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { fill, metadata } = item as IBackground
+  public background(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IBackground {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { fill, metadata } = item as IBackground;
     const object = {
       ...baseOptions,
       fill,
       metadata,
-    }
+    };
 
-    return object
+    return object;
   }
 
-  public group(item: ILayer, options: Required<ILayer>, inGroup: boolean): IGroup {
-    const baseOptions = this.getBaseOptions(item, options, inGroup)
-    const { objects, metadata } = item as IGroup
+  public group(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup: boolean
+  ): IGroup {
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { objects, metadata } = item as IGroup;
     const groupObjects = objects.map((object) => {
-      return this.export(object, options, true)
-    })
+      return this.export(object, options, true);
+    });
     return {
       ...baseOptions,
-      type: "Group",
+      type: 'Group',
       objects: groupObjects,
       metadata,
-    }
+    };
   }
 
-  public getBaseOptions(item: ILayer, options: Required<ILayer>, inGroup: boolean = false) {
+  public getBaseOptions(
+    item: ILayer,
+    options: Required<ILayer>,
+    inGroup = false
+  ) {
     const {
       id,
       name,
@@ -208,21 +253,25 @@ class ObjectExporter {
       skewY,
       shadow,
       preview,
-    } = item as Required<ILayer>
+    } = item as Required<ILayer>;
 
-    let frameLeft = options.left
-    let frameTop = options.top
+    let frameLeft = options.left;
+    let frameTop = options.top;
     if (!inGroup) {
-      if (options.originX === 'center') frameLeft -= (options.width * (options.scaleX || 1)) / 2
-      else if (options.originX === 'right') frameLeft -= options.width * (options.scaleX || 1)
-      
-      if (options.originY === 'center') frameTop -= (options.height * (options.scaleY || 1)) / 2
-      else if (options.originY === 'right') frameTop -= options.height * (options.scaleY || 1)
+      if (options.originX === 'center')
+        frameLeft -= (options.width * (options.scaleX || 1)) / 2;
+      else if (options.originX === 'right')
+        frameLeft -= options.width * (options.scaleX || 1);
+
+      if (options.originY === 'center')
+        frameTop -= (options.height * (options.scaleY || 1)) / 2;
+      else if (options.originY === 'right')
+        frameTop -= options.height * (options.scaleY || 1);
     }
 
     const baseOptions = {
       id,
-      name: name ? name : type,
+      name: name || type,
       angle,
       stroke,
       strokeWidth,
@@ -243,9 +292,9 @@ class ObjectExporter {
       visible: true,
       shadow,
       preview,
-    }
-    return baseOptions
+    };
+    return baseOptions;
   }
 }
 
-export default ObjectExporter
+export default ObjectExporter;

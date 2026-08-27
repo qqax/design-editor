@@ -1,11 +1,12 @@
-import { text as base } from "./constants"
-export default function (layer: any, object: any, bounds: any) {
-  const octopus = layer.octopus
-  const text = octopus.text
-  const styles = text.styles[0]
-  const { r, g, b, a } = styles.color
+import { text as base } from './constants';
 
-  const metadata = {}
+export default function (layer: any, object: any, bounds: any) {
+  const { octopus } = layer;
+  const { text } = octopus;
+  const styles = text.styles[0];
+  const { r, g, b, a } = styles.color;
+
+  const metadata = {};
   return {
     ...base,
     top: bounds.bounds.top,
@@ -19,5 +20,5 @@ export default function (layer: any, object: any, bounds: any) {
     fontSize: styles.font.size,
     text: text.value,
     metadata,
-  }
+  };
 }

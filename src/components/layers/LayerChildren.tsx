@@ -1,31 +1,39 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { LayerRow } from './LayerRow'
-import type { LayerItem, LayerCallbacks } from './layer-panel.types'
+import React from 'react';
+
+import { LayerRow } from './LayerRow';
+
+import type { LayerCallbacks, LayerItem } from './layer-panel.types';
 
 interface LayerChildrenProps extends LayerCallbacks {
-  children: LayerItem[]
-  depth: number
-  selectedIds: Set<string>
-  activeId: string | null
+  children: LayerItem[];
+  depth: number;
+  selectedIds: Set<string>;
+  activeId: string | null;
 }
 
-export function LayerChildren({ children, depth, selectedIds, activeId, ...callbacks }: LayerChildrenProps) {
+export function LayerChildren({
+  children,
+  depth,
+  selectedIds,
+  activeId,
+  ...callbacks
+}: LayerChildrenProps) {
   return (
-    <>
+    <React.Fragment>
       {children.map((child) => (
         <LayerRow
           key={child.id}
-          layer={child}
-          isActive={child.id === activeId}
-          isSelected={selectedIds.has(child.id)}
-          selectedIds={selectedIds}
           activeId={activeId}
           depth={depth}
+          isActive={child.id === activeId}
+          isSelected={selectedIds.has(child.id)}
+          layer={child}
+          selectedIds={selectedIds}
           {...callbacks}
         />
       ))}
-    </>
-  )
+    </React.Fragment>
+  );
 }

@@ -1,12 +1,10 @@
-'use client'
-import React, { useMemo, useState } from 'react'
-import { Tooltip } from '../primitives'
-import {
-  Search,
-  ChevronDown,
-  ChevronUp,
-  ChevronRight,
-} from 'lucide-react'
+'use client';
+
+import React, { useMemo, useState } from 'react';
+
+import { ChevronDown, ChevronRight, ChevronUp, Search } from 'lucide-react';
+
+import { Tooltip } from '../primitives';
 
 // ─────────────────────────────────────────────────────────────
 // TYPES
@@ -19,17 +17,17 @@ export type StickerCategoryType =
   | 'emoji'
   | 'emoticons'
   | 'florals'
-  | 'hand'
+  | 'hand';
 
 export interface StickerDef {
-  id: string
-  label: string
-  category: StickerCategoryType
-  file: string
+  id: string;
+  label: string;
+  category: StickerCategoryType;
+  file: string;
 }
 
 interface Props {
-  onAddSticker: (src: string) => void
+  onAddSticker: (src: string) => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -38,10 +36,7 @@ interface Props {
 // Supports SVG + PNG
 // ─────────────────────────────────────────────────────────────
 
-const STICKER_FILES: Record<
-  StickerCategoryType,
-  string[]
-> = {
+const STICKER_FILES: Record<StickerCategoryType, string[]> = {
   emoji: [
     'emoji_anguished.svg',
     'emoji_ape.svg',
@@ -205,112 +200,107 @@ const STICKER_FILES: Record<
     '3d_stickers_thumbs_up.png',
     '3d_stickers_thunder.png',
   ],
-}
+};
 
 // ─────────────────────────────────────────────────────────────
 // AUTO GENERATE STICKERS
 // ─────────────────────────────────────────────────────────────
 
-export const STICKERS: StickerDef[] = Object.entries(
-  STICKER_FILES
-).flatMap(([category, files]) =>
-  files.map((file) => ({
-    id: file
-      .replace(/\.(svg|png)$/i, '')
-      .replace(/_/g, '-'),
+export const STICKERS: StickerDef[] = Object.entries(STICKER_FILES).flatMap(
+  ([category, files]) =>
+    files.map((file) => ({
+      id: file.replace(/\.(svg|png)$/i, '').replace(/_/g, '-'),
 
-    label: file
-      .replace(/\.(svg|png)$/i, '')
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (l) => l.toUpperCase()),
+      label: file
+        .replace(/\.(svg|png)$/i, '')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (l) => l.toUpperCase()),
 
-    category: category as StickerCategoryType,
+      category: category as StickerCategoryType,
 
-    file,
-  }))
-)
+      file,
+    }))
+);
 
 // ─────────────────────────────────────────────────────────────
 // CATEGORY ORDER
 // ─────────────────────────────────────────────────────────────
 
 const CATEGORY_ORDER: {
-  key: StickerCategoryType
-  label: string
+  key: StickerCategoryType;
+  label: string;
 }[] = [
   // { key: 'emoji',      label: 'Emoji'     },
-  { key: 'emoticons',  label: 'Emoticons' },
-  { key: 'craft',      label: 'Craft'     },
-  { key: '3Dstickers', label: '3D Grain'  },
-  { key: 'hand',       label: 'Hands'     },
-  { key: 'doodle',     label: 'Doodle'    },
-  { key: 'florals',    label: 'Florals'   },
-]
+  { key: 'emoticons', label: 'Emoticons' },
+  { key: 'craft', label: 'Craft' },
+  { key: '3Dstickers', label: '3D Grain' },
+  { key: 'hand', label: 'Hands' },
+  { key: 'doodle', label: 'Doodle' },
+  { key: 'florals', label: 'Florals' },
+];
 
 // How many stickers to show when collapsed (one full row of 4)
-const COLLAPSED_COUNT = 4
+const COLLAPSED_COUNT = 4;
 
 // ─────────────────────────────────────────────────────────────
 // MAIN PANEL
 // ─────────────────────────────────────────────────────────────
 
 export function StickersPanel({ onAddSticker }: Props) {
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState('');
 
   const filteredStickers = useMemo(() => {
-    if (!search.trim()) return STICKERS
-    const q = search.toLowerCase()
+    if (!search.trim()) return STICKERS;
+    const q = search.toLowerCase();
     return STICKERS.filter(
       (sticker) =>
         sticker.label.toLowerCase().includes(q) ||
         sticker.id.toLowerCase().includes(q)
-    )
-  }, [search])
+    );
+  }, [search]);
 
   return (
-    <div className="flex flex-col h-full bg-surface">
-
+    <div className="bg-surface flex h-full flex-col">
       {/* SEARCH */}
-      <div className="px-4 pt-4 pb-2">
-        <div className="flex items-center bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--color-border)] focus-within:border-[var(--color-primary)] transition-colors">
-          <Search size={14} className="text-[var(--color-text-muted)] mr-2" />
+      <div className="px-4 pb-2 pt-4">
+        <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--color-primary)]">
+          <Search className="mr-2 text-[var(--color-text-muted)]" size={14} />
           <input
-            type="text"
-            placeholder="Search stickers..."
-            value={search}
+            className="flex-1 border-none bg-transparent text-sm text-[var(--color-text)] outline-none"
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent border-none outline-none flex-1 text-[var(--color-text)] text-sm"
+            placeholder="Search stickers..."
+            type="text"
+            value={search}
           />
         </div>
       </div>
 
       {/* CONTENT */}
-      <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide px-4">
-
+      <div className="scrollbar-hide flex-1 overflow-y-auto px-4 pb-6">
         {CATEGORY_ORDER.map((category) => {
           const stickers = filteredStickers.filter(
             (s) => s.category === category.key
-          )
-          if (stickers.length === 0) return null
+          );
+          if (stickers.length === 0) return null;
 
           return (
             <StickerCategory
               key={category.key}
-              title={category.label}
-              stickers={stickers}
               onAddSticker={onAddSticker}
+              stickers={stickers}
+              title={category.label}
             />
-          )
+          );
         })}
 
         {filteredStickers.length === 0 && (
-          <div className="mt-8 text-center text-[var(--color-text-muted)] text-sm">
+          <div className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
             No stickers found for "{search}"
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -322,46 +312,43 @@ function StickerCategory({
   stickers,
   onAddSticker,
 }: {
-  title: string
-  stickers: StickerDef[]
-  onAddSticker: (src: string) => void
+  title: string;
+  stickers: StickerDef[];
+  onAddSticker: (src: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
-  if (stickers.length === 0) return null
+  if (stickers.length === 0) return null;
 
-  const hasMore = stickers.length > 0
+  const hasMore = stickers.length > 0;
 
   return (
     <div className="mt-5">
-
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-[var(--color-text)] tracking-tight">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-bold tracking-tight text-[var(--color-text)]">
           {title}
         </h3>
 
-        {hasMore && (
+        {hasMore ? (
           <button
+            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
             onClick={() => setExpanded(!expanded)}
-            className="flex items-center text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors bg-transparent border-none cursor-pointer"
           >
-            {expanded
-              ? 'Less'
-              : `More (${stickers.length})`}
+            {expanded ? 'Less' : `More (${stickers.length})`}
 
             {expanded ? (
-              <ChevronUp size={10} className="ml-1" />
+              <ChevronUp className="ml-1" size={10} />
             ) : (
-              <ChevronDown size={10} className="ml-1" />
+              <ChevronDown className="ml-1" size={10} />
             )}
           </button>
-        )}
+        ) : null}
       </div>
 
       {expanded ? (
         /* EXPANDED — 3-col grid */
-        <div className="grid grid-cols-3 gap-2 mt-1 auto-rows-fr">
+        <div className="mt-1 grid auto-rows-fr grid-cols-3 gap-2">
           {stickers.map((sticker) => (
             <StickerTile
               key={sticker.id}
@@ -376,10 +363,10 @@ function StickerCategory({
         </div>
       ) : (
         /* COLLAPSED — horizontal scroll, scrollbar hidden, with arrow hint */
-        <ScrollRow stickers={stickers} onAddSticker={onAddSticker} />
+        <ScrollRow onAddSticker={onAddSticker} stickers={stickers} />
       )}
     </div>
-  )
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -390,22 +377,22 @@ function ScrollRow({
   stickers,
   onAddSticker,
 }: {
-  stickers: StickerDef[]
-  onAddSticker: (src: string) => void
+  stickers: StickerDef[];
+  onAddSticker: (src: string) => void;
 }) {
-  const scrollRef = React.useRef<HTMLDivElement>(null)
-  const [canScrollRight, setCanScrollRight] = useState(true)
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const checkScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
+    const el = scrollRef.current;
+    if (!el) return;
     // Hide arrow when scrolled to the end (within 4px)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
-  }
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
 
   const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' })
-  }
+    scrollRef.current?.scrollBy({ left: 160, behavior: 'smooth' });
+  };
 
   return (
     <div className="relative">
@@ -417,18 +404,22 @@ function ScrollRow({
           - py-[3px] gives the 2px ring room top & bottom             */}
       <div
         ref={scrollRef}
-        className="sticker-hscroll flex gap-2 py-[3px] mx-[-16px] px-[16px]"
+        className="sticker-hscroll mx-[-16px] flex gap-2 px-[16px] py-[3px]"
+        onScroll={checkScroll}
         style={{
           overflowX: 'auto',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
         }}
-        onScroll={checkScroll}
       >
         {stickers.map((sticker) => (
-          <div key={sticker.id} className="shrink-0"  style={{
-        width: 'calc((100% - 24px) / 4)',
-      }}>
+          <div
+            key={sticker.id}
+            className="shrink-0"
+            style={{
+              width: 'calc((100% - 24px) / 4)',
+            }}
+          >
             <StickerTile
               sticker={sticker}
               onClick={() =>
@@ -442,10 +433,10 @@ function ScrollRow({
       </div>
 
       {/* Right arrow — fades out when fully scrolled */}
-      {canScrollRight && (
+      {canScrollRight ? (
         <button
+          className="absolute right-0 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center border-none outline-none"
           onClick={scrollRight}
-          className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer border-none outline-none"
           style={{
             width: 22,
             height: 22,
@@ -454,66 +445,49 @@ function ScrollRow({
             boxShadow: '-8px 0 14px 8px var(--color-surface, #fff)',
           }}
         >
-          <ChevronRight size={14} style={{ color: 'var(--color-text-muted)' }} />
+          <ChevronRight
+            size={14}
+            style={{ color: 'var(--color-text-muted)' }}
+          />
         </button>
-      )}
+      ) : null}
     </div>
-  )
+  );
 }
-
-
 
 function StickerTile({
   sticker,
   onClick,
   expanded = false,
 }: {
-  sticker: StickerDef
-  onClick: () => void
-  expanded?: boolean
+  sticker: StickerDef;
+  onClick: () => void;
+  expanded?: boolean;
 }) {
-  const [hovered, setHovered] = useState(false)
+  const [hovered, setHovered] = useState(false);
 
-  const imageUrl = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/stickers/${sticker.category}/${sticker.file}`
+  const imageUrl = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/stickers/${sticker.category}/${sticker.file}`;
 
-  const handleDragStart = (
-    e: React.DragEvent<HTMLButtonElement>
-  ) => {
-    e.dataTransfer.effectAllowed = 'copy'
-    e.dataTransfer.setData('text/x-fastlabai-type', 'sticker')
-    e.dataTransfer.setData(
-      'text/x-fastlabai-sticker-src',
-      imageUrl
-    )
-  }
+  const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/x-fastlabai-type', 'sticker');
+    e.dataTransfer.setData('text/x-fastlabai-sticker-src', imageUrl);
+  };
 
   return (
-    <Tooltip title={sticker.label} placement="top">
+    <Tooltip placement="top" title={sticker.label}>
       <button
-        onClick={onClick}
         draggable
+        className="flex w-full shrink-0 cursor-pointer items-center justify-center rounded-xl border-none outline-none transition-all duration-200"
+        onClick={onClick}
         onDragStart={handleDragStart}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="
-          w-full
-          rounded-xl
-          flex
-          items-center
-          justify-center
-          cursor-pointer
-          border-none
-          outline-none
-          transition-all
-          duration-200
-          shrink-0
-        "
         style={{
           width: '100%',
           aspectRatio: '1 / 1',
 
-          background:
-            'color-mix(in srgb, var(--color-text) 5%, transparent)',
+          background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
 
           boxShadow: hovered
             ? '0 0 0 2px var(--color-border, #d1d5db)'
@@ -523,26 +497,18 @@ function StickerTile({
         }}
       >
         <img
-          src={imageUrl}
           alt={sticker.label}
+          className="pointer-events-none h-[78%] w-[78%] select-none object-contain transition-opacity duration-200"
           draggable={false}
-          className="
-            w-[78%]
-            h-[78%]
-            object-contain
-            pointer-events-none
-            select-none
-            transition-opacity
-            duration-200
-          "
+          src={imageUrl}
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
           style={{
             opacity: hovered ? 0.85 : 1,
-          }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
           }}
         />
       </button>
     </Tooltip>
-  )
+  );
 }

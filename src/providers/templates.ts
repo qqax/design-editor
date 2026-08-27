@@ -1,43 +1,43 @@
-import type { IScene } from '../engine'
+import type { IScene } from '../engine';
 
 /** A single design template — a fully composed scene the user can apply as a starting point. */
 export interface DesignTemplate {
-  id: string
-  name: string
-  categoryId: string
+  id: string;
+  name: string;
+  categoryId: string;
   /** Pre-rendered thumbnail. If omitted, the editor renders one at runtime from `scene`. */
-  thumbnailUrl?: string
-  scene: IScene
+  thumbnailUrl?: string;
+  scene: IScene;
   /** Canvas background colour applied when this template is clicked. */
-  canvasBg?: string
+  canvasBg?: string;
   /** Workspace background colour applied when this template is clicked. */
-  workspaceBg?: string
+  workspaceBg?: string;
   /** Free-text tags used for search matching alongside `name`. */
-  tags?: string[]
+  tags?: string[];
 }
 
 /** A grouping of templates (e.g. "Social Media", "Posters"). */
 export interface TemplateCategory {
-  id: string
-  name: string
-  description?: string
+  id: string;
+  name: string;
+  description?: string;
   /** Lower values sort earlier in the panel. */
-  order?: number
+  order?: number;
 }
 
 export interface TemplateListOpts {
-  categoryId?: string
-  search?: string
-  cursor?: string
+  categoryId?: string;
+  search?: string;
+  cursor?: string;
   /** Defaults to 12 if omitted. */
-  limit?: number
-  signal?: AbortSignal
+  limit?: number;
+  signal?: AbortSignal;
 }
 
 export interface TemplateListResult {
-  items: DesignTemplate[]
+  items: DesignTemplate[];
   /** Opaque cursor for the next page. Undefined when no more pages. */
-  nextCursor?: string
+  nextCursor?: string;
 }
 
 /**
@@ -46,6 +46,6 @@ export interface TemplateListResult {
  * and on "Load more".
  */
 export interface TemplateProvider {
-  categories(opts?: { signal?: AbortSignal }): Promise<TemplateCategory[]>
-  list(opts: TemplateListOpts): Promise<TemplateListResult>
+  categories: (opts?: { signal?: AbortSignal }) => Promise<TemplateCategory[]>;
+  list: (opts: TemplateListOpts) => Promise<TemplateListResult>;
 }

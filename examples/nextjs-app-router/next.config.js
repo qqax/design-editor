@@ -5,9 +5,9 @@ const nextConfig = {
     config.externals.push({
       canvas: 'commonjs canvas',
       jsdom: 'commonjs jsdom',
-    })
-    return config
+    });
+    return config;
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

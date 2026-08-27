@@ -1,15 +1,24 @@
-import { ILayer } from "../../types"
-import { defaultFrameOptions, LayerType, defaultBackgroundOptions } from "../common/constants"
-import { ControllerOptions, Dimension, GradientOptions } from "../common/interfaces"
-import setObjectGradient from "../utils/fabric"
-import Base from "./Base"
-import { Frame as FrameObject } from "../../objects/Frame"
-import { Background as BackgroundObject } from "../../objects/Background"
+import Base from './Base';
+import { Background as BackgroundObject } from '../../objects/Background';
+import { Frame as FrameObject } from '../../objects/Frame';
+import {
+  defaultBackgroundOptions,
+  defaultFrameOptions,
+  LayerType,
+} from '../common/constants';
+import setObjectGradient from '../utils/fabric';
+
+import type { ILayer } from '../../types';
+import type {
+  ControllerOptions,
+  Dimension,
+  GradientOptions,
+} from '../common/interfaces';
 
 class Frame extends Base {
   constructor(props: ControllerOptions) {
-    super(props)
-    this.initialize()
+    super(props);
+    this.initialize();
   }
 
   initialize() {
@@ -18,84 +27,89 @@ class Frame extends Base {
       originX: 'left',
       originY: 'top',
       absolutePositioned: this.config.clipToFrame,
-    } as any)
+    } as any);
     const background = new BackgroundObject({
       ...defaultBackgroundOptions,
       originX: 'left',
       originY: 'top',
       shadow: this.config.shadow,
-    } as any)
+    } as any);
 
-
-      // @ts-ignore
+    // @ts-ignore
     this.canvas.add(frame, background);
     (this.canvas as any).centerObject(frame);
     (this.canvas as any).centerObject(background);
-    frame.setCoords?.()
-    background.setCoords?.()
+    frame.setCoords?.();
+    background.setCoords?.();
 
     this.state.setFrame({
       height: defaultFrameOptions.width,
       width: defaultFrameOptions.height,
-    })
+    });
 
     setTimeout(() => {
-      this.editor.zoom.zoomToFit()
-      this.editor.history.initialize()
-    }, 50)
+      this.editor.zoom.zoomToFit();
+      this.editor.history.initialize();
+    }, 50);
   }
 
   get frame() {
-      // @ts-ignore
-    return this.canvas.getObjects().find((object) => object.type === LayerType.FRAME) as Required<FrameObject>
+    // @ts-ignore
+    return this.canvas
+      .getObjects()
+      .find(
+        (object) => object.type === LayerType.FRAME
+      ) as Required<FrameObject>;
   }
 
   get background() {
-      // @ts-ignore
+    // @ts-ignore
     return this.canvas
       .getObjects()
-      .find((object) => object.type === LayerType.BACKGROUND) as Required<BackgroundObject>
+      .find(
+        (object) => object.type === LayerType.BACKGROUND
+      ) as Required<BackgroundObject>;
   }
 
   get options(): Required<ILayer> {
-    const options = this.frame.toJSON(this.config.propertiesToInclude as any)
-    return options as unknown as Required<ILayer>
+    const options = this.frame.toJSON(this.config.propertiesToInclude);
+    return options as unknown as Required<ILayer>;
   }
 
   public resize({ height, width }: Dimension) {
     this.state.setFrame({
       height,
       width,
-    })
-    const frame = this.frame
-    const background = this.background
-      // @ts-ignore
+    });
+    const { frame } = this;
+    const { background } = this;
+    // @ts-ignore
     frame.set({ width, height });
     (this.canvas as any).centerObject(frame);
-    frame.setCoords?.()
+    frame.setCoords?.();
     if (background) {
       // @ts-ignore
       background.set({ width, height });
       (this.canvas as any).centerObject(background);
-      background.setCoords?.()
+      background.setCoords?.();
     }
-    this.editor.zoom.zoomToFit()
+    this.editor.zoom.zoomToFit();
   }
 
   public setHoverCursor = (cursor: string) => {
-    const background = this.background
+    const { background } = this;
     if (background) {
-      background.set("hoverCursor", cursor)
+      background.set('hoverCursor', cursor);
     }
-  }
+  };
 
   public setBackgroundColor = (color: string) => {
-    let background = this.background
+    let { background } = this;
     if (!background) {
       background = new BackgroundObject({
-        name: "Initial Frame",
+        name: 'Initial Frame',
         fill: color,
-        id: "background",
+        id: 'background',
         selectable: false,
         hasControls: false,
         lockMovementY: true,
@@ -110,24 +124,24 @@ class Frame extends Base {
         originX: this.frame.originX,
         originY: this.frame.originY,
         shadow: this.config.shadow,
-      } as any) as Required<BackgroundObject>
+      } as any) as Required<BackgroundObject>;
       // @ts-ignore
-      this.canvas.insertAt(1, background)
+      this.canvas.insertAt(1, background);
     } else {
-      background.set({ fill: color })
-      background.set("dirty", true)
+      background.set({ fill: color });
+      background.set('dirty', true);
     }
-    this.canvas.requestRenderAll()
-    this.editor.history.save()
-  }
+    this.canvas.requestRenderAll();
+    this.editor.history.save();
+  };
 
   public setBackgroundGradient = ({ angle, colors }: GradientOptions) => {
-    let background = this.background
+    let { background } = this;
     if (!background) {
       background = new BackgroundObject({
-        name: "Initial Frame",
-        fill: "#ffffff",
-        id: "background",
+        name: 'Initial Frame',
+        fill: '#ffffff',
+        id: 'background',
         selectable: false,
         hasControls: false,
         lockMovementY: true,
@@ -142,39 +156,37 @@ class Frame extends Base {
         originX: this.frame.originX,
         originY: this.frame.originY,
         shadow: this.config.shadow,
-      } as any) as Required<BackgroundObject>
+      } as any) as Required<BackgroundObject>;
       // @ts-ignore
-      this.canvas.insertAt(1, background)
+      this.canvas.insertAt(1, background);
     }
-      // @ts-ignore
-    setObjectGradient(background, angle, colors)
-    background.set("dirty", true)
-    this.canvas.requestRenderAll()
-    this.editor.history.save()
-  }
+    // @ts-ignore
+    setObjectGradient(background, angle, colors);
+    background.set('dirty', true);
+    this.canvas.requestRenderAll();
+    this.editor.history.save();
+  };
 
   public getBoundingClientRect() {
-    const frame = this.frame
-    return frame.getBoundingRect()
+    const { frame } = this;
+    return frame.getBoundingRect();
   }
 
   get fitRatio() {
-    const options = this.frame as Required<FrameObject>
-    const canvasWidth = this.canvas.width! - this.config.frameMargin
-    const canvasHeight = this.canvas.height! - this.config.frameMargin
-    let scaleX = canvasWidth / options.width
-    let scaleY = canvasHeight / options.height
+    const options = this.frame;
+    const canvasWidth = this.canvas.width - this.config.frameMargin;
+    const canvasHeight = this.canvas.height - this.config.frameMargin;
+    let scaleX = canvasWidth / options.width;
+    const scaleY = canvasHeight / options.height;
     if (options.height >= options.width) {
-      scaleX = scaleY
+      scaleX = scaleY;
       if (canvasWidth < options.width * scaleX) {
-        scaleX = scaleX * (canvasWidth / (options.width * scaleX))
+        scaleX *= canvasWidth / (options.width * scaleX);
       }
-    } else {
-      if (canvasHeight < options.height * scaleX) {
-        scaleX = scaleX * (canvasHeight / (options.height * scaleX))
-      }
+    } else if (canvasHeight < options.height * scaleX) {
+      scaleX *= canvasHeight / (options.height * scaleX);
     }
-    return scaleX
+    return scaleX;
   }
 }
-export default Frame
+export default Frame;

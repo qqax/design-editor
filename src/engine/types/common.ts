@@ -1,12 +1,11 @@
 export interface Dimension {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 export interface TimeRange {
-  from?: number
-  to?: number
+  from?: number;
+  to?: number;
 }
 
-
-export type RotationControlPosition = "TOP" | "BOTTOM"
+export type RotationControlPosition = 'TOP' | 'BOTTOM';

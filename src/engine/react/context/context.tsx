@@ -1,5 +1,6 @@
-import * as React from "react"
-import { EditorState } from "../../core"
+import * as React from 'react';
+
+import type { EditorState } from '../../core';
 
 const Context = React.createContext<EditorState>({
   zoomRatio: 1,
@@ -14,15 +15,15 @@ const Context = React.createContext<EditorState>({
   setObjects: () => {},
   setZoomRatio: () => {},
   setEditor: () => {},
-})
+});
 
 const Provider: any = ({ children }: { children: React.ReactNode }) => {
-  const [zoomRatio, setZoomRatio] = React.useState(1)
-  const [activeObject, setActiveObject] = React.useState(null)
-  const [frame, setFrame] = React.useState(null)
-  const [editor, setEditor] = React.useState(null)
-  const [contextMenuRequest, setContextMenuRequest] = React.useState(null)
-  const [objects, setObjects] = React.useState([])
+  const [zoomRatio, setZoomRatio] = React.useState(1);
+  const [activeObject, setActiveObject] = React.useState(null);
+  const [frame, setFrame] = React.useState(null);
+  const [editor, setEditor] = React.useState(null);
+  const [contextMenuRequest, setContextMenuRequest] = React.useState(null);
+  const [objects, setObjects] = React.useState([]);
 
   return (
     <Context.Provider
@@ -43,7 +44,7 @@ const Provider: any = ({ children }: { children: React.ReactNode }) => {
     >
       {children}
     </Context.Provider>
-  )
-}
+  );
+};
 
-export { Context, Provider }
+export { Context, Provider };

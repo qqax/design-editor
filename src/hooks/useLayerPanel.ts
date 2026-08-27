@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useObjects, useActiveObject } from '../engine/react'
+import { useActiveObject, useObjects } from '../engine/react';
 
 const TYPE_LABELS: Record<string, string> = {
   StaticImage: 'Image',
@@ -11,51 +11,46 @@ const TYPE_LABELS: Record<string, string> = {
   StaticPath: 'Shape',
   StaticVector: 'Shape',
   Group: 'Group',
-}
+};
 
 export interface LayerItem {
-  id: string
-  type: string
-  name: string
-  visible: boolean
-  children?: LayerItem[]
+  id: string;
+  type: string;
+  name: string;
+  visible: boolean;
+  children?: LayerItem[];
 }
 
 function toLayerItem(obj: any): LayerItem {
-  const type = String(obj?.type ?? 'Object')
-  const id = String(obj?.id)
+  const type = String(obj?.type ?? 'Object');
+  const id = String(obj?.id);
 
   const children = Array.isArray(obj?.objects)
-      ? obj.objects.map((child: any) => toLayerItem(child))
-      : undefined
+    ? obj.objects.map((child: any) => toLayerItem(child))
+    : undefined;
 
   return {
     id,
     type,
     name:
-        typeof obj?.name === 'string' && obj.name.trim()
-            ? obj.name
-            : TYPE_LABELS[type] ?? 'Object',
+      typeof obj?.name === 'string' && obj.name.trim()
+        ? obj.name
+        : (TYPE_LABELS[type] ?? 'Object'),
     visible: obj?.visible !== false,
     ...(children && children.length > 0 ? { children } : {}),
-  }
+  };
 }
 
 export function useLayerPanel() {
-  const objects = (useObjects<any[]>() ?? []) as any[]
-  const activeObj = useActiveObject() as any
+  const objects = useObjects<any[]>() ?? [];
+  const activeObj = useActiveObject();
 
-  const layers = [...objects]
-      .reverse()
-      .map(toLayerItem)
+  const layers = [...objects].reverse().map(toLayerItem);
 
-  const activeId =
-      activeObj?.id != null
-          ? String(activeObj.id)
-          : null
+  const activeId = activeObj?.id != null ? String(activeObj.id) : null;
 
   return {
     layers,
     activeId,
-  }
+  };
 }

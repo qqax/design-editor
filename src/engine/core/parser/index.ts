@@ -1,3 +1,3 @@
-import parseSVG from "./parser"
+import parseSVG from './parser';
 
-export default parseSVG
+export default parseSVG;

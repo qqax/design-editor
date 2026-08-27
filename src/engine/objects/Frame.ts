@@ -1,18 +1,20 @@
-import { Rect, classRegistry } from "fabric"
-import type { RectProps } from "fabric"
+import { classRegistry, Rect } from 'fabric';
+
+import type { RectProps } from 'fabric';
 
 export interface FrameOptions extends RectProps {
-  id: string
-  name: string
-  description?: string
+  id: string;
+  name: string;
+  description?: string;
 }
 
 export class Frame extends Rect {
-  static type = "Frame"
+  static type = 'Frame';
 
   get type() {
-    return "Frame"
+    return 'Frame';
   }
+
   // No-op setter — required so Fabric's _setOptions can write `type` during
   // deserialization (loadFromJSON / enlivenObjects) without crashing.
   set type(_value: string) {
@@ -29,26 +31,26 @@ export class Frame extends Rect {
       strokeWidth: 0,
       padding: 0,
       evented: false,
-    } as any)
+    });
   }
 
   // @ts-ignore
   toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any)
+    return super.toObject(propertiesToInclude as any);
   }
 
   // @ts-ignore
   toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any)
+    return super.toObject(propertiesToInclude as any);
   }
 
   static async fromObject(options: FrameOptions) {
-    return new Frame(options)
+    return new Frame(options);
   }
 }
 
-classRegistry.setClass(Frame, Frame.type)
+classRegistry.setClass(Frame, Frame.type);
 
-declare module "fabric" {
+declare module 'fabric' {
   export interface Frame {}
 }

@@ -1,6 +1,6 @@
 export function generateId(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  return 'id-' + Math.random().toString(36).substring(2, 15);
+  return `id-${Math.random().toString(36).substring(2, 15)}`;
 }
