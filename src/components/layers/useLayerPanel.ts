@@ -1,6 +1,7 @@
 'use client'
 
-import { useObjects, useActiveObject } from '../engine/react'
+import { useObjects, useActiveObject } from '../../engine/react'
+import type { LayerItem } from './layer-panel.types'
 
 const TYPE_LABELS: Record<string, string> = {
   StaticImage: 'Image',
@@ -13,29 +14,19 @@ const TYPE_LABELS: Record<string, string> = {
   Group: 'Group',
 }
 
-export interface LayerItem {
-  id: string
-  type: string
-  name: string
-  visible: boolean
-  children?: LayerItem[]
-}
-
 function toLayerItem(obj: any): LayerItem {
   const type = String(obj?.type ?? 'Object')
-  const id = String(obj?.id)
-
   const children = Array.isArray(obj?.objects)
-      ? obj.objects.map((child: any) => toLayerItem(child))
-      : undefined
+    ? obj.objects.map((c: any) => toLayerItem(c))
+    : undefined
 
   return {
-    id,
+    id: String(obj?.id),
     type,
     name:
-        typeof obj?.name === 'string' && obj.name.trim()
-            ? obj.name
-            : TYPE_LABELS[type] ?? 'Object',
+      typeof obj?.name === 'string' && obj.name.trim()
+        ? obj.name
+        : (TYPE_LABELS[type] ?? 'Object'),
     visible: obj?.visible !== false,
     ...(children && children.length > 0 ? { children } : {}),
   }
@@ -45,17 +36,8 @@ export function useLayerPanel() {
   const objects = (useObjects<any[]>() ?? []) as any[]
   const activeObj = useActiveObject() as any
 
-  const layers = [...objects]
-      .reverse()
-      .map(toLayerItem)
-
-  const activeId =
-      activeObj?.id != null
-          ? String(activeObj.id)
-          : null
-
   return {
-    layers,
-    activeId,
+    layers: [...objects].reverse().map(toLayerItem),
+    activeId: activeObj?.id != null ? String(activeObj.id) : null,
   }
 }

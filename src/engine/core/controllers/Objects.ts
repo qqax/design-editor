@@ -11,6 +11,7 @@ import {Direction, GradientOptions, ScaleType, ShadowOptions, Size} from "../com
 import ObjectImporter from "../utils/object-importer"
 import setObjectGradient, {setObjectShadow} from "../utils/fabric"
 import {loadImageFromURL} from "../utils/image-loader"
+import { Frame } from "../../objects";
 
 class Objects extends Base {
   public clipboard: any
@@ -18,7 +19,7 @@ class Objects extends Base {
   public copyStyleClipboard: any
 
   public add = async (item: Partial<ILayer>) => {
-    const { canvas } = this
+    const {canvas} = this
     const options = this.editor.frame.options
     const objectImporter = new ObjectImporter(this.editor)
     const refItem = item as unknown as ILayer
@@ -83,7 +84,7 @@ class Objects extends Base {
         if (hasSelection && ["fontSize", "fontFamily", "fontWeight", "fontStyle", "fill", "underline", "linethrough"].includes(property)) {
           // Per-character style for text selections
           // @ts-ignore
-          refObject.setSelectionStyles({ [property]: options[property] })
+          refObject.setSelectionStyles({[property]: options[property]})
           canvas.requestRenderAll()
         } else if (property === "angle" || property === "top" || property === "left") {
           if (property === "angle") {
@@ -131,6 +132,7 @@ class Objects extends Base {
         }
       }
       this.editor.history.save()
+      this.updateContextObjects()
     }
   }
 
@@ -253,7 +255,7 @@ class Objects extends Base {
 
   public scale(type: ScaleType, id?: string) {
     let refObject = this.canvas.getActiveObject() as Required<FabricObject>
-    const { width, height, top } = this.editor.frame.frame
+    const {width, height, top} = this.editor.frame.frame
     if (id) {
       refObject = this.findOneById(id)
     }
@@ -302,67 +304,81 @@ class Objects extends Base {
     }
   }
 
-  public clone = () => {
-    if (this.canvas) {
-      const activeObject = this.canvas.getActiveObject()
-      const frame = this.editor.frame.frame
+  public clone = async () => {
+    console.log("clone")
 
-      this.canvas.discardActiveObject()
-
-      // @ts-ignore — vendored upstream: activeObject may be null here per Fabric v5 types
-      this.duplicate(activeObject, frame, (duplicates) => {
-        const selection = new ActiveSelection(duplicates, {
-          canvas: this.canvas,
-        }) as FabricObject
-        this.canvas.setActiveObject(selection)
-        this.canvas.requestRenderAll()
-      })
+    if (!this.canvas) {
+      return
     }
+
+    const activeObject = this.canvas.getActiveObject()
+
+    if (!activeObject) {
+      return
+    }
+
+    this.canvas.discardActiveObject()
+
+    const duplicates = await this.duplicate(activeObject)
+
+    const selection = new ActiveSelection(duplicates, {
+      canvas: this.canvas,
+    }) as FabricObject
+
+    this.canvas.setActiveObject(selection)
+    this.canvas.requestRenderAll()
+
+    this.updateContextObjects()
+    this.editor.history.save()
   }
 
   public cloneAudio = (id: string) => {
     const object = this.findOneById(id)
     const frame = this.editor.frame.frame
     this.deselect()
-      // @ts-ignore
+    // @ts-ignore
     this.duplicate(object, frame, (duplicates) => {
       this.canvas.requestRenderAll()
       this.updateContextObjects()
     })
   }
 
-  private duplicate(object: FabricObject, frame: FabricObject, callback: (clones: FabricObject[]) => void): void {
-    if (object instanceof Group && object.type !== LayerType.STATIC_VECTOR) {
-      const objects: FabricObject[] = (object as Group).getObjects()
-      const duplicates: FabricObject[] = []
-      for (let i = 0; i < objects.length; i++) {
-        this.duplicate(objects[i], frame, (clones) => {
-          duplicates.push(...clones)
-          if (i === objects.length - 1) {
-            callback(duplicates)
-          }
-        })
-      }
-    } else {
-      object.clone(
-        (clone: FabricObject) => {
-          clone.clipPath = undefined
-          clone.id = generateId()
-          clone.set({
-            left: object.left! + 10,
-            top: object.top! + 10,
-          })
-          if (this.config.clipToFrame) {
-            // @ts-ignore
-            clone.clipPath = this.editor.frame.frame
-          }
-          this.canvas.add(clone)
-          callback([clone])
-        },
-      // @ts-ignore
-        ["keyValues", "src"]
-      )
+  private async duplicate(
+      object: FabricObject,
+  ): Promise<FabricObject[]> {
+    if (
+        object instanceof Group &&
+        object.type !== LayerType.STATIC_VECTOR
+    ) {
+      const objects = object.getObjects()
+
+      const duplicates = (
+          await Promise.all(
+              objects.map((child) => this.duplicate(child)),
+          )
+      ).flat()
+
+      return duplicates
     }
+
+    const clone = await object.clone()
+
+    clone.clipPath = undefined
+    clone.id = generateId()
+
+    clone.set({
+      left: (object.left ?? 0) + 10,
+      top: (object.top ?? 0) + 10,
+    })
+
+    if (this.config.clipToFrame) {
+      clone.clipPath =
+          this.editor.frame.frame as unknown as FabricObject
+    }
+
+    this.canvas.add(clone)
+
+    return [clone]
   }
 
   public paste = () => {
@@ -402,6 +418,7 @@ class Objects extends Base {
 
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
+    this.updateContextObjects()
   }
 
   public list = () => {
@@ -1029,14 +1046,17 @@ class Objects extends Base {
   }
 
   public removeById = (id: string) => {
-    this.canvas.getObjects().forEach((o) => {
-      if (o.id === id) {
-        this.canvas.remove(o)
-        this.editor.history.save()
-        this.updateContextObjects()
-      }
-    })
+    const object = this.findOneById(id)
+
+    if (!object) {
+      return
+    }
+
+    this.canvas.remove(object)
     this.canvas.requestRenderAll()
+
+    this.editor.history.save()
+    this.updateContextObjects()
   }
 
   // Text exclusive hooks

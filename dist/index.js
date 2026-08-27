@@ -15165,6 +15165,7 @@ var Objects = class extends Base_default {
         }
       }
       this.editor.history.save();
+      this.updateContextObjects();
     }
   };
   clear = () => {
@@ -15321,19 +15322,24 @@ var Objects = class extends Base_default {
       this.clipboard = object;
     }
   };
-  clone = () => {
-    if (this.canvas) {
-      const activeObject = this.canvas.getActiveObject();
-      const frame = this.editor.frame.frame;
-      this.canvas.discardActiveObject();
-      this.duplicate(activeObject, frame, (duplicates) => {
-        const selection = new ActiveSelection(duplicates, {
-          canvas: this.canvas
-        });
-        this.canvas.setActiveObject(selection);
-        this.canvas.requestRenderAll();
-      });
+  clone = async () => {
+    console.log("clone");
+    if (!this.canvas) {
+      return;
     }
+    const activeObject = this.canvas.getActiveObject();
+    if (!activeObject) {
+      return;
+    }
+    this.canvas.discardActiveObject();
+    const duplicates = await this.duplicate(activeObject);
+    const selection = new ActiveSelection(duplicates, {
+      canvas: this.canvas
+    });
+    this.canvas.setActiveObject(selection);
+    this.canvas.requestRenderAll();
+    this.updateContextObjects();
+    this.editor.history.save();
   };
   cloneAudio = (id) => {
     const object = this.findOneById(id);
@@ -15344,37 +15350,26 @@ var Objects = class extends Base_default {
       this.updateContextObjects();
     });
   };
-  duplicate(object, frame, callback) {
+  async duplicate(object) {
     if (object instanceof Group && object.type !== "StaticVector" /* STATIC_VECTOR */) {
       const objects = object.getObjects();
-      const duplicates = [];
-      for (let i = 0; i < objects.length; i++) {
-        this.duplicate(objects[i], frame, (clones) => {
-          duplicates.push(...clones);
-          if (i === objects.length - 1) {
-            callback(duplicates);
-          }
-        });
-      }
-    } else {
-      object.clone(
-        (clone) => {
-          clone.clipPath = void 0;
-          clone.id = generateId();
-          clone.set({
-            left: object.left + 10,
-            top: object.top + 10
-          });
-          if (this.config.clipToFrame) {
-            clone.clipPath = this.editor.frame.frame;
-          }
-          this.canvas.add(clone);
-          callback([clone]);
-        },
-        // @ts-ignore
-        ["keyValues", "src"]
-      );
+      const duplicates = (await Promise.all(
+        objects.map((child) => this.duplicate(child))
+      )).flat();
+      return duplicates;
     }
+    const clone = await object.clone();
+    clone.clipPath = void 0;
+    clone.id = generateId();
+    clone.set({
+      left: (object.left ?? 0) + 10,
+      top: (object.top ?? 0) + 10
+    });
+    if (this.config.clipToFrame) {
+      clone.clipPath = this.editor.frame.frame;
+    }
+    this.canvas.add(clone);
+    return [clone];
   }
   paste = () => {
     const object = this.clipboard;
@@ -15408,6 +15403,7 @@ var Objects = class extends Base_default {
     }
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
+    this.updateContextObjects();
   };
   list = () => {
     const objects = this.canvas.getObjects();
@@ -15962,14 +15958,14 @@ var Objects = class extends Base_default {
     return objects[0];
   };
   removeById = (id) => {
-    this.canvas.getObjects().forEach((o) => {
-      if (o.id === id) {
-        this.canvas.remove(o);
-        this.editor.history.save();
-        this.updateContextObjects();
-      }
-    });
+    const object = this.findOneById(id);
+    if (!object) {
+      return;
+    }
+    this.canvas.remove(object);
     this.canvas.requestRenderAll();
+    this.editor.history.save();
+    this.updateContextObjects();
   };
   // Text exclusive hooks
   toUppercase(id) {
@@ -26002,143 +25998,159 @@ var CanvasArea = memo(function CanvasArea2({
     }
   );
 });
-var TYPE_ICONS = {
-  StaticImage: /* @__PURE__ */ jsx(Image5, { size: 14 }),
-  BackgroundImage: /* @__PURE__ */ jsx(Image5, { size: 14 }),
-  StaticText: /* @__PURE__ */ jsx(Type, { size: 14 }),
-  DynamicText: /* @__PURE__ */ jsx(Type, { size: 14 }),
-  StaticVideo: /* @__PURE__ */ jsx(Video, { size: 14 }),
-  StaticPath: /* @__PURE__ */ jsx(Shapes, { size: 14 }),
-  StaticVector: /* @__PURE__ */ jsx(Shapes, { size: 14 }),
-  Group: /* @__PURE__ */ jsx(Folder, { size: 14 })
-};
-function LayerPanel({ layers, activeId, editor, onClose }) {
-  const [selectedIds, setSelectedIds] = useState(/* @__PURE__ */ new Set());
-  const toggleSelect = (id, multi) => {
-    if (multi) {
-      setSelectedIds((prev) => {
-        const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
-        return next;
-      });
-    } else {
-      setSelectedIds(/* @__PURE__ */ new Set([id]));
-      editor?.objects.select(id);
+function LayerName({ id, name, visible, isActive, editing, onCommit, onCancel }) {
+  const [val, setVal] = useState(name);
+  const inputRef = useRef(null);
+  useEffect(() => {
+    setVal(name);
+  }, [name]);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
     }
+  }, [editing]);
+  const commit = () => {
+    const trimmed = val.trim();
+    if (trimmed && trimmed !== name) onCommit(id, trimmed);
+    else onCancel();
   };
-  const handleGroup = () => {
-    if (selectedIds.size < 2) return;
-    editor?.objects.group?.([...selectedIds]);
-    setSelectedIds(/* @__PURE__ */ new Set());
-  };
-  return /* @__PURE__ */ jsxs(
-    "div",
+  if (editing) {
+    return /* @__PURE__ */ jsx(
+      "input",
+      {
+        ref: inputRef,
+        value: val,
+        onChange: (e) => setVal(e.target.value),
+        onBlur: commit,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+          }
+          if (e.key === "Escape") {
+            setVal(name);
+            onCancel();
+          }
+        },
+        onClick: (e) => e.stopPropagation(),
+        style: {
+          flex: 1,
+          minWidth: 0,
+          background: "var(--color-bg)",
+          border: "1px solid var(--color-primary)",
+          borderRadius: 4,
+          color: "var(--color-text)",
+          fontSize: 11,
+          padding: "2px 6px",
+          outline: "none"
+        }
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx(
+    "span",
     {
-      className: "absolute top-[56px] bottom-[66px] right-0 z-40 w-full md:relative md:top-0 md:bottom-0 md:w-[230px] md:z-auto shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)]",
       style: {
-        background: "color-mix(in srgb, var(--color-surface) 97%, transparent)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderLeft: "1px solid var(--color-border)",
-        display: "flex",
-        flexDirection: "column",
+        flex: 1,
+        minWidth: 0,
+        fontSize: 11,
+        color: isActive ? "var(--color-text)" : "var(--color-text-muted)",
         overflow: "hidden",
-        boxShadow: "-8px 0 40px var(--shadow-color)"
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        opacity: visible ? 1 : 0.45
       },
-      children: [
-        /* @__PURE__ */ jsxs("div", { style: {
-          height: 50,
-          flexShrink: 0,
-          display: "flex",
-          alignItems: "center",
-          padding: "0 14px",
-          gap: 8,
-          background: "linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 12%, transparent) 0%, transparent 100%)",
-          borderBottom: "1px solid var(--color-border)"
-        }, children: [
-          /* @__PURE__ */ jsx("div", { style: {
-            width: 3,
-            height: 16,
-            borderRadius: 2,
-            background: "var(--color-primary)",
-            flexShrink: 0
-          } }),
-          /* @__PURE__ */ jsx("span", { style: {
-            flex: 1,
-            fontSize: 11,
-            fontWeight: 800,
-            color: "var(--color-primary)",
-            textTransform: "uppercase",
-            letterSpacing: "0.09em"
-          }, children: "Layers" }),
-          selectedIds.size >= 2 && /* @__PURE__ */ jsx(Tooltip2, { title: "Group selected layers", children: /* @__PURE__ */ jsx("button", { onClick: handleGroup, style: ICON_BTN, children: /* @__PURE__ */ jsx(Folder, { size: 14 }) }) }),
-          /* @__PURE__ */ jsx(Tooltip2, { title: "Close layers panel", children: /* @__PURE__ */ jsx(
-            "button",
-            {
-              onClick: onClose,
-              style: { ...ICON_BTN, color: "var(--color-text-muted)" },
-              children: /* @__PURE__ */ jsx(X, { size: 14 })
-            }
-          ) })
-        ] }),
-        /* @__PURE__ */ jsx("div", { style: { flex: 1, overflowY: "auto" }, children: layers.length === 0 ? /* @__PURE__ */ jsxs("div", { style: { padding: "32px 16px", textAlign: "center", color: "var(--color-text-muted)", fontSize: 12 }, children: [
-          "No layers yet.",
-          /* @__PURE__ */ jsx("br", {}),
-          "Add content to the canvas."
-        ] }) : layers.map((layer) => /* @__PURE__ */ jsx(
-          LayerRow,
-          {
-            layer,
-            isActive: layer.id === activeId,
-            isSelected: selectedIds.has(layer.id),
-            depth: 0,
-            onSelect: (multi) => toggleSelect(layer.id, multi),
-            onToggleVisible: () => editor?.objects.update({ visible: !layer.visible }, layer.id),
-            onDelete: () => editor?.objects.remove(layer.id),
-            onCopy: () => editor?.objects.copyById?.(layer.id) ?? editor?.objects.clone?.(),
-            onRename: (name) => editor?.objects.update({ name }, layer.id),
-            editor
-          },
-          layer.id
-        )) }),
-        /* @__PURE__ */ jsx("div", { style: {
-          padding: "8px 12px",
-          borderTop: "1px solid var(--color-border)",
-          fontSize: 9,
-          color: "var(--color-text-muted)",
-          lineHeight: 1.5
-        }, children: "Click to select \xB7 Shift-click to multi-select \xB7 Double-click to rename" })
-      ]
+      children: name
     }
   );
 }
-function LayerRow({ layer, isActive, isSelected, depth, onSelect, onToggleVisible, onDelete, onCopy, onRename, editor }) {
+var TYPE_ICONS = {
+  StaticImage: React45__default.createElement(Image5, { size: 14 }),
+  BackgroundImage: React45__default.createElement(Image5, { size: 14 }),
+  StaticText: React45__default.createElement(Type, { size: 14 }),
+  DynamicText: React45__default.createElement(Type, { size: 14 }),
+  StaticVideo: React45__default.createElement(Video, { size: 14 }),
+  StaticPath: React45__default.createElement(Shapes, { size: 14 }),
+  StaticVector: React45__default.createElement(Shapes, { size: 14 }),
+  Group: React45__default.createElement(Folder, { size: 14 })
+};
+var ICON_BTN = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  padding: 4,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "var(--color-text)",
+  borderRadius: 4,
+  transition: "background 0.1s"
+};
+function LayerActions({ id, visible, onVisibilityChange, onDuplicate, onDelete }) {
+  const stop = (e) => e.stopPropagation();
+  return /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: 1, flexShrink: 0 }, children: [
+    /* @__PURE__ */ jsx(Tooltip2, { title: visible ? "Hide" : "Show", children: /* @__PURE__ */ jsx("button", { onClick: (e) => {
+      stop(e);
+      onVisibilityChange(id, !visible);
+    }, style: ICON_BTN, children: visible ? /* @__PURE__ */ jsx(Eye, { size: 12 }) : /* @__PURE__ */ jsx(EyeOff, { size: 12 }) }) }),
+    /* @__PURE__ */ jsx(Tooltip2, { title: "Duplicate", children: /* @__PURE__ */ jsx("button", { onClick: (e) => {
+      stop(e);
+      onDuplicate(id);
+    }, style: ICON_BTN, children: /* @__PURE__ */ jsx(Copy, { size: 12 }) }) }),
+    /* @__PURE__ */ jsx(Tooltip2, { title: "Delete", children: /* @__PURE__ */ jsx(
+      "button",
+      {
+        onClick: (e) => {
+          stop(e);
+          onDelete(id);
+        },
+        style: { ...ICON_BTN, color: "var(--color-danger)" },
+        children: /* @__PURE__ */ jsx(Trash2, { size: 12 })
+      }
+    ) })
+  ] });
+}
+function LayerChildren({ children, depth, selectedIds, activeId, ...callbacks }) {
+  return /* @__PURE__ */ jsx(Fragment, { children: children.map((child) => /* @__PURE__ */ jsx(
+    LayerRow,
+    {
+      layer: child,
+      isActive: child.id === activeId,
+      isSelected: selectedIds.has(child.id),
+      selectedIds,
+      activeId,
+      depth,
+      ...callbacks
+    },
+    child.id
+  )) });
+}
+function LayerRow({
+  layer,
+  isActive,
+  isSelected,
+  selectedIds,
+  activeId,
+  depth,
+  onSelect,
+  onVisibilityChange,
+  onDelete,
+  onDuplicate,
+  onRename
+}) {
   const [hov, setHov] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [editVal, setEditVal] = useState(layer.name);
   const [collapsed, setCollapsed] = useState(false);
-  const inputRef = useRef(null);
-  useEffect(() => {
-    if (editing) inputRef.current?.focus();
-  }, [editing]);
-  const commitRename = () => {
-    const trimmed = editVal.trim();
-    if (trimmed && trimmed !== layer.name) onRename(trimmed);
-    else setEditVal(layer.name);
-    setEditing(false);
-  };
-  const hasChildren = layer.children && layer.children.length > 0;
+  const hasChildren = Array.isArray(layer.children) && layer.children.length > 0;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(
       "div",
       {
         onClick: (e) => {
-          if (!editing) onSelect(e.shiftKey);
+          if (!editing) onSelect(layer.id, e.shiftKey);
         },
-        onDoubleClick: () => {
-          setEditing(true);
-          setEditVal(layer.name);
-        },
+        onDoubleClick: () => setEditing(true),
         onMouseEnter: () => setHov(true),
         onMouseLeave: () => setHov(false),
         style: {
@@ -26160,93 +26172,253 @@ function LayerRow({ layer, isActive, isSelected, depth, onSelect, onToggleVisibl
             {
               onClick: (e) => {
                 e.stopPropagation();
-                setCollapsed((c) => !c);
+                setCollapsed((v) => !v);
               },
-              style: { fontSize: 10, color: "var(--color-text-muted)", flexShrink: 0, cursor: "pointer" },
+              style: { fontSize: 10, color: "var(--color-text-muted)", flexShrink: 0, cursor: "pointer", display: "flex", alignItems: "center" },
               children: collapsed ? /* @__PURE__ */ jsx(ChevronRight, { size: 12 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 12 })
             }
           ) : /* @__PURE__ */ jsx("span", { style: { width: 10 } }),
-          /* @__PURE__ */ jsx("span", { style: { fontSize: 12, color: isActive ? "var(--color-primary)" : "var(--color-text-muted)", flexShrink: 0 }, children: TYPE_ICONS[layer.type] ?? /* @__PURE__ */ jsx(Shapes, { size: 14 }) }),
-          editing ? /* @__PURE__ */ jsx(
-            "input",
+          /* @__PURE__ */ jsx(
+            "span",
             {
-              ref: inputRef,
-              value: editVal,
-              onChange: (e) => setEditVal(e.target.value),
-              onBlur: commitRename,
-              onKeyDown: (e) => {
-                if (e.key === "Enter") commitRename();
-                if (e.key === "Escape") {
-                  setEditVal(layer.name);
-                  setEditing(false);
-                }
-              },
-              onClick: (e) => e.stopPropagation(),
               style: {
-                flex: 1,
-                background: "var(--color-bg)",
-                border: "1px solid var(--color-primary)",
-                borderRadius: 4,
-                color: "var(--color-text)",
-                fontSize: 11,
-                padding: "2px 6px",
-                outline: "none"
-              }
+                fontSize: 12,
+                color: isActive ? "var(--color-primary)" : "var(--color-text-muted)",
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center"
+              },
+              children: TYPE_ICONS[layer.type] ?? /* @__PURE__ */ jsx(Shapes, { size: 14 })
             }
-          ) : /* @__PURE__ */ jsx("span", { style: {
-            flex: 1,
-            fontSize: 11,
-            color: isActive ? "var(--color-text)" : "var(--color-text-muted)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            opacity: layer.visible ? 1 : 0.45
-          }, children: layer.name }),
-          (hov || isActive) && !editing && /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: 1, flexShrink: 0 }, children: [
-            /* @__PURE__ */ jsx(Tooltip2, { title: layer.visible ? "Hide" : "Show", children: /* @__PURE__ */ jsx("button", { onClick: (e) => {
-              e.stopPropagation();
-              onToggleVisible();
-            }, style: ICON_BTN, children: layer.visible ? /* @__PURE__ */ jsx(Eye, { size: 12 }) : /* @__PURE__ */ jsx(EyeOff, { size: 12 }) }) }),
-            /* @__PURE__ */ jsx(Tooltip2, { title: "Duplicate", children: /* @__PURE__ */ jsx("button", { onClick: (e) => {
-              e.stopPropagation();
-              onCopy();
-            }, style: ICON_BTN, children: /* @__PURE__ */ jsx(Copy, { size: 12 }) }) }),
-            /* @__PURE__ */ jsx(Tooltip2, { title: "Delete", children: /* @__PURE__ */ jsx("button", { onClick: (e) => {
-              e.stopPropagation();
-              onDelete();
-            }, style: { ...ICON_BTN, color: "var(--color-danger)" }, children: /* @__PURE__ */ jsx(Trash2, { size: 12 }) }) })
-          ] })
+          ),
+          /* @__PURE__ */ jsx(
+            LayerName,
+            {
+              id: layer.id,
+              name: layer.name,
+              visible: layer.visible,
+              isActive,
+              editing,
+              onCommit: (id, name) => {
+                onRename(id, name);
+                setEditing(false);
+              },
+              onCancel: () => setEditing(false)
+            }
+          ),
+          (hov || isActive) && !editing && /* @__PURE__ */ jsx(
+            LayerActions,
+            {
+              id: layer.id,
+              visible: layer.visible,
+              onVisibilityChange,
+              onDuplicate,
+              onDelete
+            }
+          )
         ]
       }
     ),
-    hasChildren && !collapsed && layer.children.map((child) => /* @__PURE__ */ jsx(
-      LayerRow,
+    hasChildren && !collapsed && /* @__PURE__ */ jsx(
+      LayerChildren,
       {
-        layer: child,
-        isActive: false,
-        isSelected: false,
+        children: layer.children,
         depth: depth + 1,
-        onSelect: () => editor?.objects.select(child.id),
-        onToggleVisible: () => editor?.objects.update({ visible: !child.visible }, child.id),
-        onDelete: () => editor?.objects.remove(child.id),
-        onCopy: () => editor?.objects.copyById?.(child.id) ?? editor?.objects.clone?.(),
-        onRename: (name) => editor?.objects.update({ name }, child.id),
-        editor
-      },
-      child.id
-    ))
+        selectedIds,
+        activeId,
+        onSelect,
+        onVisibilityChange,
+        onDelete,
+        onDuplicate,
+        onRename
+      }
+    )
   ] });
 }
-var ICON_BTN = {
-  background: "transparent",
-  border: "none",
-  cursor: "pointer",
-  color: "var(--color-text-muted)",
-  padding: 3,
-  borderRadius: 4,
-  display: "flex",
-  alignItems: "center"
+function LayerList({ layers, activeId, selectedIds, ...callbacks }) {
+  if (layers.length === 0) {
+    return /* @__PURE__ */ jsxs(
+      "div",
+      {
+        style: {
+          padding: "32px 16px",
+          textAlign: "center",
+          color: "var(--color-text-muted)",
+          fontSize: 12
+        },
+        children: [
+          "No layers yet.",
+          /* @__PURE__ */ jsx("br", {}),
+          "Add content to the canvas."
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsx(Fragment, { children: layers.map((layer) => /* @__PURE__ */ jsx(
+    LayerRow,
+    {
+      layer,
+      isActive: layer.id === activeId,
+      isSelected: selectedIds.has(layer.id),
+      selectedIds,
+      activeId,
+      depth: 0,
+      ...callbacks
+    },
+    layer.id
+  )) });
+}
+
+// src/components/layers/useLayerPanel.ts
+var TYPE_LABELS = {
+  StaticImage: "Image",
+  BackgroundImage: "Image",
+  StaticText: "Text",
+  DynamicText: "Text",
+  StaticVideo: "Video",
+  StaticPath: "Shape",
+  StaticVector: "Shape",
+  Group: "Group"
 };
+function toLayerItem(obj) {
+  const type = String(obj?.type ?? "Object");
+  const children = Array.isArray(obj?.objects) ? obj.objects.map((c) => toLayerItem(c)) : void 0;
+  return {
+    id: String(obj?.id),
+    type,
+    name: typeof obj?.name === "string" && obj.name.trim() ? obj.name : TYPE_LABELS[type] ?? "Object",
+    visible: obj?.visible !== false,
+    ...children && children.length > 0 ? { children } : {}
+  };
+}
+function useLayerPanel() {
+  const objects = useObjects() ?? [];
+  const activeObj = useActiveObject();
+  return {
+    layers: [...objects].reverse().map(toLayerItem),
+    activeId: activeObj?.id != null ? String(activeObj.id) : null
+  };
+}
+function LayerPanel({ editor, onClose }) {
+  const { layers, activeId } = useLayerPanel();
+  const [selectedIds, setSelectedIds] = useState(/* @__PURE__ */ new Set());
+  const handleSelect = useCallback((id, multi) => {
+    setSelectedIds((prev) => {
+      if (multi) {
+        const next = new Set(prev);
+        next.has(id) ? next.delete(id) : next.add(id);
+        return next;
+      }
+      return /* @__PURE__ */ new Set([id]);
+    });
+    editor?.objects?.select?.(id);
+  }, [editor]);
+  const handleVisibilityChange = useCallback((id, visible) => {
+    console.log(visible, id);
+    editor?.objects?.update?.({ visible }, id);
+  }, [editor]);
+  const handleDelete = useCallback((id) => {
+    editor?.objects?.remove?.(id);
+    setSelectedIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, [editor]);
+  const handleDuplicate = useCallback(
+    (id) => {
+      editor?.objects?.clone?.(id);
+    },
+    [editor]
+  );
+  const handleRename = useCallback((id, name) => {
+    editor?.objects?.update?.({ name }, id);
+  }, [editor]);
+  const handleGroup = useCallback(() => {
+    if (selectedIds.size < 2) return;
+    editor?.objects?.group?.([...selectedIds]);
+    setSelectedIds(/* @__PURE__ */ new Set());
+  }, [editor, selectedIds]);
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: "\n        absolute top-[56px] bottom-[66px] right-0 z-40\n        w-full\n        md:relative md:top-0 md:bottom-0 md:w-[230px] md:z-auto\n        shrink-0\n        animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)]\n      ",
+      style: {
+        background: "color-mix(in srgb, var(--color-surface) 97%, transparent)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        borderLeft: "1px solid var(--color-border)",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        boxShadow: "-8px 0 40px var(--shadow-color)"
+      },
+      children: [
+        /* @__PURE__ */ jsxs(
+          "div",
+          {
+            style: {
+              height: 50,
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              padding: "0 14px",
+              gap: 8,
+              background: "linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 12%, transparent) 0%, transparent 100%)",
+              borderBottom: "1px solid var(--color-border)"
+            },
+            children: [
+              /* @__PURE__ */ jsx("div", { style: { width: 3, height: 16, borderRadius: 2, background: "var(--color-primary)", flexShrink: 0 } }),
+              /* @__PURE__ */ jsx(
+                "span",
+                {
+                  style: {
+                    flex: 1,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: "var(--color-primary)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.09em"
+                  },
+                  children: "Layers"
+                }
+              ),
+              selectedIds.size >= 2 && /* @__PURE__ */ jsx(Tooltip2, { title: "Group selected layers", children: /* @__PURE__ */ jsx("button", { onClick: handleGroup, style: ICON_BTN, children: /* @__PURE__ */ jsx(Folder, { size: 14 }) }) }),
+              /* @__PURE__ */ jsx(Tooltip2, { title: "Close layers panel", children: /* @__PURE__ */ jsx("button", { onClick: onClose, style: { ...ICON_BTN, color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsx(X, { size: 14 }) }) })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx("div", { style: { flex: 1, overflowY: "auto" }, children: /* @__PURE__ */ jsx(
+          LayerList,
+          {
+            layers,
+            activeId,
+            selectedIds,
+            onSelect: handleSelect,
+            onVisibilityChange: handleVisibilityChange,
+            onDelete: handleDelete,
+            onDuplicate: handleDuplicate,
+            onRename: handleRename
+          }
+        ) }),
+        /* @__PURE__ */ jsx(
+          "div",
+          {
+            style: {
+              padding: "8px 12px",
+              borderTop: "1px solid var(--color-border)",
+              fontSize: 9,
+              color: "var(--color-text-muted)",
+              lineHeight: 1.5
+            },
+            children: "Click to select \xB7 Shift-click to multi-select \xB7 Double-click to rename"
+          }
+        )
+      ]
+    }
+  );
+}
 function FontPickerPopover({ fontProvider, currentFamily, onChange }) {
   const [open, setOpen] = useState(false);
   const [fonts, setFonts] = useState([]);
@@ -29344,35 +29516,6 @@ function useStudioExport() {
   }
   return { exportToLibrary, exporting };
 }
-
-// src/hooks/useLayerPanel.ts
-var TYPE_LABELS = {
-  StaticImage: "Image",
-  BackgroundImage: "Image",
-  StaticText: "Text",
-  DynamicText: "Text",
-  StaticVideo: "Video",
-  StaticPath: "Shape",
-  StaticVector: "Shape",
-  Group: "Group"
-};
-function toLayerItem(obj, idx) {
-  const children = Array.isArray(obj.objects) ? obj.objects.map((c, ci) => toLayerItem(c, ci)) : void 0;
-  return {
-    id: String(obj.id ?? idx),
-    type: String(obj.type ?? "Object"),
-    name: obj.name ?? `${TYPE_LABELS[obj.type] ?? "Object"} ${idx + 1}`,
-    visible: obj.visible !== false,
-    children
-  };
-}
-function useLayerPanel() {
-  const objects = useObjects() ?? [];
-  const activeObj = useActiveObject();
-  const layers = [...objects].reverse().map(toLayerItem);
-  const activeId = activeObj?.id ? String(activeObj.id) : null;
-  return { layers, activeId };
-}
 var AUTOSAVE_KEY_PREFIX = "design_autosave";
 var getAutosaveKey = (sceneKey) => sceneKey ? `${AUTOSAVE_KEY_PREFIX}_${sceneKey}` : AUTOSAVE_KEY_PREFIX;
 function useAutoSave(editor, canvasBg, workspaceBg, sceneKey) {
@@ -29520,7 +29663,6 @@ function DesignEditorInner({ onBack, initialScene, className, templatesPanel, li
       setIsPanning(false);
     }
   }, []);
-  const { layers, activeId } = useLayerPanel();
   const [canvasBg, setCanvasBg] = useState(() => {
     return initialScene?.canvasBg || getStorageSafe("studio_canvasBg", "#ffffff");
   });
@@ -29968,8 +30110,6 @@ function DesignEditorInner({ onBack, initialScene, className, templatesPanel, li
       layerPanelOpen && /* @__PURE__ */ jsx(
         LayerPanel,
         {
-          layers,
-          activeId,
           editor,
           onClose: () => setLayerPanelOpen(false)
         }

@@ -7,7 +7,7 @@ import { Toolbar } from './Toolbar'
 import { IconRail } from './IconRail'
 import type { PanelKey } from './IconRail'
 import { CanvasArea } from './Canvas'
-import { LayerPanel } from './LayerPanel'
+import { LayerPanel } from './layers'
 import { ObjectPropertiesBar } from './ObjectPropertiesBar'
 
 import { TemplatesPanel } from './panels/templates/TemplatesPanel'
@@ -20,7 +20,6 @@ import { ElementsPanel } from './panels/ElementsPanel'
 
 import { useStudioExport } from '../hooks/useStudioExport'
 import { useCanvasSize } from '../hooks/useCanvasSize'
-import { useLayerPanel } from '../hooks/useLayerPanel'
 import { useAutoSave, loadAutosave, clearAutosave } from '../hooks/useAutoSave'
 
 import { EditorContextProvider, useEditorContext } from './EditorContext'
@@ -122,8 +121,6 @@ function DesignEditorInner({ onBack, initialScene, className, templatesPanel, li
       setIsPanning(false)
     }
   }, [])
-
-  const { layers, activeId } = useLayerPanel()
 
   const [canvasBg, setCanvasBg] = useState<string>(() => {
     return (initialScene as any)?.canvasBg || getStorageSafe('studio_canvasBg', '#ffffff')
@@ -590,8 +587,6 @@ function DesignEditorInner({ onBack, initialScene, className, templatesPanel, li
 
           {layerPanelOpen && (
             <LayerPanel
-              layers={layers}
-              activeId={activeId}
               editor={editor}
               onClose={() => setLayerPanelOpen(false)}
             />

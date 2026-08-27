@@ -5,10 +5,7 @@ export type StaticTextOptions = TextboxProps & { text: string; fontURL?: string 
 
 export class StaticText extends Textbox {
   static type = "StaticText"
-  
-  get type() {
-    return "StaticText"
-  }
+
   set type(_value: string) {
     // fixed value — intentional no-op
   }
