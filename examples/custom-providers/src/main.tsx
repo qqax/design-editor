@@ -1,11 +1,11 @@
 import { StrictMode } from 'react';
 
-import { DesignEditor } from '@fastlabai/design-editor';
+import { DesignEditor } from '@qqax/design-editor';
 import { createRoot } from 'react-dom/client';
 
-import type { FontProvider, TemplateProvider } from '@fastlabai/design-editor';
+import type { FontProvider, TemplateProvider } from '@qqax/design-editor';
 
-import '@fastlabai/design-editor/theme.css';
+import '@qqax/design-editor/theme.css';
 
 // ── Demo template provider — serves a single custom template ───
 const myTemplateProvider: TemplateProvider = {

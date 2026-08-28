@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 
 import { createRoot } from 'react-dom/client';
-import { DesignEditor } from '@fastlabai/design-editor';
-import '@fastlabai/design-editor/theme.css';
+import { DesignEditor } from '@qqax/design-editor';
+import '@qqax/design-editor/theme.css';
 
 function download(data: Blob | string, filename: string) {
   const blob =

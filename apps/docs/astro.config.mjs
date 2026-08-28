@@ -2,7 +2,7 @@ import starlight from '@astrojs/starlight';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://fastlabai.github.io',
+  site: 'https://qqax.github.io',
   base: '/design-editor',
 
   vite: {
@@ -13,13 +13,13 @@ export default defineConfig({
 
   integrations: [
     starlight({
-      title: '@fastlabai/design-editor',
+      title: '@qqax/design-editor',
       customCss: ['./src/styles/custom.css'],
       social: [
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/fastlabai/design-editor',
+          href: 'https://github.com/qqax/design-editor',
         },
       ],
       sidebar: [

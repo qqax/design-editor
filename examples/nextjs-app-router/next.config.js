@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@fastlabai/design-editor'],
+  transpilePackages: ['@qqax/design-editor'],
   webpack: (config) => {
     config.externals.push({
       canvas: 'commonjs canvas',

@@ -359,7 +359,7 @@ const ShapeCategory = ({ title, shapes, onAddShape }) => {
                   shape,
                   onClick: () =>
                     onAddShape(
-                      `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`
+                      `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`
                     ),
                 },
                 shape.id
@@ -409,7 +409,7 @@ function ScrollRow({ shapes, onAddShape }) {
                 shape,
                 onClick: () =>
                   onAddShape(
-                    `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`
+                    `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`
                   ),
               }),
             },
@@ -438,11 +438,11 @@ function ScrollRow({ shapes, onAddShape }) {
 }
 function ShapeTile({ shape, onClick, expanded = false }) {
   const [hovered, setHovered] = useState(false);
-  const imageUrl = `https://cdn.jsdelivr.net/gh/fastlabai/design-editor/assets/shapes/${shape.category}/${shape.file}`;
+  const imageUrl = `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`;
   const handleDragStart = (e) => {
     e.dataTransfer.effectAllowed = 'copy';
-    e.dataTransfer.setData('text/x-fastlabai-type', 'shape');
-    e.dataTransfer.setData('text/x-fastlabai-shape-src', imageUrl);
+    e.dataTransfer.setData('text/x-qqax-type', 'shape');
+    e.dataTransfer.setData('text/x-qqax-shape-src', imageUrl);
   };
   return /* @__PURE__ */ jsx(Tooltip, {
     title: shape.label,

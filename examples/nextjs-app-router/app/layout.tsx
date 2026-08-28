@@ -1,8 +1,8 @@
-import '@fastlabai/design-editor/theme.css';
+import '@qqax/design-editor/theme.css';
 
 export const metadata = {
   title: 'Design Editor — App Router example',
-  description: 'Example of @fastlabai/design-editor in Next.js App Router.',
+  description: 'Example of @qqax/design-editor in Next.js App Router.',
 };
 
 export default function RootLayout({

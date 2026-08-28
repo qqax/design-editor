@@ -38,7 +38,7 @@ this if you don't need a media library.
 ## Example: REST backend
 
 ```ts
-import type { MediaProvider } from '@fastlabai/design-editor'
+import type { MediaProvider } from '@qqax/design-editor'
 
 export function createMyMediaProvider(): MediaProvider {
   return {
@@ -74,7 +74,7 @@ Here is a conceptual example using the lightweight `idb-keyval` library for Inde
 
 ```tsx
 import { get, set } from 'idb-keyval'
-import type { MediaProvider } from '@fastlabai/design-editor'
+import type { MediaProvider } from '@qqax/design-editor'
 
 export const advancedMediaProvider: MediaProvider = {
   list: async () => {

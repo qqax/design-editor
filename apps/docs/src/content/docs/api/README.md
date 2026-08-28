@@ -1,14 +1,14 @@
 ---
-title: "@fastlabai/design-editor"
+title: "@qqax/design-editor"
 ---
 
-**@fastlabai/design-editor**
+**@qqax/design-editor**
 
 ***
 
-# @fastlabai/design-editor
+# @qqax/design-editor
 
-@fastlabai/design-editor
+@qqax/design-editor
 
 An open-source image design editor for React and Next.js.
 Plug into your own media library, fonts, and storage backend via simple

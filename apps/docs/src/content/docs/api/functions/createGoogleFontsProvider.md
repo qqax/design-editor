@@ -2,17 +2,17 @@
 title: "Function: createGoogleFontsProvider()"
 ---
 
-[**@fastlabai/design-editor**](../README.md)
+[**@qqax/design-editor**](../README.md)
 
 ***
 
-[@fastlabai/design-editor](../README.md) / createGoogleFontsProvider
+[@qqax/design-editor](../README.md) / createGoogleFontsProvider
 
 # Function: createGoogleFontsProvider()
 
 > **createGoogleFontsProvider**(`opts?`): [`FontProvider`](../interfaces/FontProvider.md)
 
-Defined in: [providers/defaults/googleFonts.ts:16](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/defaults/googleFonts.ts#L16)
+Defined in: [providers/defaults/googleFonts.ts:16](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/defaults/googleFonts.ts#L16)
 
 ## Parameters
 

@@ -17,15 +17,15 @@ jobs:
         with: { node-version: 24, cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
       - name: Typecheck
-        run: pnpm --filter @fastlabai/design-editor typecheck
+        run: pnpm --filter @qqax/design-editor typecheck
       - name: Lint
-        run: pnpm --filter @fastlabai/design-editor lint || true
+        run: pnpm --filter @qqax/design-editor lint || true
       - name: Test
-        run: pnpm --filter @fastlabai/design-editor test
+        run: pnpm --filter @qqax/design-editor test
       - name: Build package
-        run: pnpm --filter @fastlabai/design-editor build
+        run: pnpm --filter @qqax/design-editor build
       - name: Size check
-        run: pnpm --filter @fastlabai/design-editor size
+        run: pnpm --filter @qqax/design-editor size
       - name: Build examples
         run: |
           pnpm --filter example-vite-react build

@@ -8,7 +8,7 @@ The editor is a standard React component that runs entirely on the client side.
 ## Installation
 
 ```bash
-npm install @fastlabai/design-editor
+npm install @qqax/design-editor
 ```
 
 ## Basic Setup
@@ -19,8 +19,8 @@ Simply import the component and the theme CSS:
 
 ```tsx
 // src/App.tsx
-import { DesignEditor } from '@fastlabai/design-editor'
-import '@fastlabai/design-editor/theme.css'
+import { DesignEditor } from '@qqax/design-editor'
+import '@qqax/design-editor/theme.css'
 
 export default function App() {
   return (
@@ -37,7 +37,7 @@ Make sure the parent container of `<DesignEditor />` has an explicit height (lik
 
 ## CSS Integration
 
-Since `@fastlabai/design-editor` relies heavily on CSS variables for theming, you only need to import `theme.css` once in your application entry point (e.g., `main.tsx` or `App.tsx`).
+Since `@qqax/design-editor` relies heavily on CSS variables for theming, you only need to import `theme.css` once in your application entry point (e.g., `main.tsx` or `App.tsx`).
 
 All internal styles are safely scoped inside the `[data-de-root]` attribute, guaranteeing that they won't interfere with your host app's styling frameworks like TailwindCSS or Bootstrap.
 

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 const DesignEditor = dynamic(
   async () =>
-    import('@fastlabai/design-editor').then((mod) => mod.DesignEditor),
+    import('@qqax/design-editor').then((mod) => mod.DesignEditor),
   { ssr: false }
 );
 

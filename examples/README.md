@@ -1,6 +1,6 @@
 # Examples
 
-Minimal apps demonstrating `@fastlabai/design-editor` in different setups.
+Minimal apps demonstrating `@qqax/design-editor` in different setups.
 
 | Example | Stack | Purpose |
 | --- | --- | --- |

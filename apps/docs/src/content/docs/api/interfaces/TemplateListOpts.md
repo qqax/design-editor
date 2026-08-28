@@ -2,15 +2,15 @@
 title: "Interface: TemplateListOpts"
 ---
 
-[**@fastlabai/design-editor**](../README.md)
+[**@qqax/design-editor**](../README.md)
 
 ***
 
-[@fastlabai/design-editor](../README.md) / TemplateListOpts
+[@qqax/design-editor](../README.md) / TemplateListOpts
 
 # Interface: TemplateListOpts
 
-Defined in: [providers/templates.ts:28](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L28)
+Defined in: [providers/templates.ts:28](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L28)
 
 ## Properties
 
@@ -18,7 +18,7 @@ Defined in: [providers/templates.ts:28](https://github.com/fastlabai/design-edit
 
 > `optional` **categoryId?**: `string`
 
-Defined in: [providers/templates.ts:29](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L29)
+Defined in: [providers/templates.ts:29](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L29)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [providers/templates.ts:29](https://github.com/fastlabai/design-edit
 
 > `optional` **cursor?**: `string`
 
-Defined in: [providers/templates.ts:31](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L31)
+Defined in: [providers/templates.ts:31](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L31)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [providers/templates.ts:31](https://github.com/fastlabai/design-edit
 
 > `optional` **limit?**: `number`
 
-Defined in: [providers/templates.ts:33](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L33)
+Defined in: [providers/templates.ts:33](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L33)
 
 Defaults to 12 if omitted.
 
@@ -44,7 +44,7 @@ Defaults to 12 if omitted.
 
 > `optional` **search?**: `string`
 
-Defined in: [providers/templates.ts:30](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L30)
+Defined in: [providers/templates.ts:30](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L30)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [providers/templates.ts:30](https://github.com/fastlabai/design-edit
 
 > `optional` **signal?**: `AbortSignal`
 
-Defined in: [providers/templates.ts:34](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L34)
+Defined in: [providers/templates.ts:34](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L34)

@@ -1,8 +1,8 @@
-# @fastlabai/design-editor
+# @qqax/design-editor
 
-[![npm version](https://img.shields.io/npm/v/@fastlabai/design-editor.svg)](https://www.npmjs.com/package/@fastlabai/design-editor)
+[![npm version](https://img.shields.io/npm/v/@qqax/design-editor.svg)](https://www.npmjs.com/package/@qqax/design-editor)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://github.com/fastlabai/design-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/fastlabai/design-editor/actions/workflows/ci.yml)
+[![CI](https://github.com/qqax/design-editor/actions/workflows/ci.yml/badge.svg)](https://github.com/qqax/design-editor/actions/workflows/ci.yml)
 
 An open-source image design editor for React and Next.js, brought to you by [FastlabAI](https://fastlab.ai). Plug in your own
 media library, fonts, and storage backend via simple provider interfaces.
@@ -24,7 +24,7 @@ media library, fonts, and storage backend via simple provider interfaces.
 ## Install
 
 ```bash
-npm install @fastlabai/design-editor
+npm install @qqax/design-editor
 # optional — enables in-browser background removal
 npm install @imgly/background-removal
 ```
@@ -32,8 +32,8 @@ npm install @imgly/background-removal
 ## Use
 
 ```tsx
-import { DesignEditor } from '@fastlabai/design-editor'
-import '@fastlabai/design-editor/theme.css'
+import { DesignEditor } from '@qqax/design-editor'
+import '@qqax/design-editor/theme.css'
 
 export default function App() {
   return <DesignEditor />
@@ -65,18 +65,18 @@ See the documentation site for more examples.
 ## API Reference
 
 Full typed API documentation is auto-generated and available on the docs site:
-- [`<DesignEditor />`](https://fastlabai.github.io/design-editor/api/functions/designeditor)
-- [`DesignEditorProps`](https://fastlabai.github.io/design-editor/api/interfaces/designeditorprops)
-- [`TemplateProvider`](https://fastlabai.github.io/design-editor/api/interfaces/templateprovider)
-- [`FontProvider`](https://fastlabai.github.io/design-editor/api/interfaces/fontprovider)
-- [`BackgroundRemovalProvider`](https://fastlabai.github.io/design-editor/api/interfaces/backgroundremovalprovider)
-- [`PersistenceProvider`](https://fastlabai.github.io/design-editor/api/interfaces/persistenceprovider)
-- [`IScene`](https://fastlabai.github.io/design-editor/api/interfaces/iscene)
-- [`ILayer`](https://fastlabai.github.io/design-editor/api/type-aliases/ilayer)
+- [`<DesignEditor />`](https://qqax.github.io/design-editor/api/functions/designeditor)
+- [`DesignEditorProps`](https://qqax.github.io/design-editor/api/interfaces/designeditorprops)
+- [`TemplateProvider`](https://qqax.github.io/design-editor/api/interfaces/templateprovider)
+- [`FontProvider`](https://qqax.github.io/design-editor/api/interfaces/fontprovider)
+- [`BackgroundRemovalProvider`](https://qqax.github.io/design-editor/api/interfaces/backgroundremovalprovider)
+- [`PersistenceProvider`](https://qqax.github.io/design-editor/api/interfaces/persistenceprovider)
+- [`IScene`](https://qqax.github.io/design-editor/api/interfaces/iscene)
+- [`ILayer`](https://qqax.github.io/design-editor/api/type-aliases/ilayer)
 ## Docs & playground
 
-- Full documentation — <https://fastlabai.github.io/design-editor>
-- Live playground — <https://fastlabai.github.io/design-editor/playground>
+- Full documentation — <https://qqax.github.io/design-editor>
+- Live playground — <https://qqax.github.io/design-editor/playground>
 - Examples — [`examples/`](./examples) (Next.js App Router, Pages Router, React/Vite, custom providers)
 
 ## License

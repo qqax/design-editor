@@ -1,6 +1,6 @@
-# AI Assistant Guidelines for @fastlabai/design-editor
+# AI Assistant Guidelines for @qqax/design-editor
 
-This document outlines strict rules and best practices for any AI/LLM (e.g., Claude, Gemini, Codex, etc.) assisting with the development of the `@fastlabai/design-editor` package. These guidelines are formulated based on past mistakes and common LLM pitfalls specific to this frontend package.
+This document outlines strict rules and best practices for any AI/LLM (e.g., Claude, Gemini, Codex, etc.) assisting with the development of the `@qqax/design-editor` package. These guidelines are formulated based on past mistakes and common LLM pitfalls specific to this frontend package.
 
 **AI ASSISTANT INSTRUCTION:** You MUST read and follow these rules before making any changes, suggesting commands, or writing code in this package.
 
@@ -15,9 +15,9 @@ This document outlines strict rules and best practices for any AI/LLM (e.g., Cla
 
 ## 2. NPM Publishing & Permissions
 **Rule:** When releasing or publishing this package to the registry, proactively verify NPM authentication and organizational permissions.
-- **Why:** "E403 Forbidden" errors occur when attempting to publish without proper scope access to `@fastlabai`.
+- **Why:** "E403 Forbidden" errors occur when attempting to publish without proper scope access to `@qqax`.
 - **Actionable:** 
-  - Ensure the environment is authenticated (`npm whoami`) and confirm you have write access to the `@fastlabai` scope.
+  - Ensure the environment is authenticated (`npm whoami`) and confirm you have write access to the `@qqax` scope.
   - Coordinate version bumps correctly (e.g., via `changesets` if used by the host repo) before attempting an `npm publish` or `pnpm publish`.
 
 ## 3. Asset Management & CDN Offloading

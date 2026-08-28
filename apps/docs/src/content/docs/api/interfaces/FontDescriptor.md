@@ -2,15 +2,15 @@
 title: "Interface: FontDescriptor"
 ---
 
-[**@fastlabai/design-editor**](../README.md)
+[**@qqax/design-editor**](../README.md)
 
 ***
 
-[@fastlabai/design-editor](../README.md) / FontDescriptor
+[@qqax/design-editor](../README.md) / FontDescriptor
 
 # Interface: FontDescriptor
 
-Defined in: [providers/fonts.ts:2](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L2)
+Defined in: [providers/fonts.ts:2](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L2)
 
 Describes a font family available to the editor.
 
@@ -20,7 +20,7 @@ Describes a font family available to the editor.
 
 > `optional` **category?**: `"serif"` \| `"sans-serif"` \| `"display"` \| `"handwriting"` \| `"monospace"`
 
-Defined in: [providers/fonts.ts:6](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L6)
+Defined in: [providers/fonts.ts:6](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L6)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [providers/fonts.ts:6](https://github.com/fastlabai/design-editor/bl
 
 > **family**: `string`
 
-Defined in: [providers/fonts.ts:3](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L3)
+Defined in: [providers/fonts.ts:3](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L3)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [providers/fonts.ts:3](https://github.com/fastlabai/design-editor/bl
 
 > `optional` **previewUrl?**: `string`
 
-Defined in: [providers/fonts.ts:7](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L7)
+Defined in: [providers/fonts.ts:7](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L7)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [providers/fonts.ts:7](https://github.com/fastlabai/design-editor/bl
 
 > `optional` **styles?**: (`"normal"` \| `"italic"`)[]
 
-Defined in: [providers/fonts.ts:5](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L5)
+Defined in: [providers/fonts.ts:5](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L5)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [providers/fonts.ts:5](https://github.com/fastlabai/design-editor/bl
 
 > `optional` **weights?**: `number`[]
 
-Defined in: [providers/fonts.ts:4](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L4)
+Defined in: [providers/fonts.ts:4](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/fonts.ts#L4)

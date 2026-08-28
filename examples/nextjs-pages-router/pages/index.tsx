@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 
 // The editor manipulates <canvas> and browser APIs, so disable SSR.
 const DesignEditor = dynamic(
-  async () => import('@fastlabai/design-editor').then((m) => m.DesignEditor),
+  async () => import('@qqax/design-editor').then((m) => m.DesignEditor),
   { ssr: false }
 );
 

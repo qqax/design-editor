@@ -2,15 +2,15 @@
 title: "Interface: IScene"
 ---
 
-[**@fastlabai/design-editor**](../README.md)
+[**@qqax/design-editor**](../README.md)
 
 ***
 
-[@fastlabai/design-editor](../README.md) / IScene
+[@qqax/design-editor](../README.md) / IScene
 
 # Interface: IScene
 
-Defined in: [engine/types/scene.ts:9](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L9)
+Defined in: [engine/types/scene.ts:9](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L9)
 
 Re-export the engine's public types for consumers who need to interact with scenes/layers.
 
@@ -20,7 +20,7 @@ Re-export the engine's public types for consumers who need to interact with scen
 
 > `optional` **description?**: `string`
 
-Defined in: [engine/types/scene.ts:13](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L13)
+Defined in: [engine/types/scene.ts:13](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L13)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [engine/types/scene.ts:13](https://github.com/fastlabai/design-edito
 
 > `optional` **display?**: `TimeRange`
 
-Defined in: [engine/types/scene.ts:18](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L18)
+Defined in: [engine/types/scene.ts:18](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L18)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [engine/types/scene.ts:18](https://github.com/fastlabai/design-edito
 
 > `optional` **duration?**: `number`
 
-Defined in: [engine/types/scene.ts:17](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L17)
+Defined in: [engine/types/scene.ts:17](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L17)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [engine/types/scene.ts:17](https://github.com/fastlabai/design-edito
 
 > **frame**: `IFrame`
 
-Defined in: [engine/types/scene.ts:11](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L11)
+Defined in: [engine/types/scene.ts:11](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L11)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [engine/types/scene.ts:11](https://github.com/fastlabai/design-edito
 
 > **id**: `string`
 
-Defined in: [engine/types/scene.ts:10](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L10)
+Defined in: [engine/types/scene.ts:10](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L10)
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: [engine/types/scene.ts:10](https://github.com/fastlabai/design-edito
 
 > **layers**: `Partial`\<[`ILayer`](../type-aliases/ILayer.md)\>[]
 
-Defined in: [engine/types/scene.ts:14](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L14)
+Defined in: [engine/types/scene.ts:14](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L14)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [engine/types/scene.ts:14](https://github.com/fastlabai/design-edito
 
 > **metadata**: `Record`\<`string`, `any`\>
 
-Defined in: [engine/types/scene.ts:15](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L15)
+Defined in: [engine/types/scene.ts:15](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L15)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [engine/types/scene.ts:15](https://github.com/fastlabai/design-edito
 
 > `optional` **name?**: `string`
 
-Defined in: [engine/types/scene.ts:12](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L12)
+Defined in: [engine/types/scene.ts:12](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L12)
 
 ***
 
@@ -84,4 +84,4 @@ Defined in: [engine/types/scene.ts:12](https://github.com/fastlabai/design-edito
 
 > `optional` **preview?**: `string`
 
-Defined in: [engine/types/scene.ts:16](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L16)
+Defined in: [engine/types/scene.ts:16](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/engine/types/scene.ts#L16)

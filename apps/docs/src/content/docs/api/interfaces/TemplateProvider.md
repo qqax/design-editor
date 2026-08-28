@@ -2,15 +2,15 @@
 title: "Interface: TemplateProvider"
 ---
 
-[**@fastlabai/design-editor**](../README.md)
+[**@qqax/design-editor**](../README.md)
 
 ***
 
-[@fastlabai/design-editor](../README.md) / TemplateProvider
+[@qqax/design-editor](../README.md) / TemplateProvider
 
 # Interface: TemplateProvider
 
-Defined in: [providers/templates.ts:48](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L48)
+Defined in: [providers/templates.ts:48](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L48)
 
 Plug in your own template library. The editor calls `categories()` once
 to render the panel, then `list()` per category, per search query,
@@ -22,7 +22,7 @@ and on "Load more".
 
 > **categories**(`opts?`): `Promise`\<[`TemplateCategory`](TemplateCategory.md)[]\>
 
-Defined in: [providers/templates.ts:49](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L49)
+Defined in: [providers/templates.ts:49](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L49)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [providers/templates.ts:49](https://github.com/fastlabai/design-edit
 
 > **list**(`opts`): `Promise`\<[`TemplateListResult`](TemplateListResult.md)\>
 
-Defined in: [providers/templates.ts:50](https://github.com/fastlabai/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L50)
+Defined in: [providers/templates.ts:50](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/providers/templates.ts#L50)
 
 #### Parameters
 
