@@ -1,71 +1,43 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 
-import {CanvasArea} from './Canvas';
+import {CanvasArea} from '../../Canvas';
 
-import {ShapesPanel} from './panels/ShapesPanel'
-import {StickersPanel} from './panels/StickersPanel'
-import {TextPanel} from './panels/text/TextPanel'
-import {UploadPanel} from './panels/UploadPanel'
-import {ElementsPanel} from './panels/ElementsPanel'
+import {ShapesPanel} from '../../panels/ShapesPanel'
+import {StickersPanel} from '../../panels/StickersPanel'
+import {TextPanel} from '../../panels/text/TextPanel'
+import {UploadPanel} from '../../panels/UploadPanel'
+import {ElementsPanel} from '../../panels/ElementsPanel'
 
-import {useStudioExport} from '../hooks/useStudioExport'
-import {useCanvasSize} from '../hooks/useCanvasSize'
-import {clearAutosave, loadAutosave, useAutoSave} from '../hooks/useAutoSave'
+import {useStudioExport} from '../../../hooks/useStudioExport'
+import {useCanvasSize} from '../../../hooks/useCanvasSize'
+import {clearAutosave, loadAutosave, useAutoSave} from '../../../hooks/useAutoSave'
 
-import {EditorContextProvider, useEditorContext} from './EditorContext'
-import type {PanelKey} from './IconRail';
-import {IconRail} from './IconRail'
-import {LayerPanel} from './layers'
-import {ObjectPropertiesBar} from './ObjectPropertiesBar'
-import {Provider as EngineProvider, useActiveObject, useEditor, useZoomRatio,} from '../engine/react';
-import {Toolbar} from './Toolbar';
-import {useToast} from '../hooks/useToast';
-import {Toaster} from './primitives/Toast'
-import {generateId} from '../engine/core/utils/id';
-import {
-    createDefaultFontProvider,
-    createDefaultTemplateProvider,
-    createDefaultTextDesignProvider,
-    createImglyBackgroundRemoval,
-    createLocalStoragePersistence,
-} from '../providers/defaults';
-import {TemplatesPanel} from './panels/templates/TemplatesPanel'
-import type {IScene} from '../engine';
-import type {BackgroundRemovalProvider, FontProvider, PersistenceProvider, TemplateProvider,} from '../providers';
-import type {DesignTemplate} from '../providers/templates';
-import type {TextDesign, TextDesignProvider} from '../providers/textDesigns';
+import {useEditorContext} from '../../EditorContext'
+import type {PanelKey} from '../../IconRail';
+import {IconRail} from '../../IconRail'
+import {LayerPanel} from '../../layers'
+import {ObjectPropertiesBar} from '../../ObjectPropertiesBar'
+import {useActiveObject, useEditor, useZoomRatio,} from '../../../engine';
+import {Toolbar} from '../../Toolbar';
+import {useToast} from '../../../hooks/useToast';
+import {generateId} from '../../../engine/core/utils/id';
+import {TemplatesPanel} from '../../panels/templates/TemplatesPanel'
+import type {DesignTemplate, TextDesign, TextDesignProvider} from '../../../providers';
 import {FabricImage} from "fabric";
+import {getStorageSafe} from "../lib";
+import type {LibraryPanelRenderProp, TemplatesPanelRenderProp} from "../model";
 
 const WORKSPACE_BG = 'var(--color-bg)';
 
-function getStorageSafe(key: string, DEFAULT_SETTINGS: any) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw);
-    return DEFAULT_SETTINGS;
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
-}
-
-type TemplatesPanelRenderProp =
-  | React.ReactNode
-  | ((props: {
-      onApplyTemplate: (t: DesignTemplate) => void;
-    }) => React.ReactNode);
-type LibraryPanelRenderProp =
-  | React.ReactNode
-  | ((props: { onAddMedia: (url: string) => void }) => React.ReactNode);
-
-function DesignEditorInner({
-  onBack,
-  initialScene,
-  className,
-  templatesPanel,
-  libraryPanel,
-  title,
-  textDesignProvider,
-}: {
+export function DesignEditorInner({
+                             onBack,
+                             initialScene,
+                             className,
+                             templatesPanel,
+                             libraryPanel,
+                             title,
+                             textDesignProvider,
+                           }: {
   onBack?: () => void;
   initialScene?: any;
   className?: string;
@@ -77,9 +49,9 @@ function DesignEditorInner({
   const editor = useEditor();
   const activeObj = useActiveObject<FabricImage>();
   const zoomRatio = useZoomRatio<number>();
-  const { exportToLibrary, exporting } = useStudioExport();
+  const {exportToLibrary, exporting} = useStudioExport();
   const message = useToast();
-  const { backgroundRemovalProvider, sceneKey, templateProvider } =
+  const {backgroundRemovalProvider, sceneKey, templateProvider} =
     useEditorContext();
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
@@ -139,7 +111,7 @@ function DesignEditorInner({
       const vpt = fabricCanvas.viewportTransform
         ? [...fabricCanvas.viewportTransform]
         : [1, 0, 0, 1, 0, 0];
-      panRef.current = { startX: e.clientX, startY: e.clientY, vpt };
+      panRef.current = {startX: e.clientX, startY: e.clientY, vpt};
       setIsPanning(true);
     },
     [spaceDown, editor]
@@ -190,7 +162,7 @@ function DesignEditorInner({
     }
   }, [editor, canvasBg]);
 
-  const { hasUnsavedChanges, setHasUnsavedChanges } = useAutoSave(
+  const {hasUnsavedChanges, setHasUnsavedChanges} = useAutoSave(
     editor,
     canvasBg,
     workspaceBg,
@@ -207,6 +179,7 @@ function DesignEditorInner({
     snapGrid: boolean;
     railSide: 'left' | 'right';
   }
+
   const [settings, setSettings] = useState<Settings>(() => {
     return getStorageSafe('studio_settings', {
       showGrid: false,
@@ -217,7 +190,7 @@ function DesignEditorInner({
 
   const handleSettings = useCallback((patch: Partial<Settings>) => {
     setSettings((prev: Settings) => {
-      const next = { ...prev, ...patch };
+      const next = {...prev, ...patch};
       localStorage.setItem('studio_settings', JSON.stringify(next));
       return next;
     });
@@ -232,7 +205,7 @@ function DesignEditorInner({
           ?.getObjects?.()
           .find((obj: any) => obj.id === o.id);
         if (polyObj) {
-          polyObj.set({ shapeType: o.metadata.shapeType });
+          polyObj.set({shapeType: o.metadata.shapeType});
         }
       }
     });
@@ -246,13 +219,15 @@ function DesignEditorInner({
       if (saved.scene) {
         editor.scene
           .importFromJSON(saved.scene)
-          .catch(() => {})
+          .catch(() => {
+          })
           .then(() => {
             restoreShapes();
             if (saved.canvasBg) {
               try {
                 (editor as any).frame?.setBackgroundColor?.(saved.canvasBg);
-              } catch {}
+              } catch {
+              }
             }
             setTimeout(() => {
               editor.history.reset();
@@ -267,7 +242,8 @@ function DesignEditorInner({
       const scene = initialScene.scene || initialScene;
       editor.scene
         .importFromJSON(scene)
-        .catch(() => {})
+        .catch(() => {
+        })
         .then(() => {
           restoreShapes();
           if (initialScene.canvasBg) {
@@ -275,7 +251,8 @@ function DesignEditorInner({
               (editor as any).frame?.setBackgroundColor?.(
                 initialScene.canvasBg
               );
-            } catch {}
+            } catch {
+            }
           }
           setTimeout(() => {
             editor.history.reset();
@@ -316,7 +293,7 @@ function DesignEditorInner({
           src: url,
           top: position?.top ?? 100,
           left: position?.left ?? 100,
-          metadata: { source: 'qqax' },
+          metadata: {source: 'qqax'},
         };
         await editor?.objects.add(options);
       } catch (err: any) {
@@ -425,7 +402,8 @@ function DesignEditorInner({
               setCanvasBg(template.canvasBg);
               try {
                 (editor as any).frame?.setBackgroundColor?.(template.canvasBg);
-              } catch {}
+              } catch {
+              }
             }
             if (template.workspaceBg) setWorkspaceBg(template.workspaceBg);
             clearAutosave(sceneKey);
@@ -539,7 +517,7 @@ function DesignEditorInner({
       if (shapeSrc || stickerSrc) {
         addImageToCanvas(shapeSrc || stickerSrc, top, left);
       } else if (mediaUrl) {
-        handleAddMedia(mediaUrl, { top, left });
+        handleAddMedia(mediaUrl, {top, left});
       }
     },
     [editor, addImageToCanvas, handleAddMedia]
@@ -597,8 +575,8 @@ function DesignEditorInner({
           zoomPct={zoomPct}
         />
 
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-          <IconRail activePanel={activePanel} onTogglePanel={setActivePanel} />
+        <div style={{flex: 1, display: 'flex', overflow: 'hidden'}}>
+          <IconRail activePanel={activePanel} onTogglePanel={setActivePanel}/>
 
           {activePanel ? (
             <div
@@ -666,7 +644,7 @@ function DesignEditorInner({
                 {activePanel === 'templates' &&
                   (templatesPanel ? (
                     typeof templatesPanel === 'function' ? (
-                      templatesPanel({ onApplyTemplate: handleApplyTemplate })
+                      templatesPanel({onApplyTemplate: handleApplyTemplate})
                     ) : (
                       templatesPanel
                     )
@@ -700,7 +678,7 @@ function DesignEditorInner({
                   />
                 )}
                 {activePanel === 'shapes' && (
-                  <ShapesPanel onAddShape={(src) => addImageToCanvas(src)} />
+                  <ShapesPanel onAddShape={(src) => addImageToCanvas(src)}/>
                 )}
                 {activePanel === 'stickers' && (
                   <StickersPanel
@@ -710,7 +688,7 @@ function DesignEditorInner({
                 {activePanel === 'upload' &&
                   (libraryPanel ? (
                     typeof libraryPanel === 'function' ? (
-                      libraryPanel({ onAddMedia: handleAddMedia })
+                      libraryPanel({onAddMedia: handleAddMedia})
                     ) : (
                       libraryPanel
                     )
@@ -828,114 +806,5 @@ function DesignEditorInner({
         </div>
       </div>
     </div>
-  );
-}
-
-/** Props for the top-level {@link DesignEditor} component. */
-export interface DesignEditorProps {
-  /** A serialized scene to load on mount, or any scene-shaped object with optional `canvasBg`/`workspaceBg`. */
-  initialScene?: IScene | any;
-  /** Stable key identifying the scene for persistence; passed to the persistence provider. */
-  sceneKey?: string;
-  /** Called when the user clicks the back button in the toolbar. */
-  onBack?: () => void;
-  /** Called when the user exports the design. Receives the rendered Blob, output format, and raw scene JSON. */
-  onExport?: (
-    blob: Blob,
-    format: 'png' | 'jpg' | 'svg',
-    scene: IScene
-  ) => void | Promise<void>;
-  /** Template provider. Defaults to a small bundled starter set. */
-  templateProvider?: TemplateProvider;
-  /** Text design provider. Defaults to the bundled text designs set. */
-  textDesignProvider?: TextDesignProvider;
-  /** Font provider. Defaults to a Google Fonts provider. */
-  fontProvider?: FontProvider;
-  /** Background removal provider. Defaults to `@imgly/background-removal` if installed. */
-  backgroundRemovalProvider?: BackgroundRemovalProvider;
-  /** Autosave/scene persistence provider. Defaults to a `localStorage` provider. */
-  persistenceProvider?: PersistenceProvider;
-  /** Optional className applied to the editor root for outer styling. */
-  className?: string;
-  /** Custom render override for the Templates panel — useful to inject host-app template UI. */
-  templatesPanel?: TemplatesPanelRenderProp;
-  /** Custom render override for the Upload/Library panel — useful to inject host-app media library UI. */
-  libraryPanel?: LibraryPanelRenderProp;
-  /** Optional title to display in the toolbar. Defaults to "FastlabAI Design Studio". */
-  title?: React.ReactNode;
-}
-
-/**
- * The top-level image design editor. Renders a full-screen canvas-based editor
- * with toolbar, side panels, layer panel, and object properties bar.
- *
- * Configure host integration via the provider props
- * (`templateProvider`, `fontProvider`, `backgroundRemovalProvider`, `persistenceProvider`).
- *
- * @example
- * ```tsx
- * import { DesignEditor } from '@qqax/design-editor'
- * import '@qqax/design-editor/theme.css'
- *
- * export default function App() {
- *   return <DesignEditor />
- * }
- * ```
- */
-export function DesignEditor({
-  initialScene,
-  sceneKey,
-  onBack,
-  onExport,
-  templateProvider = createDefaultTemplateProvider(),
-  textDesignProvider = createDefaultTextDesignProvider(),
-  fontProvider = createDefaultFontProvider(),
-  backgroundRemovalProvider,
-  persistenceProvider = createLocalStoragePersistence(),
-  className,
-  templatesPanel,
-  libraryPanel,
-  title,
-}: DesignEditorProps) {
-  const resolvedBackgroundRemovalProvider =
-    backgroundRemovalProvider ?? createImglyBackgroundRemoval();
-  const ctx = React.useMemo(
-    () => ({
-      templateProvider,
-      textDesignProvider,
-      fontProvider,
-      backgroundRemovalProvider: resolvedBackgroundRemovalProvider,
-      persistenceProvider,
-      sceneKey,
-      onExport,
-      onBack,
-    }),
-    [
-      templateProvider,
-      textDesignProvider,
-      fontProvider,
-      resolvedBackgroundRemovalProvider,
-      persistenceProvider,
-      sceneKey,
-      onExport,
-      onBack,
-    ]
-  );
-
-  return (
-    <EngineProvider>
-      <EditorContextProvider value={ctx}>
-        <DesignEditorInner
-          className={className}
-          initialScene={initialScene}
-          libraryPanel={libraryPanel}
-          onBack={onBack}
-          templatesPanel={templatesPanel}
-          textDesignProvider={textDesignProvider}
-          title={title}
-        />
-        <Toaster position="bottom-right" />
-      </EditorContextProvider>
-    </EngineProvider>
   );
 }

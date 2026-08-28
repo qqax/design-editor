@@ -12,7 +12,7 @@
 export const VERSION = '1.0.0-beta.10';
 
 export * from './providers';
-export * from './components/DesignEditor';
+export * from './components/design-editor';
 
 /** Re-export the engine's public types for consumers who need to interact with scenes/layers. */
 export type { ILayer, IScene } from './engine';

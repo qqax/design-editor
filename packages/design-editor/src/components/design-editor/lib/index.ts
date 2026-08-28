@@ -1,0 +1,1 @@
+export { getStorageSafe } from './getStorageSafe';
