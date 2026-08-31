@@ -327,7 +327,7 @@ export function Toolbar(props: Props) {
             letterSpacing: '-0.01em',
           }}
         >
-          {title || 'FastlabAI Design Studio'}
+          {title || 'Design Studio'}
         </span>
       </div>
 

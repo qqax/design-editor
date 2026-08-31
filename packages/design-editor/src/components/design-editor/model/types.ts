@@ -48,6 +48,6 @@ export interface DesignEditorProps {
     templatesPanel?: TemplatesPanelRenderProp;
     /** Custom render override for the Upload/Library panel — useful to inject host-app media library UI. */
     libraryPanel?: LibraryPanelRenderProp;
-    /** Optional title to display in the toolbar. Defaults to "FastlabAI Design Studio". */
+    /** Optional title to display in the toolbar. Defaults to "Design Studio". */
     title?: React.ReactNode;
 }

@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')!).render(
     <div style={{ height: '100vh' }}>
       <DesignEditor
         sceneKey="example-scene-1"
-        title="FastlabAI Studio"
+        title="Design Studio"
         onExport={async (blob, format) => {
           console.log(`Exported ${format} file: ${blob.size} bytes`);
           alert(`Exported ${format} file: ${blob.size} bytes`);

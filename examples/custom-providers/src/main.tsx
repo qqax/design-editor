@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 
-import { DesignEditor } from '@qqax/design-editor';
+import { DesignEditor, FontDescriptor } from '@qqax/design-editor';
 import { createRoot } from 'react-dom/client';
 
 import type { FontProvider, TemplateProvider } from '@qqax/design-editor';
@@ -35,10 +35,13 @@ const myTemplateProvider: TemplateProvider = {
 
 // ── Demo font provider — single custom font ─────────────────────────────────
 const myFontProvider: FontProvider = {
+  upload(file: File): Promise<FontDescriptor> {
+    return Promise.resolve( { family: 'Inter', category: 'sans-serif', weights: [400, 600, 700], source: 'custom' });
+  },
   async list() {
     return [
-      { family: 'Inter', category: 'sans-serif', weights: [400, 600, 700] },
-      { family: 'JetBrains Mono', category: 'monospace', weights: [400] },
+      { family: 'Inter', category: 'sans-serif', weights: [400, 600, 700], source: 'custom' },
+      { family: 'JetBrains Mono', category: 'monospace', weights: [400], source: 'custom' },
     ];
   },
   async load(family) {
@@ -47,7 +50,7 @@ const myFontProvider: FontProvider = {
     link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700&display=swap`;
     document.head.appendChild(link);
     await document.fonts.ready;
-  },
+  }
 };
 
 // ── Demo library panel — custom component to inject media ──────────────────────
@@ -89,7 +92,7 @@ createRoot(document.getElementById('root')!).render(
         fontProvider={myFontProvider}
         sceneKey="custom-scene-1"
         templateProvider={myTemplateProvider}
-        title="Custom FastlabAI Studio"
+        title="Custom Design Studio"
         libraryPanel={({ onAddMedia }) => (
           <MyLibraryPanel onAddMedia={onAddMedia} />
         )}

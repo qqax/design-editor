@@ -11,7 +11,7 @@ export default function Home() {
     <main style={{ height: '100vh' }}>
       <DesignEditor
         sceneKey="nextjs-pages-scene-1"
-        title="FastlabAI Studio (Pages Router)"
+        title="Design Studio (Pages Router)"
         onExport={async (blob, format) => {
           console.log(`Exported ${format} file: ${blob.size} bytes`);
           alert(`Exported ${format} file: ${blob.size} bytes`);

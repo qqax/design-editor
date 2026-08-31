@@ -144,4 +144,4 @@ Custom render override for the Templates panel — useful to inject host-app tem
 
 Defined in: [components/DesignEditor.tsx:406](https://github.com/qqax/design-editor/blob/9bd2fcc50485e7aa4ad06da59efddb714ea87591/src/components/DesignEditor.tsx#L406)
 
-Optional title to display in the toolbar. Defaults to "FastlabAI Design Studio".
+Optional title to display in the toolbar. Defaults to "Design Studio".
