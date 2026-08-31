@@ -58,7 +58,7 @@ export type {
 // controllers
 export * from './core/controllers/Base';
 export * from './core/controllers/History';
-export * from './core/controllers/Objects';
+export * from './core/controllers/objects';
 export * from './core/controllers/Scene';
 export * from './core/controllers/Frame';
 export * from './core/controllers/Events';

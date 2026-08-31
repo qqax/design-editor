@@ -1,8 +1,8 @@
-import {StaticCanvas,} from 'fabric';
+import { StaticCanvas } from 'fabric';
 
 import ObjectImporter from '../utils/object-importer-render';
 
-import type {ILayer, IScene} from '../../types';
+import type { ILayer, IScene } from '../../types';
 
 class Renderer {
   public async render(template: IScene) {
@@ -46,7 +46,7 @@ class Renderer {
             height: layer.height * layer.scaleY,
           },
         },
-        params
+        params,
       );
       const data = staticCanvas.toDataURL({
         multiplier: 1,
@@ -63,7 +63,7 @@ class Renderer {
   private async loadTemplate(
     staticCanvas: StaticCanvas,
     template: IScene,
-    params: Record<string, any>
+    params: Record<string, any>,
   ) {
     const { frame } = template;
     this.setDimensions(staticCanvas, frame);
@@ -82,7 +82,7 @@ class Renderer {
   // @ts-ignore
   private setDimensions(
     staticCanvas: StaticCanvas,
-    { width, height }: { width: number; height: number }
+    { width, height }: { width: number; height: number },
   ) {
     staticCanvas.setDimensions({ width, height });
   }

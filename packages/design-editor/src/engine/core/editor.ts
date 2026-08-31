@@ -4,7 +4,7 @@ import Events from './controllers/Events';
 import Frame from './controllers/Frame';
 import Guidelines from './controllers/Guidelines';
 import History from './controllers/History';
-import Objects from './controllers/Objects';
+import { Objects } from './controllers/objects';
 import Personalization from './controllers/Personalization';
 import Renderer from './controllers/Renderer';
 import Scene from './controllers/Scene';

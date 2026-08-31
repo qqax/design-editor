@@ -10,7 +10,7 @@ import type {
   TextDesign,
   TextDesignCategory,
   TextDesignProvider,
-} from '../../../providers/textDesigns';
+} from '../../../providers';
 
 interface TextPanelProps {
   provider: TextDesignProvider;

@@ -10,7 +10,7 @@ import type {
   DesignTemplate,
   TemplateCategory,
   TemplateProvider,
-} from '../../../providers/templates';
+} from '../../../providers';
 
 interface Props {
   provider: TemplateProvider;
