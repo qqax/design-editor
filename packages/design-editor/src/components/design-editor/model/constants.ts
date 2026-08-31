@@ -1,0 +1,1 @@
+export const DEFAULT_VPT: readonly number[]= [1, 0, 0, 1, 0, 0];
