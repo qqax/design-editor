@@ -18,7 +18,7 @@ export class Frame extends Rect {
   // No-op setter — required so Fabric's _setOptions can write `type` during
   // deserialization (loadFromJSON / enlivenObjects) without crashing.
   set type(_value: string) {
-    // fixed value — intentional no-op
+    // fixed value
   }
 
   constructor(options: FrameOptions) {
@@ -32,24 +32,52 @@ export class Frame extends Rect {
       padding: 0,
       evented: false,
     });
+
+    console.log(
+      '[EDITOR DEBUG] Frame CREATED',
+      {
+        left: this.left,
+        top: this.top,
+        width: this.width,
+        height: this.height,
+        scaleX: this.scaleX,
+        scaleY: this.scaleY,
+        originX: this.originX,
+        originY: this.originY,
+      },
+    );
   }
 
   // @ts-ignore
   toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
+    return super.toObject(
+      propertiesToInclude as any,
+    );
   }
 
   // @ts-ignore
   toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
+    return super.toObject(
+      propertiesToInclude as any,
+    );
   }
 
-  static async fromObject(options: FrameOptions) {
+  static async fromObject(
+    options: FrameOptions,
+  ) {
+    console.log(
+      '[EDITOR DEBUG] Frame.fromObject',
+      options,
+    );
+
     return new Frame(options);
   }
 }
 
-classRegistry.setClass(Frame, Frame.type);
+classRegistry.setClass(
+  Frame,
+  Frame.type,
+);
 
 declare module 'fabric' {
   export interface Frame {}

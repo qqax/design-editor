@@ -27,6 +27,30 @@ class Zoom extends Base {
   }
 
   zoomToFit() {
+    console.group('[EDITOR DEBUG] zoomToFit');
+
+    console.log('canvas', {
+      width: this.canvas.width,
+      height: this.canvas.height,
+    });
+
+    console.log('zoom', this.canvas.getZoom());
+
+    console.log(
+      'viewportTransform',
+      this.canvas.viewportTransform,
+    );
+
+    console.log('frame', {
+      left: this.editor.frame.frame.left,
+      top: this.editor.frame.frame.top,
+      width: this.editor.frame.frame.width,
+      height: this.editor.frame.frame.height,
+    });
+
+    console.trace('[EDITOR DEBUG] zoomToFit called');
+    console.groupEnd();
+
     const zoom = this.editor.frame.fitRatio;
 
     // After centerObject(), the frame center is at the canvas element center.

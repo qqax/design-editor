@@ -2,18 +2,17 @@
 
 import React, {memo, useContext, useEffect, useRef} from 'react';
 
-import {Editor} from '../engine/core';
-import {Context} from '../engine/react';
+import {Editor, Context} from '../engine';
 
 const WORKSPACE_BG = 'var(--color-bg)';
 
 // ─── FrozenCanvas ─────────────────────────────────────────────────────────────
 const FrozenCanvas = memo(
   function FrozenCanvas({
-    config,
-    contextRef,
-    canvasBg,
-  }: {
+                          config,
+                          contextRef,
+                          canvasBg,
+                        }: {
     config: Record<string, any>;
     contextRef: React.RefObject<any>;
     canvasBg: string;
@@ -22,119 +21,147 @@ const FrozenCanvas = memo(
 
     useEffect(() => {
       const container = containerRef.current;
-      if (!container) return;
+
+      if (!container) {
+        return;
+      }
 
       const initTimer = window.setTimeout(() => {
-        if (!container || !contextRef.current) return;
+        if (!container || !contextRef.current) {
+          return;
+        }
+
         const w = container.clientWidth || 800;
         const h = container.clientHeight || 600;
 
         let editor: InstanceType<typeof Editor> | null = null;
+
         try {
           editor = new Editor({
             id: 'layerhub_io_canvas',
-            config: { ...config, size: { width: w, height: h } },
+            config: {
+              ...config,
+              size: {
+                width: w,
+                height: h,
+              },
+            },
             state: contextRef.current,
           });
         } catch (err) {
-          console.error('[FrozenCanvas] Editor init failed:', err);
+          console.error(
+            '[FrozenCanvas] Editor init failed:',
+            err,
+          );
+
           return;
         }
 
-        // Apply initial frame interior color (skip if default white; keep canvas transparent so workspace shows through)
         try {
-          if (canvasBg && canvasBg !== '#ffffff') {
-            editor?.frame?.setBackgroundColor?.(canvasBg);
+          if (
+            canvasBg &&
+            canvasBg !== '#ffffff'
+          ) {
+            editor.frame?.setBackgroundColor?.(
+              canvasBg,
+            );
           }
         } catch {
           /* ignore */
         }
 
-        const resizeObserver = new ResizeObserver(() => {
-          if (!container) return;
-          const nw = container.clientWidth || 800;
-          const nh = container.clientHeight || 600;
-          try {
-            editor?.canvas?.resize?.({ width: nw, height: nh });
-            // Re-center frame on the new canvas dimensions and refresh coords
-            window.requestAnimationFrame(() => {
-              try {
-                const fabricCanvas = (editor as any).canvas?.canvas;
-                const frame = (editor as any).frame?.frame;
-                const bg = (editor as any).frame?.background;
-                if (fabricCanvas && frame) {
-                  fabricCanvas.centerObject(frame);
-                  frame.setCoords?.();
-                }
-                if (fabricCanvas && bg) {
-                  fabricCanvas.centerObject(bg);
-                  bg.setCoords?.();
-                }
-                editor.zoom.zoomToFit();
-              } catch {
-                /* ignore */
-              }
-            });
-          } catch {
-            /* ignore */
-          }
-        });
+        const resizeObserver =
+          new ResizeObserver(() => {
+            if (!container || !editor) {
+              return;
+            }
+
+            const nw =
+              container.clientWidth || 800;
+
+            const nh =
+              container.clientHeight || 600;
+
+            try {
+              editor.canvas.resize({
+                width: nw,
+                height: nh,
+              });
+            } catch (error) {
+              console.error(
+                '[FrozenCanvas] Resize failed:',
+                error,
+              );
+            }
+          });
+
         resizeObserver.observe(container);
 
-        // After layout settles, re-center frame on actual dimensions and fit
-        window.setTimeout(() => {
-          try {
-            const fabricCanvas = (editor as any).canvas?.canvas;
-            const frame = (editor as any).frame?.frame;
-            const bg = (editor as any).frame?.background;
-            if (fabricCanvas && frame) {
-              fabricCanvas.centerObject(frame);
-              frame.setCoords?.();
-            }
-            if (fabricCanvas && bg) {
-              fabricCanvas.centerObject(bg);
-              bg.setCoords?.();
-            }
-            editor.zoom.zoomToFit();
-          } catch {
-            /* ignore */
-          }
-        }, 80);
+        (container as any).__layerhubEditor =
+          editor;
 
-        (container as any).__layerhubEditor = editor;
-        (container as any).__layerhubObserver = resizeObserver;
+        (container as any).__layerhubObserver =
+          resizeObserver;
       }, 0);
 
       return () => {
         clearTimeout(initTimer);
-        if (!container) return;
-        const obs = (container as any).__layerhubObserver as
-          ResizeObserver | undefined;
-        obs?.disconnect();
-        const ed = (container as any).__layerhubEditor as
-          InstanceType<typeof Editor> | undefined;
+
+        if (!container) {
+          return;
+        }
+
+        const observer =
+          (container as any)
+            .__layerhubObserver as
+            | ResizeObserver
+            | undefined;
+
+        observer?.disconnect();
+
+        const editor =
+          (container as any)
+            .__layerhubEditor as
+            | InstanceType<typeof Editor>
+            | undefined;
+
         try {
-          ed?.destroy?.();
+          editor?.destroy?.();
         } catch {
           /* ignore */
         }
-        delete (container as any).__layerhubEditor;
-        delete (container as any).__layerhubObserver;
+
+        delete (
+          container as any
+        ).__layerhubEditor;
+
+        delete (
+          container as any
+        ).__layerhubObserver;
       };
-    }, []); // intentional — run once on mount only
+    }, []);
 
     return (
-      <div style={{ position: 'absolute', inset: 0 }}>
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+        }}
+      >
         <div
           ref={containerRef}
-          style={{ width: '100%', height: '100%', position: 'relative' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+          }}
         >
           <canvas id="layerhub_io_canvas" />
         </div>
       </div>
     );
   },
-  () => true // NEVER re-render after mount
+  () => true,
 );
 
 // ─── CanvasContextBridge ──────────────────────────────────────────────────────

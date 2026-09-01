@@ -121,35 +121,44 @@ export class ObjectsAlign {
       return;
     }
 
-    const width = this.frame.width ?? 0;
-    const height = this.frame.height ?? 0;
+    const frame = this.frame;
+
+    const frameWidth = frame.width ?? 0;
+    const frameHeight = frame.height ?? 0;
 
     if (
       !object.width ||
       !object.height ||
-      !width ||
-      !height
+      !frameWidth ||
+      !frameHeight
     ) {
       return;
     }
 
-    const scaleX = width / object.width;
-    const scaleY = height / object.height;
+    const scaleX = frameWidth / object.width;
+    const scaleY = frameHeight / object.height;
 
     const scale =
       type === 'fill'
         ? Math.max(scaleX, scaleY)
         : Math.min(scaleX, scaleY);
 
+    const scaledWidth = object.width * scale;
+    const scaledHeight = object.height * scale;
+
     object.set({
       scaleX: scale,
       scaleY: scale,
+
       left:
-        width / 2 -
-        (object.width * scale) / 2,
+        (frame.left ?? 0) +
+        frameWidth / 2 -
+        scaledWidth / 2,
+
       top:
-        height / 2 -
-        (object.height * scale) / 2,
+        (frame.top ?? 0) +
+        frameHeight / 2 -
+        scaledHeight / 2,
     });
 
     object.setCoords();

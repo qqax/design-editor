@@ -1,4 +1,8 @@
-import * as React from 'react';
+import {
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 
 import ResizeObserver from 'resize-observer-polyfill';
 
@@ -10,13 +14,20 @@ import type { EditorConfig } from '../types';
 interface Props {
   config?: Partial<EditorConfig>;
 }
-export const Canvas = (props: Props) => {
-  const context = React.useContext(Context);
-  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    const container = containerRef.current as HTMLDivElement;
-    const { clientHeight, clientWidth } = container;
+export const Canvas = (props: Props) => {
+  const context = useContext(Context);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const { clientWidth, clientHeight } = container;
+
     const editor = new Editor({
       id: 'layerhub_io_canvas',
       config: {
@@ -29,34 +40,60 @@ export const Canvas = (props: Props) => {
       state: context,
     });
 
+    let resizeFrame: number | null = null;
+
     const resizeObserver = new ResizeObserver((entries) => {
-      const { width = clientWidth, height = clientHeight } =
-        (entries[0] && entries[0].contentRect) || {};
-      editor.canvas.resize({
-        width,
-        height,
+      const entry = entries[0];
+
+      if (!entry) {
+        return;
+      }
+
+      const width = Math.round(entry.contentRect.width);
+      const height = Math.round(entry.contentRect.height);
+
+      if (width <= 0 || height <= 0) {
+        return;
+      }
+
+      if (resizeFrame !== null) {
+        cancelAnimationFrame(resizeFrame);
+      }
+
+      resizeFrame = requestAnimationFrame(() => {
+        editor.canvas.resize({
+          width,
+          height,
+        });
       });
     });
+
     resizeObserver.observe(container);
+
     return () => {
-      editor.destroy();
-      if (container) {
-        resizeObserver.unobserve(container);
+      if (resizeFrame !== null) {
+        cancelAnimationFrame(resizeFrame);
       }
+
+      resizeObserver.disconnect();
+      editor.destroy();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <div
       ref={containerRef}
       id="layerhub_io_canvas_container"
-      style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
+      style={{
+        flex: 1,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
     >
       <div
         style={{
           position: 'absolute',
-          height: '100%',
-          width: '100%',
+          inset: 0,
         }}
       >
         <canvas id="layerhub_io_canvas" />

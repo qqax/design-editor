@@ -74,7 +74,8 @@ export function useEditorActions(
         ...layer,
         id: generateId(),
         left: ((layer.left as number) ?? 0) + dx,
-        top: ((layer.top as number) ?? 0) + dy
+        top: ((layer.top as number) ?? 0) + dy,
+        skipCentering: true
       });
     }
   }, [editor]);
