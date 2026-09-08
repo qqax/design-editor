@@ -1,0 +1,1 @@
+export type TextTransform = 'none' | 'upper' | 'lower' | 'title';

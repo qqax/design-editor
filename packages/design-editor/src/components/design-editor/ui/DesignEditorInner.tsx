@@ -7,7 +7,7 @@ import { useEditorContext } from '../../EditorContext';
 import type { PanelKey } from '../../IconRail';
 import { IconRail } from '../../IconRail';
 import { LayerPanel } from '../../layers';
-import { ObjectPropertiesBar } from '../../ObjectPropertiesBar';
+import { ObjectPropertiesBar } from '../../object-properties';
 import { useActiveObject, useEditor, useZoomRatio } from '../../../engine';
 import { Toolbar } from '../../Toolbar';
 import { useToast } from '../../../hooks/useToast';

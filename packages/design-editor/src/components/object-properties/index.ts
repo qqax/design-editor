@@ -1,0 +1,1 @@
+export { ObjectPropertiesBar } from './ui';

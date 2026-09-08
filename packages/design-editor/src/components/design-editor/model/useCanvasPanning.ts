@@ -3,7 +3,7 @@ import { DEFAULT_VPT } from './constants';
 import { Editor } from '../../../engine';
 import { TMat2D, FabricObject, Point } from 'fabric';
 
-export function useCanvasPanning(editor: Editor) {
+export function useCanvasPanning(editor: Editor | null) {
   const [spaceDown, setSpaceDown] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
 
