@@ -1,8 +1,4 @@
-import {
-  useContext,
-  useEffect,
-  useRef,
-} from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import ResizeObserver from 'resize-observer-polyfill';
 
@@ -28,10 +24,12 @@ export const Canvas = (props: Props) => {
 
     const { clientWidth, clientHeight } = container;
 
+    const { config } = props;
+
     const editor = new Editor({
       id: 'layerhub_io_canvas',
       config: {
-        ...props.config,
+        ...config,
         size: {
           width: clientWidth,
           height: clientHeight,
@@ -78,7 +76,7 @@ export const Canvas = (props: Props) => {
       resizeObserver.disconnect();
       editor.destroy();
     };
-  }, []);
+  }, [context, props]);
 
   return (
     <div

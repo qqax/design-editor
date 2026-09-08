@@ -1,13 +1,18 @@
 import React from 'react';
-import type { PanelKey } from '../../IconRail';
-import { TemplatesPanel } from '../../panels/templates/TemplatesPanel';
+
 import { ElementsPanel } from '../../panels/ElementsPanel';
-import { TextPanel } from '../../panels/text/TextPanel';
 import { ShapesPanel } from '../../panels/ShapesPanel';
 import { StickersPanel } from '../../panels/StickersPanel';
+import { TemplatesPanel } from '../../panels/templates/TemplatesPanel';
+import { TextPanel } from '../../panels/text/TextPanel';
 import { UploadPanel } from '../../panels/UploadPanel';
-import type { LibraryPanelRenderProp, TemplatesPanelRenderProp } from "../model";
-import type { TextDesignProvider, TextDesign } from '../../../providers';
+
+import type { TextDesign, TextDesignProvider } from '../../../providers';
+import type { PanelKey } from '../../icon-reail';
+import type {
+  LibraryPanelRenderProp,
+  TemplatesPanelRenderProp,
+} from '../model';
 
 interface EditorSidebarProps {
   activePanel: PanelKey | null;
@@ -25,19 +30,19 @@ interface EditorSidebarProps {
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
-                                                              activePanel,
-                                                              onClose,
-                                                              templatesPanel,
-                                                              libraryPanel,
-                                                              templateProvider,
-                                                              textDesignProvider,
-                                                              handleApplyTemplate,
-                                                              addImageToCanvas,
-                                                              handleApplyTextDesign,
-                                                              handleAddText,
-                                                              handleAddMedia,
-                                                              setActivePanel,
-                                                            }) => {
+  activePanel,
+  onClose,
+  templatesPanel,
+  libraryPanel,
+  templateProvider,
+  textDesignProvider,
+  handleApplyTemplate,
+  addImageToCanvas,
+  handleApplyTextDesign,
+  handleAddText,
+  handleAddMedia,
+  setActivePanel,
+}) => {
   if (!activePanel) return null;
 
   return (
@@ -56,12 +61,27 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       }}
     >
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 12px 0 12px' }}>
-        <span style={{ fontSize: 14, fontWeight: 600, textTransform: 'capitalize', color: 'var(--color-text)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '12px 12px 0 12px',
+        }}
+      >
+        <span
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            textTransform: 'capitalize',
+            color: 'var(--color-text)',
+          }}
+        >
           {activePanel}
         </span>
         <button
           onClick={onClose}
+          type="button"
           style={{
             all: 'unset',
             cursor: 'pointer',
@@ -80,14 +100,27 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
       </div>
 
       {/* Content Switcher */}
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {activePanel === 'templates' && (
-          templatesPanel ? (
-            typeof templatesPanel === 'function' ? templatesPanel({ onApplyTemplate: handleApplyTemplate }) : templatesPanel
+      <div
+        style={{
+          flex: 1,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {activePanel === 'templates' &&
+          (templatesPanel ? (
+            typeof templatesPanel === 'function' ? (
+              templatesPanel({ onApplyTemplate: handleApplyTemplate })
+            ) : (
+              templatesPanel
+            )
           ) : (
-            <TemplatesPanel onApplyTemplate={handleApplyTemplate} provider={templateProvider} />
-          )
-        )}
+            <TemplatesPanel
+              onApplyTemplate={handleApplyTemplate}
+              provider={templateProvider}
+            />
+          ))}
 
         {activePanel === 'elements' && (
           <ElementsPanel
@@ -110,17 +143,24 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
           />
         )}
 
-        {activePanel === 'shapes' && <ShapesPanel onAddShape={addImageToCanvas} />}
+        {activePanel === 'shapes' && (
+          <ShapesPanel onAddShape={addImageToCanvas} />
+        )}
 
-        {activePanel === 'stickers' && <StickersPanel onAddSticker={addImageToCanvas} />}
+        {activePanel === 'stickers' && (
+          <StickersPanel onAddSticker={addImageToCanvas} />
+        )}
 
-        {activePanel === 'upload' && (
-          libraryPanel ? (
-            typeof libraryPanel === 'function' ? libraryPanel({ onAddMedia: handleAddMedia }) : libraryPanel
+        {activePanel === 'upload' &&
+          (libraryPanel ? (
+            typeof libraryPanel === 'function' ? (
+              libraryPanel({ onAddMedia: handleAddMedia })
+            ) : (
+              libraryPanel
+            )
           ) : (
             <UploadPanel onUploadFile={handleAddMedia} />
-          )
-        )}
+          ))}
       </div>
     </div>
   );

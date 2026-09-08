@@ -23,7 +23,11 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
       setSelectedIds((prev) => {
         if (multi) {
           const next = new Set(prev);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) {
+            next.delete(id);
+          } else {
+            next.add(id);
+          }
           return next;
         }
         return new Set([id]);
@@ -35,7 +39,6 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   const handleVisibilityChange = useCallback(
     (id: string, visible: boolean) => {
-      console.log(visible, id);
       editor?.objects?.update?.({ visible }, id);
     },
     [editor]
@@ -126,7 +129,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
         {selectedIds.size >= 2 && (
           <Tooltip title="Group selected layers">
-            <button onClick={handleGroup} style={ICON_BTN}>
+            <button onClick={handleGroup} style={ICON_BTN} type="button">
               <Folder size={14} />
             </button>
           </Tooltip>
@@ -136,6 +139,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
           <button
             onClick={onClose}
             style={{ ...ICON_BTN, color: 'var(--color-text-muted)' }}
+            type="button"
           >
             <X size={14} />
           </button>

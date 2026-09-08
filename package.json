@@ -12,6 +12,13 @@
     "playground": "bun --filter playground dev"
   },
   "devDependencies": {
-    "concurrently": "^10.0.5"
+    "@eslint/compat": "^2.1.1",
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.10.0",
+    "eslint-config-airbnb-extended": "^3.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "prettier-plugin-tailwindcss": "^0.8.1"
   }
 }

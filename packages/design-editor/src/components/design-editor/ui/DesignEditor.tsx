@@ -1,8 +1,9 @@
 import React from 'react';
 
-import {EditorContextProvider} from '../../EditorContext'
-import {Provider as EngineProvider,} from '../../../engine/react';
-import {Toaster} from 'sonner'
+import { Toaster } from 'sonner';
+
+import { DesignEditorInner } from './DesignEditorInner';
+import { Provider as EngineProvider } from '../../../engine/react';
 import {
   createDefaultFontProvider,
   createDefaultTemplateProvider,
@@ -10,8 +11,9 @@ import {
   createImglyBackgroundRemoval,
   createLocalStoragePersistence,
 } from '../../../providers';
-import {DesignEditorProps} from "../model";
-import {DesignEditorInner} from "./DesignEditorInner";
+import { EditorContextProvider } from '../../EditorContext';
+
+import type { DesignEditorProps } from '../model';
 
 /**
  * The top-level image design editor. Renders a full-screen canvas-based editor

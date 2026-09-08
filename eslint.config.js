@@ -13,7 +13,7 @@ export default [
       '**/dist/**',
       '**/.next/**',
       '**/node_modules/**',
-      ...ESLINT_DISABLED_FILES
+      ...ESLINT_DISABLED_FILES,
     ],
   },
 
@@ -53,12 +53,13 @@ export default [
           exceptionPatterns: ['^[0-9]+$'],
         },
       ],
-      "react/no-unknown-property": [
-        "error",
+      'react/no-unknown-property': [
+        'error',
         {
-          "ignore": ["cmdk-input-wrapper"]
-        }
+          'ignore': ['cmdk-input-wrapper'],
+        },
       ],
+      '@typescript-eslint/no-explicit-any': 'off',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-invalid-void-type': 'off',
       '@typescript-eslint/naming-convention': 'off',

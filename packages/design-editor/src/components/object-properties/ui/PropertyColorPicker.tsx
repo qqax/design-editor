@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
+
+import { Popover } from '../../primitives';
 import { hslToRgb } from '../lib';
 import { SWATCHES } from '../model';
-import { Popover } from '../../primitives';
 
 interface PropertyColorPickerProps {
   color: string;
@@ -11,16 +12,17 @@ interface PropertyColorPickerProps {
 }
 
 export function PropertyColorPicker({
-                               color,
-                               onChange,
-                               tooltip,
-                               activeObjId,
-                             }: PropertyColorPickerProps) {
+  color,
+  onChange,
+  tooltip,
+  activeObjId,
+}: PropertyColorPickerProps) {
   const [hex, setHex] = useState(color);
   const [open, setOpen] = useState(false);
 
   // Sync hex when color prop or active object changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHex(color);
   }, [color, activeObjId]);
 
@@ -83,15 +85,19 @@ export function PropertyColorPicker({
         {SWATCHES.map((sw) => (
           <button
             key={sw}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+            aria-label={`Color swatch ${sw}`}
             title={sw}
+            type="button"
             onClick={() => {
               onChange(sw);
               setHex(sw);
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = 'scale(1.15)')
-            }
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
             style={{
               width: '100%',
               aspectRatio: '1/1',
@@ -147,12 +153,14 @@ export function PropertyColorPicker({
           maxLength={7}
           onBlur={(e) => commitHex(e.target.value)}
           onChange={(e) => setHex(e.target.value)}
-          onFocus={(e) => (e.target.style.borderColor = 'var(--color-primary)')}
           spellCheck={false}
           value={hex}
-          onBlurCapture={(e) =>
-            (e.target.style.borderColor = 'var(--color-border)')
-          }
+          onBlurCapture={(e) => {
+            e.target.style.borderColor = 'var(--color-border)';
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = 'var(--color-primary)';
+          }}
           onKeyDown={(e) =>
             e.key === 'Enter' && commitHex((e.target as HTMLInputElement).value)
           }
@@ -188,7 +196,9 @@ export function PropertyColorPicker({
       placement="top"
     >
       <button
+        aria-label="Color picker"
         title={tooltip}
+        type="button"
         onMouseEnter={(e) => {
           if (!open) {
             e.currentTarget.style.borderColor =

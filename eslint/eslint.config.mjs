@@ -7,7 +7,8 @@
 
 import path from 'node:path';
 
-import { includeIgnoreFile } from '@eslint/compat';
+// Using the recommended official config utility instead of the deprecated @eslint/compat export
+import { includeIgnoreFile } from 'eslint/config';
 import js from '@eslint/js';
 import { configs, plugins, rules } from 'eslint-config-airbnb-extended';
 import { rules as prettierConfigRules } from 'eslint-config-prettier';
