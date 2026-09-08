@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { hslToRgb } from '../lib';
 
@@ -14,11 +14,12 @@ export function ColorPickerPanel({
   swatches,
 }: ColorPickerPanelProps) {
   const [hex, setHex] = useState(color);
+  const [prevColor, setPrevColor] = useState(color);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  if (color !== prevColor) {
+    setPrevColor(color);
     setHex(color);
-  }, [color]);
+  }
 
   const commitHex = useCallback(
     (val: string) => {
@@ -41,7 +42,6 @@ export function ColorPickerPanel({
         padding: '4px 2px',
       }}
     >
-      {/* ── Слайдер оттенка (Hue Bar) ─────────────────────────────────── */}
       <div
         aria-label="Pick hue color spectrum"
         role="button"
@@ -76,7 +76,6 @@ export function ColorPickerPanel({
         }}
       />
 
-      {/* ── Сетка готовых цветов (Swatches) ─────────────────────────────── */}
       <div
         style={{
           display: 'grid',
@@ -103,7 +102,7 @@ export function ColorPickerPanel({
             style={{
               width: '100%',
               aspectRatio: '1/1',
-              borderRadius: '50%', // круглая форма выглядит современнее и универсальнее
+              borderRadius: '50%',
               border:
                 color.toLowerCase() === sw.toLowerCase()
                   ? '2px solid var(--color-primary)'
@@ -121,7 +120,6 @@ export function ColorPickerPanel({
         ))}
       </div>
 
-      {/* ── Поля ручного ввода (Hex + Native Picker) ──────────────────────── */}
       <div
         style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 4 }}
       >

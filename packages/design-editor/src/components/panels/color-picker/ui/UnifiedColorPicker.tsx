@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { Popover, Tooltip } from '../../../primitives';
@@ -24,14 +24,12 @@ export function UnifiedColorPicker({
   checkerboard,
 }: UnifiedColorPickerProps) {
   const [open, setOpen] = useState(false);
-  const [currentActiveId, setCurrentActiveId] = useState(activeObjId);
+  const [prevActiveObjId, setPrevActiveObjId] = useState(activeObjId);
 
-  useEffect(() => {
-    if (activeObjId !== currentActiveId) {
-      setOpen(false);
-      setCurrentActiveId(activeObjId);
-    }
-  }, [activeObjId, currentActiveId]);
+  if (activeObjId !== prevActiveObjId) {
+    setPrevActiveObjId(activeObjId);
+    setOpen(false);
+  }
 
   const placement = variant === 'property-bar' ? 'top' : 'bottom';
 

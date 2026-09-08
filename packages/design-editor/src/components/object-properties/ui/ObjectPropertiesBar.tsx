@@ -37,7 +37,7 @@ export function ObjectPropertiesBar({
     onDragStart,
   } = useObjectPropertiesBar({ activeObj });
 
-  // if (!activeObj || !editor) return null;
+  if (!activeObj || !editor) return null;
 
   return (
     <div
