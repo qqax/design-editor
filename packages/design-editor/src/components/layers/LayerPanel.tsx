@@ -76,7 +76,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   return (
     <div
-      className="absolute bottom-[66px] right-0 top-[56px] z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:relative md:bottom-0 md:top-0 md:z-auto md:w-[230px]"
+      className="absolute bottom-[66px] right-0 top-0 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:bottom-0 md:top-0 md:z-auto md:w-[230px]"
       style={{
         background: 'color-mix(in srgb, var(--color-surface) 97%, transparent)',
         backdropFilter: 'blur(24px)',

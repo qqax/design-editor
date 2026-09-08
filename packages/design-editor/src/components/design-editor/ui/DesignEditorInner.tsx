@@ -103,7 +103,6 @@ export function DesignEditorInner({
     <div
       data-de-root className={className}
       style={{
-        position: 'fixed', inset: 0, width: '100%', height: '100%',
         display: 'flex', flexDirection: 'column',
         background: 'var(--de-color-bg)', color: 'var(--de-color-fg)',
       }}
@@ -120,7 +119,7 @@ export function DesignEditorInner({
           settings={settings} size={size} title={title} workspaceBg={workspaceBg} zoomPct={zoomPct}
         />
 
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
           <IconRail activePanel={activePanel} onTogglePanel={setActivePanel} />
 
           <EditorSidebar

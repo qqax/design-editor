@@ -27,30 +27,6 @@ class Zoom extends Base {
   }
 
   zoomToFit() {
-    console.group('[EDITOR DEBUG] zoomToFit');
-
-    console.log('canvas', {
-      width: this.canvas.width,
-      height: this.canvas.height,
-    });
-
-    console.log('zoom', this.canvas.getZoom());
-
-    console.log(
-      'viewportTransform',
-      this.canvas.viewportTransform,
-    );
-
-    console.log('frame', {
-      left: this.editor.frame.frame.left,
-      top: this.editor.frame.frame.top,
-      width: this.editor.frame.frame.width,
-      height: this.editor.frame.frame.height,
-    });
-
-    console.trace('[EDITOR DEBUG] zoomToFit called');
-    console.groupEnd();
-
     const zoom = this.editor.frame.fitRatio;
 
     // After centerObject(), the frame center is at the canvas element center.
@@ -68,29 +44,6 @@ class Zoom extends Base {
 
     const tx = canvasW / 2 - frameCenter.x * zoom;
     const ty = canvasH / 2 - frameCenter.y * zoom;
-
-    console.log('[zoomToFit] canvasW:', canvasW, 'canvasH:', canvasH);
-    console.log('[zoomToFit] zoom:', zoom);
-    console.log(
-      '[zoomToFit] frame.left:',
-      frame.left,
-      'frame.top:',
-      frame.top,
-      'frame.width:',
-      frame.width,
-      'frame.height:',
-      frame.height
-    );
-    console.log('[zoomToFit] frameCenter:', frameCenter);
-    console.log('[zoomToFit] tx:', tx, 'ty:', ty);
-    console.log(
-      '[zoomToFit] frame left edge on screen:',
-      frame.left * zoom + tx
-    );
-    console.log(
-      '[zoomToFit] frame right edge on screen:',
-      (frame.left + frame.width) * zoom + tx
-    );
 
     this.canvas.setViewportTransform([zoom, 0, 0, zoom, tx, ty]);
     this.canvas.requestRenderAll();

@@ -31,7 +31,7 @@ interface Props {
 export function IconRail({ activePanel, onTogglePanel }: Props) {
   return (
     <div
-      className="z-10 flex h-[66px] w-full shrink-0 flex-row items-center gap-[3px] overflow-x-auto px-[10px] py-[4px] md:h-auto md:w-[62px] md:flex-col md:overflow-visible md:px-0 md:py-[10px]"
+      className="z-10 flex h-[66px] w-full shrink-0 flex-row items-center gap-1 overflow-x-auto px-3 py-1 md:h-auto md:w-16 md:flex-col md:overflow-visible md:px-0 md:py-3"
       style={{
         background: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
         borderRight: '1px solid var(--color-border)',

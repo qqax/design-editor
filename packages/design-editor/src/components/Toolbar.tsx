@@ -507,18 +507,18 @@ export function Toolbar(props: Props) {
           alignItems: 'center',
           gap: 8,
           background: exporting
-            ? 'color-mix(in srgb, var(--color-primary) 30%, transparent)'
-            : 'var(--color-primary)',
+            ? 'color-mix(in srgb, var(--de-color-primary) 30%, transparent)'
+            : 'var(--de-color-primary)',
           border: 'none',
           borderRadius: 10,
           padding: '8px 20px',
-          color: 'var(--color-primary-text)',
+          color: 'var(--de-color-primary-fg)',
           fontWeight: 700,
           fontSize: 13,
           cursor: exporting ? 'wait' : 'pointer',
           boxShadow: exporting
             ? 'none'
-            : '0 0 20px color-mix(in srgb, var(--color-primary) 35%, transparent), 0 4px 12px var(--shadow-color)',
+            : '0 0 20px color-mix(in srgb, var(--de-color-primary) 35%, transparent), 0 4px 12px var(--shadow-color)',
           transition: 'all 0.2s',
           letterSpacing: '-0.01em',
           outline: 'none',

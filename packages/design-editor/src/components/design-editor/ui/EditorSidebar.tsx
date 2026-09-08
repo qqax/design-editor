@@ -43,6 +43,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   return (
     <div
       style={{
+        position: 'absolute',
+        top: 0,
+        left: 64,
+        bottom: 0,
         width: 320,
         background: 'var(--color-surface, var(--de-color-bg-elevated))',
         borderRight: '1px solid var(--color-border, var(--de-color-border))',
