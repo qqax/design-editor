@@ -44,7 +44,9 @@
   ],
   "scripts": {
     "build": "tsup && tailwindcss -i src/theme/theme.css -o dist/theme.css && node scripts/postbuild-use-client.mjs",
-    "dev": "tsup --watch",
+    "dev:js": "tsup --watch",
+    "dev:css": "tailwindcss -i src/theme/theme.css -o dist/theme.css --watch",
+    "dev": "concurrently \"npm:dev:js\" \"npm:dev:css\"",
     "playground": "bun --filter playground dev",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

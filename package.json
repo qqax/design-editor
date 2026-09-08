@@ -10,5 +10,8 @@
     "build": "bun --cwd packages/design-editor build",
     "dev": "bun --filter playground dev",
     "playground": "bun --filter playground dev"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }
