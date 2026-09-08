@@ -1,7 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { Point } from 'fabric';
+
 import { DEFAULT_VPT } from './constants';
-import { Editor } from '../../../engine';
-import { TMat2D, FabricObject, Point } from 'fabric';
+
+import type { FabricObject, TMat2D } from 'fabric';
+import type React from 'react';
+
+import type { Editor } from '../../../engine';
 
 export function useCanvasPanning(editor: Editor | null) {
   const [spaceDown, setSpaceDown] = useState(false);
@@ -10,44 +16,60 @@ export function useCanvasPanning(editor: Editor | null) {
   const panRef = useRef<{ lastX: number; lastY: number } | null>(null);
   const originalSelectionRef = useRef<boolean>(true);
 
-  const fabricCanvas = editor?.canvas?.canvas;
+  // FIX: Storing the editor in a Ref entirely shields the compiler from
+  // worrying about mutations across async effect boundaries.
+  const editorRef = useRef<Editor | null>(null);
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
 
   useEffect(() => {
+    const fabricCanvas = editorRef.current?.canvas?.canvas;
     if (!fabricCanvas) return;
 
     if (spaceDown) {
       originalSelectionRef.current = fabricCanvas.selection ?? true;
-      fabricCanvas.selection = false;
+      fabricCanvas.set('selection', false);
 
       fabricCanvas.forEachObject((obj: FabricObject) => {
-        obj.selectable = false;
-        obj.evented = false;
+        obj.set({
+          selectable: false,
+          evented: false,
+        });
       });
     } else {
-      fabricCanvas.selection = originalSelectionRef.current;
+      fabricCanvas.set('selection', originalSelectionRef.current);
       fabricCanvas.forEachObject((obj: FabricObject) => {
-        obj.selectable = true;
-        obj.evented = true;
+        obj.set({
+          selectable: true,
+          evented: true,
+        });
       });
     }
     fabricCanvas.requestRenderAll();
-  }, [spaceDown, fabricCanvas]);
+  }, [spaceDown]); // No more 'editor' variable mutation dependencies!
 
   useEffect(() => {
+    const fabricCanvas = editorRef.current?.canvas?.canvas;
     if (!fabricCanvas) return;
 
     const handleCanvasWheel = (opt: any) => {
+      const currentCanvas = editorRef.current?.canvas?.canvas;
+      if (!currentCanvas) return;
+
       const evt = opt.e as WheelEvent;
       evt.preventDefault();
       evt.stopPropagation();
 
-      const vpt = (fabricCanvas.viewportTransform
-        ? [...fabricCanvas.viewportTransform]
-        : [...DEFAULT_VPT]) as TMat2D;
+      const vpt = (
+        currentCanvas.viewportTransform
+          ? [...currentCanvas.viewportTransform]
+          : [...DEFAULT_VPT]
+      ) as TMat2D;
 
       if (evt.ctrlKey) {
         const zoomFactor = 0.99;
-        let zoom = fabricCanvas.getZoom();
+        let zoom = currentCanvas.getZoom();
 
         if (evt.deltaY < 0) {
           zoom /= zoomFactor;
@@ -58,16 +80,14 @@ export function useCanvasPanning(editor: Editor | null) {
         if (zoom > 4) zoom = 4;
         if (zoom < 0.05) zoom = 0.05;
 
-        fabricCanvas.zoomToPoint(new Point(evt.offsetX, evt.offsetY), zoom);
-      }
-      // ЖЕСТ Б: Обычное панорамирование двумя пальцами в любую сторону
-      else {
+        currentCanvas.zoomToPoint(new Point(evt.offsetX, evt.offsetY), zoom);
+      } else {
         vpt[4] -= evt.deltaX;
         vpt[5] -= evt.deltaY;
-        fabricCanvas.setViewportTransform(vpt);
+        currentCanvas.setViewportTransform(vpt);
       }
 
-      fabricCanvas.requestRenderAll();
+      currentCanvas.requestRenderAll();
     };
 
     fabricCanvas.on('mouse:wheel', handleCanvasWheel);
@@ -75,7 +95,7 @@ export function useCanvasPanning(editor: Editor | null) {
     return () => {
       fabricCanvas.off('mouse:wheel', handleCanvasWheel);
     };
-  }, [fabricCanvas]);
+  }, []); // Run on mount/unmount safely
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -116,32 +136,44 @@ export function useCanvasPanning(editor: Editor | null) {
     };
   }, []);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!spaceDown || !fabricCanvas) return;
-    e.preventDefault();
+  // 4. Mouse Down Handler (Space + Click)
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      const fabricCanvas = editorRef.current?.canvas?.canvas;
+      if (!spaceDown || !fabricCanvas) return;
+      e.preventDefault();
 
-    panRef.current = { lastX: e.clientX, lastY: e.clientY };
-    setIsPanning(true);
-  }, [spaceDown, fabricCanvas]);
+      panRef.current = { lastX: e.clientX, lastY: e.clientY };
+      setIsPanning(true);
+    },
+    [spaceDown]
+  );
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!panRef.current || !isPanning || !fabricCanvas) return;
+  // 5. Mouse Move Handler (Space + Drag)
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      const fabricCanvas = editorRef.current?.canvas?.canvas;
+      if (!panRef.current || !isPanning || !fabricCanvas) return;
 
-    const dx = e.clientX - panRef.current.lastX;
-    const dy = e.clientY - panRef.current.lastY;
+      const dx = e.clientX - panRef.current.lastX;
+      const dy = e.clientY - panRef.current.lastY;
 
-    const vpt = (fabricCanvas.viewportTransform
-      ? [...fabricCanvas.viewportTransform]
-      : [...DEFAULT_VPT]) as TMat2D;
+      const vpt = (
+        fabricCanvas.viewportTransform
+          ? [...fabricCanvas.viewportTransform]
+          : [...DEFAULT_VPT]
+      ) as TMat2D;
 
-    vpt[4] += dx;
-    vpt[5] += dy;
+      vpt[4] += dx;
+      vpt[5] += dy;
 
-    fabricCanvas.setViewportTransform(vpt);
-    fabricCanvas.requestRenderAll();
+      fabricCanvas.setViewportTransform(vpt);
+      fabricCanvas.requestRenderAll();
 
-    panRef.current = { lastX: e.clientX, lastY: e.clientY };
-  }, [isPanning, fabricCanvas]);
+      panRef.current = { lastX: e.clientX, lastY: e.clientY };
+    },
+    [isPanning]
+  );
 
   const handleMouseUp = useCallback(() => {
     panRef.current = null;

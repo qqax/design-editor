@@ -1,5 +1,6 @@
 import React from 'react';
-import { Editor } from '../../../engine';
+
+import type { Editor } from '../../../engine';
 
 interface Props {
   opacity: number;
@@ -8,9 +9,7 @@ interface Props {
 }
 
 export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
-  <div
-    style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12 }}
-  >
+  <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12 }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div
         style={{
@@ -19,9 +18,9 @@ export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
           alignItems: 'center',
         }}
       >
-            <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-              Opacity
-            </span>
+        <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+          Opacity
+        </span>
         <span
           style={{
             fontSize: 12,
@@ -31,8 +30,8 @@ export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
             textAlign: 'right',
           }}
         >
-              {opacity}%
-            </span>
+          {opacity}%
+        </span>
       </div>
       <input
         max={100}

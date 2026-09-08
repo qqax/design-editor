@@ -1,4 +1,8 @@
-export function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+export function hslToRgb(
+  h: number,
+  s: number,
+  l: number
+): [number, number, number] {
   const a = s * Math.min(l, 1 - l);
   const f = (n: number) => {
     const k = (n + h * 12) % 12;

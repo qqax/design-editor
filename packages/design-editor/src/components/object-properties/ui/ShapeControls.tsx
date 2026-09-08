@@ -1,16 +1,16 @@
-import { PDivider } from '../../primitives';
-import { PropertyColorPicker } from './PropertyColorPicker';
 import React from 'react';
-import { Editor } from '../../../engine';
+
+import { UnifiedColorPicker } from '../../panels/color-picker';
+import { PDivider } from '../../primitives';
+
+import type { Editor } from '../../../engine';
 
 interface Props {
   activeObj: any;
   editor: Editor | null;
 }
 
-export const ShapeControls = ({
-                                activeObj, editor,
-                              }: Props) => {
+export const ShapeControls = ({ activeObj, editor }: Props) => {
   return (
     <React.Fragment>
       <PDivider />
@@ -21,15 +21,14 @@ export const ShapeControls = ({
           flexShrink: 0,
         }}
       >
-            Fill
-          </span>
-      <PropertyColorPicker
+        Fill
+      </span>
+      <UnifiedColorPicker
         activeObjId={activeObj?.id}
+        color={typeof activeObj?.fill === 'string' ? activeObj.fill : '#7c3aed'}
         onChange={(c) => editor?.objects.update({ fill: c })}
         tooltip="Shape fill color"
-        color={
-          typeof activeObj?.fill === 'string' ? activeObj.fill : '#7c3aed'
-        }
+        variant="tool-bar"
       />
       <span
         style={{
@@ -38,16 +37,15 @@ export const ShapeControls = ({
           flexShrink: 0,
         }}
       >
-            Stroke
-          </span>
-      <PropertyColorPicker
+        Stroke
+      </span>
+      <UnifiedColorPicker
         activeObjId={activeObj?.id}
         onChange={(c) => editor?.objects.update({ stroke: c })}
         tooltip="Shape stroke color"
+        variant="tool-bar"
         color={
-          typeof activeObj?.stroke === 'string' && activeObj.stroke
-            ? activeObj.stroke
-            : '#ffffff'
+          typeof activeObj?.stroke === 'string' ? activeObj.stroke : '#ffffff'
         }
       />
       <input

@@ -1,12 +1,22 @@
 import React from 'react';
+
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  Italic,
+  MoreHorizontal,
+} from 'lucide-react';
+
+import { TextMoreContent } from './TextMoreContent';
+import { createDefaultFontProvider } from '../../../providers';
+import { UnifiedColorPicker } from '../../panels/color-picker';
 import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { FontPickerPopover } from '../../toolbars/FontPickerPopover';
-import { Editor } from '../../../engine';
-import { AlignCenter, AlignLeft, AlignRight, Bold, Italic, MoreHorizontal } from 'lucide-react';
-import { TextMoreContent } from './TextMoreContent';
-import { PropertyColorPicker } from './PropertyColorPicker';
-import { createDefaultFontProvider } from '../../../providers';
 import { useTextControls } from '../model';
+
+import type { Editor } from '../../../engine';
 
 interface TextControlsProps {
   editor: Editor | null;
@@ -17,13 +27,12 @@ interface TextControlsProps {
 
 const DEFAULT_FONT_PROVIDER = createDefaultFontProvider();
 
-
 export const TextControls = ({
-                               editor,
-                               activeObj,
-                               opacity,
-                               setOpacity,
-                             }: TextControlsProps) => {
+  editor,
+  activeObj,
+  opacity,
+  setOpacity,
+}: TextControlsProps) => {
   const {
     isEditingText,
     selStyle,
@@ -78,10 +87,11 @@ export const TextControls = ({
       />
       <PDivider />
       {/* Text Color — reflects selection color when editing */}
-      <PropertyColorPicker
+      <UnifiedColorPicker
         activeObjId={activeObj?.id}
         onChange={(c) => editor?.objects.update({ fill: c })}
         tooltip="Text color"
+        variant="property-bar"
         color={
           isEditingText && typeof selStyle.fill === 'string'
             ? selStyle.fill
@@ -94,9 +104,8 @@ export const TextControls = ({
       <Tooltip placement="top" title="Bold">
         <PBtn
           active={
-            (isEditingText
-              ? selStyle.fontWeight
-              : activeObj?.fontWeight) === 'bold'
+            (isEditingText ? selStyle.fontWeight : activeObj?.fontWeight) ===
+            'bold'
           }
           onClick={() =>
             editor?.objects.update({
@@ -153,14 +162,26 @@ export const TextControls = ({
       <PDivider />
       {/* More text options */}
       <Popover
-        content={<TextMoreContent charSpacing={charSpacing} lineHeight={lineHeight} textTransform={textTransform}
-                                  opacity={opacity} editor={editor}
-                                  setCharSpacing={setCharSpacing} setOpacity={setOpacity} setLineHeight={setOpacity}
-                                  setTextTransform={setTextTransform} activeObj={activeObj}
-                                  originalTextRef={originalTextRef}
-        />} placement="top">
+        placement="top"
+        content={
+          <TextMoreContent
+            activeObj={activeObj}
+            charSpacing={charSpacing}
+            editor={editor}
+            lineHeight={lineHeight}
+            opacity={opacity}
+            originalTextRef={originalTextRef}
+            setCharSpacing={setCharSpacing}
+            setLineHeight={setOpacity}
+            setOpacity={setOpacity}
+            setTextTransform={setTextTransform}
+            textTransform={textTransform}
+          />
+        }
+      >
         <button
           title="More text options"
+          type="button"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -170,8 +191,7 @@ export const TextControls = ({
             cursor: 'pointer',
             fontSize: 11,
             fontWeight: 600,
-            background:
-              'color-mix(in srgb, var(--color-text) 5%, transparent)',
+            background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
             border: '1px solid var(--color-border)',
             color: 'var(--color-text-muted)',
             outline: 'none',

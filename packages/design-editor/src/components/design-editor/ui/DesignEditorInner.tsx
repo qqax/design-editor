@@ -16,7 +16,7 @@ import { useEditorContext } from '../../EditorContext';
 import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
 import { ObjectPropertiesBar } from '../../object-properties';
-import { Toolbar } from '../../Toolbar';
+import { Toolbar } from '../../toolbars';
 import { getStorageSafe } from '../lib';
 import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 

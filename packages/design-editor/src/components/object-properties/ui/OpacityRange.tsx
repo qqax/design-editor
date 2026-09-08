@@ -1,5 +1,6 @@
 import React from 'react';
-import { Editor } from '../../../engine';
+
+import type { Editor } from '../../../engine';
 
 interface Props {
   opacity: number;
@@ -9,15 +10,15 @@ interface Props {
 
 export const OpacityRange = ({ opacity, setOpacity, editor }: Props) => (
   <React.Fragment>
-          <span
-            style={{
-              fontSize: 11,
-              color: 'var(--color-text-muted)',
-              flexShrink: 0,
-            }}
-          >
-            Opacity
-          </span>
+    <span
+      style={{
+        fontSize: 11,
+        color: 'var(--color-text-muted)',
+        flexShrink: 0,
+      }}
+    >
+      Opacity
+    </span>
     <input
       max={100}
       min={0}
@@ -42,7 +43,7 @@ export const OpacityRange = ({ opacity, setOpacity, editor }: Props) => (
         textAlign: 'right',
       }}
     >
-            {opacity}%
-          </span>
+      {opacity}%
+    </span>
   </React.Fragment>
 );

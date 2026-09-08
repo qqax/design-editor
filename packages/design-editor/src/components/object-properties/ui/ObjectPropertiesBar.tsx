@@ -5,13 +5,13 @@ import React from 'react';
 import { BringToFront, Copy, SendToBack, Trash2 } from 'lucide-react';
 
 import { PBtn, PDivider, Tooltip } from '../../primitives';
-import { Editor } from '../../../engine';
 import { useObjectPropertiesBar } from '../model';
-import { OpacityRange } from './OpacityRange';
 import { ImageControls } from './ImageControls';
-import { TextControls } from './TextControls';
+import { OpacityRange } from './OpacityRange';
 import { ShapeControls } from './ShapeControls';
+import { TextControls } from './TextControls';
 
+import type { Editor } from '../../../engine';
 
 interface Props {
   activeObj: any;
@@ -21,12 +21,11 @@ interface Props {
 }
 
 export function ObjectPropertiesBar({
-                                      activeObj,
-                                      editor,
-                                      removingBg,
-                                      onRemoveBg,
-                                    }: Props) {
-
+  activeObj,
+  editor,
+  removingBg,
+  onRemoveBg,
+}: Props) {
   const {
     posStyle,
     label,
@@ -38,7 +37,7 @@ export function ObjectPropertiesBar({
     onDragStart,
   } = useObjectPropertiesBar({ activeObj });
 
-  if (!activeObj || !editor) return null;
+  // if (!activeObj || !editor) return null;
 
   return (
     <div
@@ -97,24 +96,38 @@ export function ObjectPropertiesBar({
 
       {/* Opacity — compact inline (only visible for non-text/image since they have it in More) */}
       {!isText && !isImage && (
-        <OpacityRange opacity={opacity} setOpacity={setOpacity} editor={editor} />
+        <OpacityRange
+          editor={editor}
+          opacity={opacity}
+          setOpacity={setOpacity}
+        />
       )}
 
       {/* ── Image controls (compact primary row) ─────────────────────────── */}
       {isImage ? (
-        <ImageControls editor={editor} opacity={opacity}
-                       setOpacity={setOpacity}
-                       removingBg={removingBg} onRemoveBg={onRemoveBg} activeObj={activeObj} />
+        <ImageControls
+          activeObj={activeObj}
+          editor={editor}
+          onRemoveBg={onRemoveBg}
+          opacity={opacity}
+          removingBg={removingBg}
+          setOpacity={setOpacity}
+        />
       ) : null}
 
       {/* ── Text controls (compact primary row) ────────────────────────────── */}
       {isText ? (
-        <TextControls editor={editor} opacity={opacity} setOpacity={setOpacity} activeObj={activeObj} />
+        <TextControls
+          activeObj={activeObj}
+          editor={editor}
+          opacity={opacity}
+          setOpacity={setOpacity}
+        />
       ) : null}
 
       {/* ── Shape controls ─────────────────────────── */}
       {isShape || (!isImage && !isText) ? (
-        <ShapeControls editor={editor} activeObj={activeObj} />
+        <ShapeControls activeObj={activeObj} editor={editor} />
       ) : null}
 
       {/* ── Z-order + duplicate + delete — all types ── */}
@@ -131,7 +144,7 @@ export function ObjectPropertiesBar({
       </Tooltip>
       <PDivider />
       <Tooltip placement="top" title="Duplicate">
-        <PBtn onClick={() => editor?.objects.clone()}>
+        <PBtn onClick={async () => editor?.objects.clone()}>
           <Copy size={16} />
         </PBtn>
       </Tooltip>
