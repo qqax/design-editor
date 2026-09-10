@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import { ElementsSection } from './ElementsSection';
 import { TextDesignThumb } from './TextDesignThumb';
-import { SHAPES } from '../ShapesPanel';
+import { SHAPES } from '../shapes-panel';
 import { STICKERS } from '../StickersPanel';
 import { ImageThumb } from './ImageThumb';
 import { PlaceholderThumb } from './PlaceholderThumb';
