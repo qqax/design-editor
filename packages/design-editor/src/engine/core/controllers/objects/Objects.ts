@@ -1,13 +1,22 @@
-import type { FabricObject } from 'fabric';
-
+import { ObjectsAlign } from './ObjectsAlign';
+import { ObjectsBackground } from './ObjectsBackground';
+import { ObjectsClipboard } from './ObjectsClipboard';
+import { ObjectsEffects } from './ObjectsEffects';
+import { ObjectsGrouping } from './ObjectsGrouping';
+import { ObjectsLayers } from './ObjectsLayers';
+import { ObjectsLock } from './ObjectsLock';
+import { ObjectsManager } from './ObjectsManager';
+import { ObjectsQuery } from './ObjectsQuery';
+import { ObjectsSelection } from './ObjectsSelection';
+import { ObjectsState } from './ObjectsState';
+import { ObjectsStyleClipboard } from './ObjectsStyleClipboard';
+import { ObjectsText } from './ObjectsText';
 import Base from '../Base';
 
-import type {
-  ILayer,
-  ILayerOptions,
-} from '../../../types';
+import type { FabricObject } from 'fabric';
 
-import {
+import type { ILayer, ILayerOptions } from '../../../types';
+import type {
   Direction,
   GradientOptions,
   ScaleType,
@@ -15,78 +24,40 @@ import {
   Size,
 } from '../../common/interfaces';
 
-import {
-  ObjectsAlign,
-} from './ObjectsAlign';
-
-import {
-  ObjectsClipboard,
-} from './ObjectsClipboard';
-
-import {
-  ObjectsBackground,
-} from './ObjectsBackground';
-
-import {
-  ObjectsEffects,
-} from './ObjectsEffects';
-
-import {
-  ObjectsGrouping,
-} from './ObjectsGrouping';
-
-import {
-  ObjectsLayers,
-} from './ObjectsLayers';
-
-import {
-  ObjectsLock,
-} from './ObjectsLock';
-
-import {
-  ObjectsManager,
-} from './ObjectsManager';
-
-import {
-  ObjectsQuery,
-} from './ObjectsQuery';
-
-import {
-  ObjectsSelection,
-} from './ObjectsSelection';
-
-import {
-  ObjectsState,
-} from './ObjectsState';
-
-import {
-  ObjectsStyleClipboard,
-} from './ObjectsStyleClipboard';
-
-import {
-  ObjectsText,
-} from './ObjectsText';
-
 export class Objects extends Base {
   public readonly query: ObjectsQuery;
+
   public readonly manager: ObjectsManager;
+
   public readonly selection: ObjectsSelection;
+
   public readonly align: ObjectsAlign;
+
   public readonly clipboardCtrl: ObjectsClipboard;
+
   public readonly layers: ObjectsLayers;
+
   public readonly grouping: ObjectsGrouping;
+
   public readonly lockController: ObjectsLock;
+
   public readonly background: ObjectsBackground;
+
   public readonly effects: ObjectsEffects;
+
   public readonly text: ObjectsText;
+
   public readonly styleClipboard: ObjectsStyleClipboard;
+
   public readonly objectsState: ObjectsState;
 
   /**
    * Backwards compatibility with the old API.
    */
   public clipboard: any = null;
+
   public isCut = false;
+
   public copyStyleClipboard: any = null;
 
   constructor(options: any) {
@@ -100,17 +71,14 @@ export class Objects extends Base {
 
       getRefObject: this.getRefObject,
       findOneById: this.findOneById,
-      updateContextObjects:
-      this.updateContextObjects,
+      updateContextObjects: this.updateContextObjects,
     };
 
     this.query = new ObjectsQuery(context);
 
-    this.objectsState =
-      new ObjectsState(context);
+    this.objectsState = new ObjectsState(context);
 
-    this.selection =
-      new ObjectsSelection(context);
+    this.selection = new ObjectsSelection(context);
 
     this.align = new ObjectsAlign({
       canvas: this.canvas,
@@ -119,51 +87,39 @@ export class Objects extends Base {
       getRefObject: this.getRefObject,
     });
 
-    this.clipboardCtrl =
-      new ObjectsClipboard({
-        canvas: this.canvas,
-        editor: this.editor,
-        state: this.state,
-        config: this.config,
-        getRefObject: this.getRefObject,
-        findOneById: this.findOneById,
-        remove: this.remove,
-        updateContextObjects:
-        this.updateContextObjects,
-      });
+    this.clipboardCtrl = new ObjectsClipboard({
+      canvas: this.canvas,
+      editor: this.editor,
+      state: this.state,
+      config: this.config,
+      getRefObject: this.getRefObject,
+      findOneById: this.findOneById,
+      remove: this.remove,
+      updateContextObjects: this.updateContextObjects,
+    });
 
-    this.layers =
-      new ObjectsLayers(context);
+    this.layers = new ObjectsLayers(context);
 
-    this.grouping =
-      new ObjectsGrouping(context);
+    this.grouping = new ObjectsGrouping(context);
 
-    this.lockController =
-      new ObjectsLock(context);
+    this.lockController = new ObjectsLock(context);
 
-    this.background =
-      new ObjectsBackground(context);
+    this.background = new ObjectsBackground(context);
 
-    this.effects =
-      new ObjectsEffects(context);
+    this.effects = new ObjectsEffects(context);
 
-    this.text =
-      new ObjectsText(context);
+    this.text = new ObjectsText(context);
 
-    this.styleClipboard =
-      new ObjectsStyleClipboard(context);
+    this.styleClipboard = new ObjectsStyleClipboard(context);
 
-    this.manager =
-      new ObjectsManager(context);
+    this.manager = new ObjectsManager(context);
   }
 
   // ---------------------------------------------------------------------------
   // Query
   // ---------------------------------------------------------------------------
 
-  public getRefObject = (
-    id?: string,
-  ): FabricObject | null => {
+  public getRefObject = (id?: string): FabricObject | null => {
     if (id) {
       return this.findOneById(id);
     }
@@ -173,21 +129,16 @@ export class Objects extends Base {
 
   public findByIdInObjecs = (
     id: string,
-    objects: FabricObject[],
+    objects: FabricObject[]
   ): FabricObject | null => {
-    return this.query.findByIdInObjects(
-      id,
-      objects,
-    );
+    return this.query.findByIdInObjects(id, objects);
   };
 
   public findById = (id: string) => {
     return this.query.findById(id);
   };
 
-  public findOneById = (
-    id: string,
-  ): FabricObject | null => {
+  public findOneById = (id: string): FabricObject | null => {
     return this.query.findOneById(id);
   };
 
@@ -199,24 +150,18 @@ export class Objects extends Base {
   // Objects
   // ---------------------------------------------------------------------------
 
-  public add = (
+  public add = async (
     item: Partial<
       ILayer & {
-      skipCentering?: boolean;
-    }
-    >,
+        skipCentering?: boolean;
+      }
+    >
   ) => {
     return this.manager.add(item);
   };
 
-  public update = (
-    options: Partial<ILayerOptions>,
-    id?: string,
-  ) => {
-    this.manager.update(
-      options,
-      id,
-    );
+  public update = (options: Partial<ILayerOptions>, id?: string) => {
+    this.manager.update(options, id);
   };
 
   public clear = () => {
@@ -247,26 +192,16 @@ export class Objects extends Base {
   // Movement / alignment
   // ---------------------------------------------------------------------------
 
-  public move = (
-    direction: Direction,
-    value: number,
-    id?: string,
-  ) => {
-    const refObject =
-      this.getRefObject(id);
+  public move = (direction: Direction, value: number, id?: string) => {
+    const refObject = this.getRefObject(id);
 
     if (!refObject) {
       return;
     }
 
-    const currentValue = Number(
-      refObject.get(direction) ?? 0,
-    );
+    const currentValue = Number(refObject.get(direction) ?? 0);
 
-    refObject.set(
-      direction,
-      currentValue + value,
-    );
+    refObject.set(direction, currentValue + value);
 
     refObject.setCoords();
 
@@ -276,34 +211,15 @@ export class Objects extends Base {
     this.updateContextObjects();
   };
 
-  public position = (
-    position: Direction,
-    value: number,
-    id?: string,
-  ) => {
-    this.align.position(
-      position,
-      value,
-      id,
-    );
+  public position = (position: Direction, value: number, id?: string) => {
+    this.align.position(position, value, id);
   };
 
-  public resize = (
-    size: Size,
-    value: number,
-    id?: string,
-  ) => {
-    this.align.resize(
-      size,
-      value,
-      id,
-    );
+  public resize = (size: Size, value: number, id?: string) => {
+    this.align.resize(size, value, id);
   };
 
-  public scale = (
-    type: ScaleType,
-    id?: string,
-  ) => {
+  public scale = (type: ScaleType, id?: string) => {
     this.align.scale(type, id);
   };
 
@@ -338,31 +254,25 @@ export class Objects extends Base {
   public cut = () => {
     this.clipboardCtrl.cut();
 
-    this.clipboard =
-      this.clipboardCtrl.clipboard;
+    this.clipboard = this.clipboardCtrl.clipboard;
 
-    this.isCut =
-      this.clipboardCtrl.isCut;
+    this.isCut = this.clipboardCtrl.isCut;
   };
 
   public copy = () => {
     this.clipboardCtrl.copy();
 
-    this.clipboard =
-      this.clipboardCtrl.clipboard;
+    this.clipboard = this.clipboardCtrl.clipboard;
 
-    this.isCut =
-      this.clipboardCtrl.isCut;
+    this.isCut = this.clipboardCtrl.isCut;
   };
 
   public copyById = (id: string) => {
     this.clipboardCtrl.copyById(id);
 
-    this.clipboard =
-      this.clipboardCtrl.clipboard;
+    this.clipboard = this.clipboardCtrl.clipboard;
 
-    this.isCut =
-      this.clipboardCtrl.isCut;
+    this.isCut = this.clipboardCtrl.isCut;
   };
 
   public clone = async () => {
@@ -373,11 +283,8 @@ export class Objects extends Base {
     await this.clipboardCtrl.paste();
   };
 
-  public cloneAudio = async (
-    id: string,
-  ) => {
-    const object =
-      this.findOneById(id);
+  public cloneAudio = async (id: string) => {
+    const object = this.findOneById(id);
 
     if (!object) {
       return;
@@ -385,9 +292,7 @@ export class Objects extends Base {
 
     this.deselect();
 
-    await this.clipboardCtrl.duplicate(
-      object,
-    );
+    await this.clipboardCtrl.duplicate(object);
 
     this.canvas.requestRenderAll();
 
@@ -404,9 +309,7 @@ export class Objects extends Base {
     return this.background.unset();
   };
 
-  public setAsBackgroundImage = async (
-    id?: string,
-  ) => {
+  public setAsBackgroundImage = async (id?: string) => {
     await this.background.set(id);
   };
 
@@ -414,33 +317,23 @@ export class Objects extends Base {
   // Layers
   // ---------------------------------------------------------------------------
 
-  public bringForward = (
-    id?: string,
-  ) => {
+  public bringForward = (id?: string) => {
     this.layers.bringForward(id);
   };
 
-  public bringForwardById = (
-    id: string,
-  ) => {
+  public bringForwardById = (id: string) => {
     this.layers.bringForwardById(id);
   };
 
-  public bringToFront = (
-    id?: string,
-  ) => {
+  public bringToFront = (id?: string) => {
     this.layers.bringToFront(id);
   };
 
-  public sendBackwards = (
-    id?: string,
-  ) => {
+  public sendBackwards = (id?: string) => {
     this.layers.sendBackwards(id);
   };
 
-  public sendToBack = (
-    id?: string,
-  ) => {
+  public sendToBack = (id?: string) => {
     this.layers.sendToBack(id);
   };
 
@@ -460,21 +353,15 @@ export class Objects extends Base {
   // Remove
   // ---------------------------------------------------------------------------
 
-  public remove = (
-    id?: string,
-  ) => {
+  public remove = (id?: string) => {
     this.manager.remove(id);
   };
 
-  public removeById = (
-    id: string,
-  ) => {
+  public removeById = (id: string) => {
     this.manager.removeById(id);
   };
 
-  public removeByName = (
-    name: string,
-  ) => {
+  public removeByName = (name: string) => {
     this.manager.removeByName(name);
   };
 
@@ -482,15 +369,11 @@ export class Objects extends Base {
   // Lock
   // ---------------------------------------------------------------------------
 
-  public lock = (
-    id?: string,
-  ) => {
+  public lock = (id?: string) => {
     this.lockController.lock(id);
   };
 
-  public unlock = (
-    id?: string,
-  ) => {
+  public unlock = (id?: string) => {
     this.lockController.unlock(id);
   };
 
@@ -501,8 +384,7 @@ export class Objects extends Base {
   public copyStyle = () => {
     this.styleClipboard.copy();
 
-    this.copyStyleClipboard =
-      this.styleClipboard.clipboard;
+    this.copyStyleClipboard = this.styleClipboard.clipboard;
   };
 
   public pasteStyle = () => {
@@ -515,16 +397,11 @@ export class Objects extends Base {
   // Effects
   // ---------------------------------------------------------------------------
 
-  public setShadow = (
-    options: ShadowOptions,
-  ) => {
+  public setShadow = (options: ShadowOptions) => {
     this.effects.setShadow(options);
   };
 
-  public setGradient = ({
-                          angle,
-                          colors,
-                        }: GradientOptions) => {
+  public setGradient = ({ angle, colors }: GradientOptions) => {
     this.effects.setGradient({
       angle,
       colors,
@@ -535,15 +412,11 @@ export class Objects extends Base {
   // Text
   // ---------------------------------------------------------------------------
 
-  public toUppercase = (
-    id?: string,
-  ) => {
+  public toUppercase = (id?: string) => {
     this.text.toUppercase(id);
   };
 
-  public toLowerCase = (
-    id?: string,
-  ) => {
+  public toLowerCase = (id?: string) => {
     this.text.toLowerCase(id);
   };
 
@@ -555,5 +428,3 @@ export class Objects extends Base {
     this.objectsState.sync();
   };
 }
-
-export default Objects;

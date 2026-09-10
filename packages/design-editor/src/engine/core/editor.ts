@@ -1,19 +1,19 @@
 import Canvas from './canvas';
-import {defaultEditorConfig} from './common/constants';
+import { defaultEditorConfig } from './common/constants';
 import Events from './controllers/Events';
 import Frame from './controllers/Frame';
 import Guidelines from './controllers/Guidelines';
 import History from './controllers/History';
-import { Objects } from './controllers/objects';
+import Objects from './controllers/objects';
 import Personalization from './controllers/Personalization';
 import Renderer from './controllers/Renderer';
 import Scene from './controllers/Scene';
 import Zoom from './controllers/Zoom';
-import State from "./state"
 import EventManager from './event-manager';
+import State from './state';
 
-import type {EditorConfig} from '../types';
-import type {EditorState} from './common/interfaces';
+import type { EditorConfig } from '../types';
+import type { EditorState } from './common/interfaces';
 
 export class Editor extends EventManager {
   public canvas: Canvas;
@@ -89,13 +89,6 @@ export class Editor extends EventManager {
     this.guidelines = new Guidelines(options);
     this.renderer = new Renderer();
   };
-
-  public debug() {
-    console.log({
-      objects: this.canvas.canvas.getObjects(),
-      json: this.canvas.canvas.toJSON(),
-    });
-  }
 
   public destroy() {
     this.canvas.destroy();
