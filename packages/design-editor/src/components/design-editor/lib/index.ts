@@ -1,1 +1,1 @@
-export { getStorageSafe } from './getStorageSafe';
+export { storageSafe, setStorageSafe } from './storageSafe';

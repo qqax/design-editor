@@ -1,16 +1,43 @@
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* @qqax/design-editor theme tokens */
+@theme {
+  --color-bg: #ffffff;
+  --color-bg-elevated: #f5f5f7;
+  --color-fg: #18181b;
+  --color-fg-muted: #71717a;
+  --color-border: #e4e4e7;
+  --color-primary: #2563eb;
+  --color-primary-fg: #ffffff;
+  --color-danger: #dc2626;
+
+  --btn-height: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+}
+
 :root {
-  --de-color-bg: #ffffff;
-  --de-color-bg-elevated: #f5f5f7;
-  --de-color-fg: #18181b;
-  --de-color-fg-muted: #71717a;
-  --de-color-border: #e4e4e7;
-  --de-color-primary: #2563eb;
-  --de-color-primary-fg: #ffffff;
-  --de-color-danger: #dc2626;
+  --de-color-bg: var(--color-bg);
+  --de-color-bg-elevated: var(--color-bg-elevated);
+  --de-color-fg: var(--color-fg);
+  --de-color-fg-muted: var(--color-fg-muted);
+  --de-color-border: var(--color-border);
+  --de-color-primary: var(--color-primary);
+  --de-color-primary-fg: var(--color-primary-fg);
+  --de-color-danger: var(--color-danger);
+
+  --de-color-text: var(--color-fg);
+
+  --de-btn-height: var(--btn-height);
 
   /* Legacy component color aliases */
   --color-bg: var(--de-color-bg);
@@ -20,29 +47,29 @@
   --color-border: var(--de-color-border);
   --color-primary: var(--de-color-primary);
 
-  --de-radius-sm: 4px;
-  --de-radius-md: 8px;
-  --de-radius-lg: 12px;
+  --de-radius-sm: var(--radius-sm);
+  --de-radius-md: var(--radius-md);
+  --de-radius-lg: var(--radius-lg);
 
-  --de-space-1: 4px;
-  --de-space-2: 8px;
-  --de-space-3: 12px;
-  --de-space-4: 16px;
+  --de-space-1: var(--spacing-1);
+  --de-space-2: var(--spacing-2);
+  --de-space-3: var(--spacing-3);
+  --de-space-4: var(--spacing-4);
 
   --de-font-sm: 12px;
   --de-font-md: 14px;
   --de-font-lg: 16px;
 
-  --de-shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+  --de-shadow-sm: var(--shadow-sm);
   --de-shadow-md: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 [data-de-theme="dark"] {
-  --de-color-bg: #18181b;
-  --de-color-bg-elevated: #27272a;
-  --de-color-fg: #fafafa;
-  --de-color-fg-muted: #a1a1aa;
-  --de-color-border: #3f3f46;
+  --color-bg: #18181b;
+  --color-bg-elevated: #27272a;
+  --color-fg: #fafafa;
+  --color-fg-muted: #a1a1aa;
+  --color-border: #3f3f46;
 }
 
 .de-reset, .de-reset * { box-sizing: border-box; }

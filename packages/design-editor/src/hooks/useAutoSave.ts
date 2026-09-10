@@ -13,7 +13,7 @@ export function useAutoSave(
   sceneKey?: string
 ) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const key = getAutosaveKey(sceneKey);
 
   // Setup beforeunload to prevent accidental exit
@@ -21,7 +21,7 @@ export function useAutoSave(
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = '';
+        return '';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);

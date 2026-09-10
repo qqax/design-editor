@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useEditor } from '../../../engine/react';
+import { useEditor } from '../../../engine';
 
 import type { IScene } from '../../../engine';
 
@@ -29,7 +29,7 @@ export function useSceneThumbnail(
     thumbnailUrl?: string;
     canvasBg?: string;
   },
-  ref: React.RefObject<HTMLElement>,
+  ref: React.RefObject<HTMLElement | HTMLButtonElement | null>,
   editorOverride?: {
     renderer?: { toDataURL: (scene: any, opts: any) => Promise<string> };
   }

@@ -17,7 +17,7 @@ import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
 import { ObjectPropertiesBar } from '../../object-properties';
 import { Toolbar } from '../../toolbars';
-import { getStorageSafe } from '../lib';
+import { setStorageSafe, storageSafe } from '../lib';
 import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 
 import type { FabricImage } from 'fabric';
@@ -67,21 +67,26 @@ export function DesignEditorInner({
   const [canvasBg, setCanvasBg] = useState<string>(
     () =>
       (initialScene?.canvasBg ||
-        getStorageSafe<string>('studio_canvasBg', '#ffffff')) as string
+        storageSafe<string>('studio_canvasBg', '#ffffff')) as string
   );
 
   const [workspaceBg, setWorkspaceBg] = useState<string>(
     () =>
       (initialScene?.workspaceBg ||
-        getStorageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
+        storageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
   );
+
   const [settings, setSettings] = useState<Settings>(() =>
-    getStorageSafe('studio_settings', {
+    storageSafe('studio_settings', {
       showGrid: false,
       snapGrid: false,
       railSide: 'left',
     })
   );
+
+  useEffect(() => {
+    setStorageSafe('studio_settings', settings);
+  }, [settings]);
 
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const { hasUnsavedChanges, setHasUnsavedChanges } = useAutoSave(

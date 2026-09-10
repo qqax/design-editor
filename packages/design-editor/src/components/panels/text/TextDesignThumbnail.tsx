@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useSceneThumbnail } from '../_shared/useSceneThumbnail';
 
-import type { TextDesign } from '../../../providers/textDesigns';
+import type { TextDesign } from '../../../providers';
 
 interface Props {
   textDesign: TextDesign;
