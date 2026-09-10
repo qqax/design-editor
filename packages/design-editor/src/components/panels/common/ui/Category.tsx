@@ -6,25 +6,25 @@ import { useState } from 'react';
 
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
+import { RowTile } from './RowTile';
 import { ScrollRow } from './ScrollRow';
-import { ShapeTile } from './ShapeTile';
 
-import type { ShapeDef } from '../model';
+import type { ScrollRowType } from '../model';
 
-export function ShapeCategory({
+export function Category<T extends ScrollRowType>({
   title,
-  shapes,
-  onAddShape,
+  items,
+  onAddItem,
 }: {
   title: string;
-  shapes: ShapeDef[];
-  onAddShape: (src: string) => void;
+  items: T[];
+  onAddItem: (src: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
 
-  if (shapes.length === 0) return null;
+  if (items.length === 0) return null;
 
-  const hasMore = shapes.length > 0;
+  const hasMore = items.length > 0;
 
   return (
     <div className="mt-5">
@@ -40,7 +40,7 @@ export function ShapeCategory({
             onClick={() => setExpanded(!expanded)}
             type="button"
           >
-            {expanded ? 'Less' : `More (${shapes.length})`}
+            {expanded ? 'Less' : `More (${items.length})`}
 
             {expanded ? (
               <ChevronUp className="ml-1" size={10} />
@@ -54,21 +54,20 @@ export function ShapeCategory({
       {expanded ? (
         /* EXPANDED — 3-col grid */
         <div className="mt-1 grid auto-rows-fr grid-cols-3 gap-2">
-          {shapes.map((shape) => (
-            <ShapeTile
-              key={shape.id}
-              shape={shape}
-              onClick={() =>
-                onAddShape(
-                  `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`
-                )
-              }
-            />
-          ))}
+          {items.map((item) => {
+            return (
+              <RowTile
+                key={item.id}
+                item={item}
+                onClick={() => onAddItem(item.src)}
+                src={item.src}
+              />
+            );
+          })}
         </div>
       ) : (
         /* COLLAPSED — horizontal scroll, scrollbar hidden, with arrow hint */
-        <ScrollRow onAddShape={onAddShape} shapes={shapes} />
+        <ScrollRow items={items} onAddItem={onAddItem} />
       )}
     </div>
   );

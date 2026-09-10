@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ElementsSection } from './ElementsSection';
 import { TextDesignThumb } from './TextDesignThumb';
 import { SHAPES } from '../shapes-panel';
-import { STICKERS } from '../StickersPanel';
+import { STICKERS } from '../stickers-panel';
 import { ImageThumb } from './ImageThumb';
 import { PlaceholderThumb } from './PlaceholderThumb';
 

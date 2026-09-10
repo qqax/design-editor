@@ -6,16 +6,16 @@ import React, { useRef, useState } from 'react';
 
 import { ChevronRight } from 'lucide-react';
 
-import { ShapeTile } from './ShapeTile';
+import { RowTile } from './RowTile';
 
-import type { ShapeDef } from '../model';
+import type { ScrollRowType } from '../model';
 
-export function ScrollRow({
-  shapes,
-  onAddShape,
+export function ScrollRow<T extends ScrollRowType>({
+  items,
+  onAddItem,
 }: {
-  shapes: ShapeDef[];
-  onAddShape: (src: string) => void;
+  items: T[];
+  onAddItem: (src: string) => void;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -49,7 +49,7 @@ export function ScrollRow({
           msOverflowStyle: 'none',
         }}
       >
-        {shapes.map((shape) => (
+        {items.map((shape) => (
           <div
             key={shape.id}
             className="shrink-0"
@@ -57,10 +57,10 @@ export function ScrollRow({
               width: 'calc((100% - 24px) / 4)',
             }}
           >
-            <ShapeTile
-              shape={shape}
+            <RowTile
+              item={shape}
               onClick={() =>
-                onAddShape(
+                onAddItem(
                   `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`
                 )
               }

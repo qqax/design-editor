@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ElementsPanel } from '../../panels/elements-panel';
 import { ShapesPanel } from '../../panels/shapes-panel';
-import { StickersPanel } from '../../panels/StickersPanel';
+import { StickersPanel } from '../../panels/stickers-panel';
 import { TemplatesPanel } from '../../panels/templates/TemplatesPanel';
 import { TextPanel } from '../../panels/text/TextPanel';
 import { UploadPanel } from '../../panels/UploadPanel';

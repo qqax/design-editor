@@ -71,6 +71,7 @@ export function UploadPanel({ onUploadFile }: Props) {
         onClick={() => fileInputRef.current?.click()}
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
+        type="button"
         style={{
           width: '100%',
           padding: '24px 16px',
@@ -172,9 +173,10 @@ export function UploadPanel({ onUploadFile }: Props) {
                 {/* Delete button (shows on hover via CSS group logic usually, but here we can just use inline state or a simple hover trick. We'll add a simple button) */}
                 <button
                   title="Remove from uploads"
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    removeMedia(item.id);
+                    void removeMedia(item.id);
                   }}
                   style={{
                     position: 'absolute',

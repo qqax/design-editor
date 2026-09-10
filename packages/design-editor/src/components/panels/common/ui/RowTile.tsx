@@ -6,29 +6,29 @@ import { useState } from 'react';
 
 import { Tooltip } from '../../../primitives';
 
-import type { ShapeDef } from '../model';
+import type { ScrollRowType } from '../model';
 
-export function ShapeTile({
-  shape,
+export function RowTile<T extends ScrollRowType>({
+  item,
   onClick,
   expanded = false,
+  src,
 }: {
-  shape: ShapeDef;
+  item: T;
   onClick: () => void;
   expanded?: boolean;
+  src: string;
 }) {
   const [hovered, setHovered] = useState(false);
-
-  const imageUrl = `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`;
 
   const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('text/x-qqax-type', 'shape');
-    e.dataTransfer.setData('text/x-qqax-shape-src', imageUrl);
+    e.dataTransfer.setData('text/x-qqax-shape-src', src);
   };
 
   return (
-    <Tooltip placement="top" title={shape.label}>
+    <Tooltip placement="top" title={item.label}>
       <button
         draggable
         className="flex w-full shrink-0 cursor-pointer items-center justify-center rounded-xl border-none transition-all duration-200 outline-none"
@@ -52,10 +52,10 @@ export function ShapeTile({
         }}
       >
         <img
-          alt={shape.label}
+          alt={item.label}
           className="pointer-events-none h-[78%] w-[78%] object-contain transition-opacity duration-200 select-none"
           draggable={false}
-          src={imageUrl}
+          src={src}
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}

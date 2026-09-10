@@ -64,10 +64,10 @@
 //       </div>
 
 //       <div className="flex-1 overflow-y-auto pb-6 scrollbar-hide px-4">
-//         <ShapeCategory title="Filled" styleType="filled" shapes={filteredShapes} onAddShape={onAddShape} />
-//         <ShapeCategory title="Outline" styleType="outline" shapes={filteredShapes} onAddShape={onAddShape} />
-//         <ShapeCategory title="Gradient" styleType="gradient" shapes={filteredShapes} onAddShape={onAddShape} />
-//         <ShapeCategory title="Image" styleType="image" shapes={filteredShapes} onAddShape={onAddShape} />
+//         <Category title="Filled" styleType="filled" shapes={filteredShapes} onAddShape={onAddShape} />
+//         <Category title="Outline" styleType="outline" shapes={filteredShapes} onAddShape={onAddShape} />
+//         <Category title="Gradient" styleType="gradient" shapes={filteredShapes} onAddShape={onAddShape} />
+//         <Category title="Image" styleType="image" shapes={filteredShapes} onAddShape={onAddShape} />
 
 //         {filteredShapes.length === 0 && (
 //            <div className="mt-8 text-center text-[var(--de-color-text-muted)] text-sm">
@@ -79,7 +79,7 @@
 //   )
 // }
 
-// function ShapeCategory({
+// function Category({
 //   title, styleType, shapes, onAddShape
 // }: {
 //   title: string, styleType: ShapeStyleType, shapes: ShapeDef[],
@@ -106,7 +106,7 @@
 //       <div className={`gap-2 ${expanded ? 'grid grid-cols-3' : 'flex overflow-x-auto scrollbar-hide snap-x'}`}>
 //         {shapes.map((shape) => (
 //           <div key={shape.id} className={expanded ? 'w-full' : 'snap-start shrink-0'}>
-//             <ShapeTile shape={shape} styleType={styleType} onClick={() => onAddShape(shape.d, shape.viewBox, styleType)} />
+//             <RowTile shape={shape} styleType={styleType} onClick={() => onAddShape(shape.d, shape.viewBox, styleType)} />
 //           </div>
 //         ))}
 //       </div>
@@ -114,7 +114,7 @@
 //   )
 // }
 
-// function ShapeTile({ shape, styleType, onClick }: { shape: ShapeDef; styleType: ShapeStyleType; onClick: () => void }) {
+// function RowTile({ shape, styleType, onClick }: { shape: ShapeDef; styleType: ShapeStyleType; onClick: () => void }) {
 //   const [hov, setHov] = useState(false)
 
 //   // Use the downloaded PNGs from public folder
@@ -162,8 +162,8 @@ import React, { useState } from 'react';
 
 import { Search } from 'lucide-react';
 
+import { Category } from '../../common';
 import { CATEGORY_ORDER, SHAPES } from '../model';
-import { ShapeCategory } from './ShapeCategory';
 
 interface Props {
   onAddShape: (src: string) => void;
@@ -206,15 +206,18 @@ export function ShapesPanel({ onAddShape }: Props) {
       {/* CONTENT */}
       <div className="scrollbar-hide flex-1 overflow-y-auto px-4 pb-6">
         {CATEGORY_ORDER.map((category) => {
-          const categoryShapes = filteredShapes.filter(
-            (shape) => shape.category === category.key
-          );
+          const categoryShapes = filteredShapes
+            .filter((shape) => shape.category === category.key)
+            .map((shape) => ({
+              ...shape,
+              src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`,
+            }));
 
           return (
-            <ShapeCategory
+            <Category
               key={category.key}
-              onAddShape={onAddShape}
-              shapes={categoryShapes}
+              items={categoryShapes}
+              onAddItem={onAddShape}
               title={category.label}
             />
           );
