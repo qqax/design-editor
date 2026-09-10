@@ -90,8 +90,8 @@ export const TextMoreContent = ({
         gap: 12,
         padding: '14px 16px',
         minWidth: 220,
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
+        background: 'var(--de-color-surface)',
+        border: '1px solid var(--de-color-border)',
         borderRadius: 12,
         boxShadow: '0 8px 32px var(--shadow-color)',
       }}
@@ -100,7 +100,7 @@ export const TextMoreContent = ({
         style={{
           fontWeight: 700,
           fontSize: 11,
-          color: 'var(--color-primary)',
+          color: 'var(--de-color-primary)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
         }}
@@ -116,14 +116,14 @@ export const TextMoreContent = ({
             alignItems: 'center',
           }}
         >
-          <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+          <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
             Letter Spacing
           </span>
           <span
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: 'var(--color-text)',
+              color: 'var(--de-color-text)',
               minWidth: 36,
               textAlign: 'right',
             }}
@@ -140,7 +140,7 @@ export const TextMoreContent = ({
           value={charSpacing}
           style={{
             width: '100%',
-            accentColor: 'var(--color-primary)',
+            accentColor: 'var(--de-color-primary)',
             cursor: 'pointer',
           }}
         />
@@ -154,14 +154,14 @@ export const TextMoreContent = ({
             alignItems: 'center',
           }}
         >
-          <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+          <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
             Line Height
           </span>
           <span
             style={{
               fontSize: 12,
               fontWeight: 600,
-              color: 'var(--color-text)',
+              color: 'var(--de-color-text)',
               minWidth: 36,
               textAlign: 'right',
             }}
@@ -178,7 +178,7 @@ export const TextMoreContent = ({
           value={lineHeight}
           style={{
             width: '100%',
-            accentColor: 'var(--color-primary)',
+            accentColor: 'var(--de-color-primary)',
             cursor: 'pointer',
           }}
         />
@@ -188,7 +188,7 @@ export const TextMoreContent = ({
         <span
           style={{
             fontSize: 12,
-            color: 'var(--color-text-muted)',
+            color: 'var(--de-color-text-muted)',
             display: 'block',
             marginBottom: 6,
           }}
@@ -216,16 +216,16 @@ export const TextMoreContent = ({
                 cursor: 'pointer',
                 background:
                   textTransform === opt.value
-                    ? 'color-mix(in srgb, var(--color-primary) 15%, transparent)'
-                    : 'color-mix(in srgb, var(--color-text) 5%, transparent)',
+                    ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
+                    : 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
                 border:
                   textTransform === opt.value
-                    ? '1.5px solid var(--color-primary)'
-                    : '1px solid var(--color-border)',
+                    ? '1.5px solid var(--de-color-primary)'
+                    : '1px solid var(--de-color-border)',
                 color:
                   textTransform === opt.value
-                    ? 'var(--color-primary)'
-                    : 'var(--color-text-muted)',
+                    ? 'var(--de-color-primary)'
+                    : 'var(--de-color-text-muted)',
                 borderRadius: 6,
                 outline: 'none',
                 transition: 'all 0.15s',

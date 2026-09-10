@@ -10,8 +10,8 @@ export const TOOL_BTN: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   fontSize: 15,
-  background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-  color: 'var(--color-text-muted)',
+  background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+  color: 'var(--de-color-text-muted)',
   transition: 'all 0.15s',
   outline: 'none',
 };

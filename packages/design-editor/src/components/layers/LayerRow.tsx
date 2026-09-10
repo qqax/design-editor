@@ -58,18 +58,18 @@ export function LayerRow({
           paddingRight: 8,
           cursor: 'pointer',
           background: isSelected
-            ? 'color-mix(in srgb, var(--color-primary) 22%, transparent)'
+            ? 'color-mix(in srgb, var(--de-color-primary) 22%, transparent)'
             : isActive
-              ? 'color-mix(in srgb, var(--color-primary) 10%, transparent)'
+              ? 'color-mix(in srgb, var(--de-color-primary) 10%, transparent)'
               : hov
-                ? 'color-mix(in srgb, var(--color-text) 3%, transparent)'
+                ? 'color-mix(in srgb, var(--de-color-text) 3%, transparent)'
                 : 'transparent',
           transition: 'all 0.12s',
           borderLeft: isActive
-            ? '2px solid var(--color-primary)'
+            ? '2px solid var(--de-color-primary)'
             : '2px solid transparent',
           boxShadow: isActive
-            ? 'inset 0 0 20px color-mix(in srgb, var(--color-primary) 6%, transparent)'
+            ? 'inset 0 0 20px color-mix(in srgb, var(--de-color-primary) 6%, transparent)'
             : 'none',
         }}
       >
@@ -81,7 +81,7 @@ export function LayerRow({
             }}
             style={{
               fontSize: 10,
-              color: 'var(--color-text-muted)',
+              color: 'var(--de-color-text-muted)',
               flexShrink: 0,
               cursor: 'pointer',
               display: 'flex',
@@ -98,8 +98,8 @@ export function LayerRow({
           style={{
             fontSize: 12,
             color: isActive
-              ? 'var(--color-primary)'
-              : 'var(--color-text-muted)',
+              ? 'var(--de-color-primary)'
+              : 'var(--de-color-text-muted)',
             flexShrink: 0,
             display: 'flex',
             alignItems: 'center',

@@ -24,7 +24,7 @@ export function LayerList({
         style={{
           padding: '32px 16px',
           textAlign: 'center',
-          color: 'var(--color-text-muted)',
+          color: 'var(--de-color-text-muted)',
           fontSize: 12,
         }}
       >

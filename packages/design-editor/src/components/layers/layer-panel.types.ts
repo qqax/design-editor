@@ -29,7 +29,7 @@ export const ICON_BTN: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: 'var(--color-text)',
+  color: 'var(--de-color-text)',
   borderRadius: 4,
   transition: 'background 0.1s',
 };

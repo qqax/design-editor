@@ -29,7 +29,7 @@ import type {
   TemplatesPanelRenderProp,
 } from '../model';
 
-const WORKSPACE_BG = 'var(--color-bg)';
+const WORKSPACE_BG = 'var(--de-color-bg)';
 
 interface Settings {
   showGrid: boolean;

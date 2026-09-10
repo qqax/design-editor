@@ -23,7 +23,7 @@ export const PBtn = React.forwardRef<HTMLButtonElement, any>(
           color: danger
             ? '#ef4444'
             : active
-              ? 'var(--color-primary, #2563eb)'
+              ? 'var(--de-color-primary, #2563eb)'
               : 'inherit',
           border: 'none',
           borderRadius: 6,

@@ -111,7 +111,7 @@ export function TextPanel({
             margin: '0 0 10px 0',
             fontSize: 15,
             fontWeight: 700,
-            color: 'var(--color-text)',
+            color: 'var(--de-color-text)',
           }}
         >
           Text Designs
@@ -132,10 +132,10 @@ export function TextPanel({
                     fontWeight,
                     cursor: 'pointer',
                     background:
-                      'color-mix(in srgb, var(--color-text) 4%, var(--color-surface-2))',
-                    border: '1px solid var(--color-border)',
+                      'color-mix(in srgb, var(--de-color-text) 4%, var(--de-color-surface-2))',
+                    border: '1px solid var(--de-color-border)',
                     borderRadius: 6,
-                    color: 'var(--color-text)',
+                    color: 'var(--de-color-text)',
                     textAlign: 'center',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
@@ -185,7 +185,7 @@ export function TextPanel({
                   all: 'unset',
                   cursor: 'pointer',
                   fontSize: 12,
-                  color: 'var(--color-primary)',
+                  color: 'var(--de-color-primary)',
                 }}
               >
                 ← Back
@@ -211,14 +211,14 @@ export function TextPanel({
               style={{
                 all: 'unset',
                 cursor: 'pointer',
-                color: 'var(--color-primary)',
+                color: 'var(--de-color-primary)',
               }}
             >
               Retry
             </button>
           </div>
         ) : categories.length === 0 ? (
-          <div style={{ padding: 16, color: 'var(--color-text-muted)' }}>
+          <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
             No text designs available. Host apps can supply a
             textDesignProvider.
           </div>

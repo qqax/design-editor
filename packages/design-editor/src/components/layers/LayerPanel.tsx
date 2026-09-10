@@ -79,16 +79,16 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   return (
     <div
-      className="absolute bottom-[66px] right-0 top-0 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:bottom-0 md:top-0 md:z-auto md:w-[230px]"
+      className="absolute bottom-16.5 right-0 top-0 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:bottom-0 md:top-0 md:z-auto md:w-57.5"
       style={{
-        background: 'color-mix(in srgb, var(--color-surface) 97%, transparent)',
+        background: 'color-mix(in srgb, var(--de-color-bg-elevated) 97%, transparent)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        borderLeft: '1px solid var(--color-border)',
+        borderLeft: '1px solid var(--de-color-border)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        boxShadow: '-8px 0 40px var(--shadow-color)',
+        boxShadow: '-8px 0 40px var(--de-shadow-color)',
       }}
     >
       {/* Header */}
@@ -101,8 +101,8 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
           padding: '0 14px',
           gap: 8,
           background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 12%, transparent) 0%, transparent 100%)',
-          borderBottom: '1px solid var(--color-border)',
+            'linear-gradient(180deg, color-mix(in srgb, var(--de-color-primary) 12%, transparent) 0%, transparent 100%)',
+          borderBottom: '1px solid var(--de-color-border)',
         }}
       >
         <div
@@ -110,7 +110,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
             width: 3,
             height: 16,
             borderRadius: 2,
-            background: 'var(--color-primary)',
+            background: 'var(--de-color-primary)',
             flexShrink: 0,
           }}
         />
@@ -119,7 +119,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
             flex: 1,
             fontSize: 11,
             fontWeight: 800,
-            color: 'var(--color-primary)',
+            color: 'var(--de-color-primary)',
             textTransform: 'uppercase',
             letterSpacing: '0.09em',
           }}
@@ -138,7 +138,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
         <Tooltip title="Close layers panel">
           <button
             onClick={onClose}
-            style={{ ...ICON_BTN, color: 'var(--color-text-muted)' }}
+            style={{ ...ICON_BTN, color: 'var(--de-color-text-muted)' }}
             type="button"
           >
             <X size={14} />
@@ -163,9 +163,9 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
       <div
         style={{
           padding: '8px 12px',
-          borderTop: '1px solid var(--color-border)',
+          borderTop: '1px solid var(--de-color-border)',
           fontSize: 9,
-          color: 'var(--color-text-muted)',
+          color: 'var(--de-color-text-muted)',
           lineHeight: 1.5,
         }}
       >

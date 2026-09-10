@@ -17,7 +17,7 @@ export const ShapeControls = ({ activeObj, editor }: Props) => {
       <span
         style={{
           fontSize: 11,
-          color: 'var(--color-text-muted)',
+          color: 'var(--de-color-text-muted)',
           flexShrink: 0,
         }}
       >
@@ -33,7 +33,7 @@ export const ShapeControls = ({ activeObj, editor }: Props) => {
       <span
         style={{
           fontSize: 11,
-          color: 'var(--color-text-muted)',
+          color: 'var(--de-color-text-muted)',
           flexShrink: 0,
         }}
       >
@@ -60,10 +60,10 @@ export const ShapeControls = ({ activeObj, editor }: Props) => {
         }
         style={{
           width: 44,
-          background: 'var(--color-bg)',
-          border: '1px solid var(--color-border)',
+          background: 'var(--de-color-bg)',
+          border: '1px solid var(--de-color-border)',
           borderRadius: 6,
-          color: 'var(--color-text)',
+          color: 'var(--de-color-text)',
           fontSize: 12,
           padding: '4px 6px',
           textAlign: 'center',

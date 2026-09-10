@@ -8,7 +8,7 @@ import type {
   DesignTemplate,
   TemplateCategory,
   TemplateProvider,
-} from '../../../providers/templates';
+} from '../../../providers';
 
 interface Props {
   category: TemplateCategory;
@@ -73,7 +73,7 @@ export function TemplateCategoryRow({
             margin: 0,
             fontSize: 14,
             fontWeight: 600,
-            color: 'var(--color-text)',
+            color: 'var(--de-color-text)',
           }}
         >
           {category.name}
@@ -85,7 +85,7 @@ export function TemplateCategoryRow({
             cursor: 'pointer',
             fontSize: 12,
             fontWeight: 600,
-            color: 'var(--color-primary)',
+            color: 'var(--de-color-primary)',
           }}
         >
           See more
@@ -99,7 +99,7 @@ export function TemplateCategoryRow({
             style={{
               all: 'unset',
               cursor: 'pointer',
-              color: 'var(--color-primary)',
+              color: 'var(--de-color-primary)',
             }}
           >
             Retry
@@ -113,14 +113,14 @@ export function TemplateCategoryRow({
               style={{
                 flex: '0 0 130px',
                 aspectRatio: '1 / 1',
-                background: 'var(--color-surface)',
+                background: 'var(--de-color-surface)',
                 borderRadius: 6,
               }}
             />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+        <div style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
           No templates yet
         </div>
       ) : (

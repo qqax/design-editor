@@ -42,10 +42,10 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "vite build && node scripts/postbuild-use-client.mjs",
-    "dev:js": "vite build --watch",
-    "dev": "bun dev:js",
-    "playground": "bun --filter playground dev",
+    "build": "tsup && tailwindcss -i src/theme/theme.css -o dist/theme.css && node scripts/postbuild-use-client.mjs",
+    "dev:js": "tsup --watch",
+    "dev:css": "tailwindcss -i src/theme/theme.css -o dist/theme.css --watch",
+    "dev": "concurrently \"npm:dev:js\" \"npm:dev:css\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -81,7 +81,6 @@
     "@types/lodash": "^4.17.25",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@typescript/typescript6": "^6.0.2",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.10.0",
@@ -107,9 +106,8 @@
     "resize-observer-polyfill": "^1.5.1",
     "size-limit": "^13.0.3",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2",
-    "vite": "^8.2.2",
-    "vite-plugin-dts": "^5.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.7.3",
     "vitest": "^5.0.0"
   }
 }

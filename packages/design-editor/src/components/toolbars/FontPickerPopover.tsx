@@ -6,7 +6,7 @@ import { ChevronDown, Upload } from 'lucide-react';
 
 import { Input, Popover } from '../primitives';
 
-import type { FontDescriptor, FontProvider } from '../../providers/fonts';
+import type { FontDescriptor, FontProvider } from '../../providers';
 
 interface FontPickerPopoverProps {
   fontProvider: FontProvider;
@@ -27,10 +27,9 @@ export function FontPickerPopover({
   // Subscribe to provider changes (e.g. upload)
   useEffect(() => {
     if (!fontProvider.onChange) return;
-    const unsub = fontProvider.onChange(() => {
+    return fontProvider.onChange(() => {
       fontProvider.list().then(setFonts);
     });
-    return unsub;
   }, [fontProvider]);
 
   // When popover opens: load list and fire-and-forget loads for previews
@@ -92,10 +91,10 @@ export function FontPickerPopover({
         alignItems: 'center',
         gap: 4,
         padding: '4px 8px',
-        background: 'var(--color-bg)',
-        border: '1px solid var(--color-border)',
+        background: 'var(--de-color-bg)',
+        border: '1px solid var(--de-color-border)',
         borderRadius: 6,
-        color: 'var(--color-text)',
+        color: 'var(--de-color-text)',
         fontSize: 12,
         cursor: 'pointer',
         outline: 'none',
@@ -139,7 +138,7 @@ export function FontPickerPopover({
             onMouseEnter={(e) => {
               if (f.family !== currentFamily) {
                 e.currentTarget.style.background =
-                  'color-mix(in srgb, var(--color-text) 6%, var(--color-surface))';
+                  'color-mix(in srgb, var(--de-color-text) 6%, var(--de-color-surface))';
               }
             }}
             onMouseLeave={(e) => {
@@ -152,11 +151,11 @@ export function FontPickerPopover({
               cursor: 'pointer',
               background:
                 f.family === currentFamily
-                  ? 'color-mix(in srgb, var(--color-primary) 12%, var(--color-surface))'
+                  ? 'color-mix(in srgb, var(--de-color-primary) 12%, var(--de-color-surface))'
                   : 'transparent',
               borderLeft:
                 f.family === currentFamily
-                  ? '2px solid var(--color-primary)'
+                  ? '2px solid var(--de-color-primary)'
                   : '2px solid transparent',
               display: 'flex',
               flexDirection: 'column',
@@ -166,7 +165,7 @@ export function FontPickerPopover({
             <span
               style={{
                 fontSize: 10,
-                color: 'var(--color-text-muted)',
+                color: 'var(--de-color-text-muted)',
                 fontWeight: 600,
               }}
             >
@@ -176,7 +175,7 @@ export function FontPickerPopover({
                   style={{
                     marginLeft: 4,
                     fontSize: 9,
-                    color: 'var(--color-primary)',
+                    color: 'var(--de-color-primary)',
                   }}
                 >
                   Custom
@@ -187,7 +186,7 @@ export function FontPickerPopover({
               style={{
                 fontFamily: `'${f.family}', sans-serif`,
                 fontSize: 17,
-                color: 'var(--color-text)',
+                color: 'var(--de-color-text)',
                 lineHeight: 1.2,
               }}
             >
@@ -200,7 +199,7 @@ export function FontPickerPopover({
             style={{
               padding: '12px',
               fontSize: 12,
-              color: 'var(--color-text-muted)',
+              color: 'var(--de-color-text-muted)',
               textAlign: 'center',
             }}
           >
@@ -212,7 +211,7 @@ export function FontPickerPopover({
       {/* Sticky footer — Upload */}
       <div
         style={{
-          borderTop: '1px solid var(--color-border)',
+          borderTop: '1px solid var(--de-color-border)',
           padding: '8px',
         }}
       >
@@ -222,11 +221,11 @@ export function FontPickerPopover({
             width: '100%',
             padding: '7px',
             background:
-              'color-mix(in srgb, var(--color-primary) 10%, transparent)',
+              'color-mix(in srgb, var(--de-color-primary) 10%, transparent)',
             border:
-              '1px dashed color-mix(in srgb, var(--color-primary) 35%, transparent)',
+              '1px dashed color-mix(in srgb, var(--de-color-primary) 35%, transparent)',
             borderRadius: 6,
-            color: 'var(--color-primary)',
+            color: 'var(--de-color-primary)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',

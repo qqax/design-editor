@@ -63,12 +63,12 @@ export const ImageControls = ({
           fontSize: 11,
           fontWeight: 600,
           background: removingBg
-            ? 'color-mix(in srgb, var(--color-text) 5%, transparent)'
-            : 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
-          border: `1px solid ${removingBg ? 'var(--color-border)' : 'var(--color-primary)'}`,
+            ? 'color-mix(in srgb, var(--de-color-text) 5%, transparent)'
+            : 'color-mix(in srgb, var(--de-color-primary) 12%, transparent)',
+          border: `1px solid ${removingBg ? 'var(--de-color-border)' : 'var(--de-color-primary)'}`,
           color: removingBg
-            ? 'var(--color-text-muted)'
-            : 'var(--color-primary)',
+            ? 'var(--de-color-text-muted)'
+            : 'var(--de-color-primary)',
           outline: 'none',
           transition: 'all 0.15s',
         }}
@@ -94,9 +94,9 @@ export const ImageControls = ({
             fontSize: 11,
             fontWeight: 600,
             background:
-              'color-mix(in srgb, var(--color-text) 5%, transparent)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-muted)',
+              'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+            border: '1px solid var(--de-color-border)',
+            color: 'var(--de-color-text-muted)',
             outline: 'none',
             transition: 'all 0.15s',
           }}

@@ -105,15 +105,15 @@ export function ColorPickerPanel({
               borderRadius: '50%',
               border:
                 color.toLowerCase() === sw.toLowerCase()
-                  ? '2px solid var(--color-primary)'
-                  : '1.5px solid color-mix(in srgb, var(--color-text) 10%, transparent)',
+                  ? '2px solid var(--de-color-primary)'
+                  : '1.5px solid color-mix(in srgb, var(--de-color-text) 10%, transparent)',
               background: sw,
               cursor: 'pointer',
               transition:
                 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s',
               boxShadow:
                 color.toLowerCase() === sw.toLowerCase()
-                  ? '0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary)'
+                  ? '0 0 0 2px var(--de-color-bg), 0 0 0 4px var(--de-color-primary)'
                   : '0 2px 4px rgba(0,0,0,0.1)',
             }}
           />
@@ -131,7 +131,7 @@ export function ColorPickerPanel({
               borderRadius: '50%',
               background: color,
               border:
-                '2px solid color-mix(in srgb, var(--color-text) 8%, transparent)',
+                '2px solid color-mix(in srgb, var(--de-color-text) 8%, transparent)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
               cursor: 'pointer',
               overflow: 'hidden',
@@ -165,7 +165,7 @@ export function ColorPickerPanel({
               left: 12,
               top: '50%',
               transform: 'translateY(-50%)',
-              color: 'var(--color-text-muted)',
+              color: 'var(--de-color-text-muted)',
               fontWeight: 600,
             }}
           >
@@ -182,7 +182,7 @@ export function ColorPickerPanel({
               e.target.style.boxShadow = 'inset 0 0 0 1px transparent';
             }}
             onFocus={(e) => {
-              e.target.style.boxShadow = 'inset 0 0 0 2px var(--color-primary)';
+              e.target.style.boxShadow = 'inset 0 0 0 2px var(--de-color-primary)';
             }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -201,8 +201,8 @@ export function ColorPickerPanel({
               fontWeight: 600,
               textTransform: 'uppercase',
               background:
-                'color-mix(in srgb, var(--color-text) 5%, transparent)',
-              color: 'var(--color-text)',
+                'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+              color: 'var(--de-color-text)',
               outline: 'none',
               transition: 'box-shadow 0.2s',
               boxShadow: 'inset 0 0 0 1px transparent',

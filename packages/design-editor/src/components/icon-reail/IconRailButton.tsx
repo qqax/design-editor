@@ -27,20 +27,20 @@ export function IconRailButton({
         padding: '8px 0',
         gap: 4,
         background: active
-          ? 'color-mix(in srgb, var(--color-primary) 18%, transparent)'
+          ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
           : hov
-            ? 'color-mix(in srgb, var(--color-text) 5%, transparent)'
+            ? 'color-mix(in srgb, var(--de-color-text) 5%, transparent)'
             : 'transparent',
         color: active
-          ? 'var(--color-primary)'
+          ? 'var(--de-color-primary)'
           : hov
-            ? 'var(--color-text)'
-            : 'var(--color-text-muted)',
+            ? 'var(--de-color-text)'
+            : 'var(--de-color-text-muted)',
         fontSize: 18,
         boxShadow: active
-          ? '0 0 0 1px var(--color-primary)'
+          ? '0 0 0 1px var(--de-color-primary)'
           : hov
-            ? '0 0 0 1px var(--color-border)'
+            ? '0 0 0 1px var(--de-color-border)'
             : 'none',
         transform: active ? 'scale(1.02)' : 'scale(1)',
       }}

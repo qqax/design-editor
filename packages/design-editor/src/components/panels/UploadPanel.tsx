@@ -81,9 +81,9 @@ export function UploadPanel({ onUploadFile }: Props) {
           alignItems: 'center',
           gap: 8,
           background: hov
-            ? 'color-mix(in srgb, var(--color-primary) 12%, transparent)'
-            : 'color-mix(in srgb, var(--color-primary) 6%, transparent)',
-          border: `2px dashed ${hov ? 'var(--color-primary)' : 'color-mix(in srgb, var(--color-primary) 30%, transparent)'}`,
+            ? 'color-mix(in srgb, var(--de-color-primary) 12%, transparent)'
+            : 'color-mix(in srgb, var(--de-color-primary) 6%, transparent)',
+          border: `2px dashed ${hov ? 'var(--de-color-primary)' : 'color-mix(in srgb, var(--de-color-primary) 30%, transparent)'}`,
           transition: 'all 0.2s',
           outline: 'none',
           flexShrink: 0,
@@ -92,16 +92,16 @@ export function UploadPanel({ onUploadFile }: Props) {
         {isUploading ? (
           <Loader2
             className="animate-spin"
-            color="var(--color-primary)"
+            color="var(--de-color-primary)"
             size={32}
           />
         ) : (
-          <CloudUpload color="var(--color-primary)" size={32} />
+          <CloudUpload color="var(--de-color-primary)" size={32} />
         )}
         <div style={{ textAlign: 'center' }}>
           <div
             style={{
-              color: 'var(--color-text)',
+              color: 'var(--de-color-text)',
               fontSize: 13,
               fontWeight: 600,
             }}
@@ -110,7 +110,7 @@ export function UploadPanel({ onUploadFile }: Props) {
           </div>
           <div
             style={{
-              color: 'var(--color-text-muted)',
+              color: 'var(--de-color-text-muted)',
               fontSize: 11,
               marginTop: 4,
             }}
@@ -127,7 +127,7 @@ export function UploadPanel({ onUploadFile }: Props) {
           >
             <Loader2
               className="animate-spin"
-              color="var(--color-text-muted)"
+              color="var(--de-color-text-muted)"
               size={24}
             />
           </div>
@@ -136,7 +136,7 @@ export function UploadPanel({ onUploadFile }: Props) {
             style={{
               textAlign: 'center',
               padding: 20,
-              color: 'var(--color-text-muted)',
+              color: 'var(--de-color-text-muted)',
               fontSize: 12,
             }}
           >
@@ -158,7 +158,7 @@ export function UploadPanel({ onUploadFile }: Props) {
                   background: 'var(--de-color-bg-alt)',
                   cursor: 'pointer',
                   border:
-                    '1px solid color-mix(in srgb, var(--color-text) 10%, transparent)',
+                    '1px solid color-mix(in srgb, var(--de-color-text) 10%, transparent)',
                 }}
               >
                 {/* Image */}

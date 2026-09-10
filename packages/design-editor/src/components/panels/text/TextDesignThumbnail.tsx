@@ -39,11 +39,11 @@ export function TextDesignThumbnail({ textDesign, onClick }: Props) {
         display: 'block',
         width: '100%',
         aspectRatio,
-        border: '1px solid var(--color-border)',
+        border: '1px solid var(--de-color-border)',
         borderRadius: 6,
         overflow: 'hidden',
         padding: 0,
-        background: 'var(--color-surface)',
+        background: 'var(--de-color-surface)',
         cursor: 'pointer',
       }}
     >
@@ -65,7 +65,7 @@ export function TextDesignThumbnail({ textDesign, onClick }: Props) {
             width: '100%',
             height: '100%',
             background:
-              'linear-gradient(90deg, var(--color-surface) 0%, var(--color-bg) 50%, var(--color-surface) 100%)',
+              'linear-gradient(90deg, var(--de-color-surface) 0%, var(--de-color-bg) 50%, var(--de-color-surface) 100%)',
             backgroundSize: '200% 100%',
             animation: loading ? 'shimmer 1.5s infinite' : 'none',
           }}

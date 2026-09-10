@@ -53,15 +53,15 @@ export function UnifiedColorPicker({
               onMouseEnter={(e) => {
                 if (!open) {
                   e.currentTarget.style.borderColor =
-                    'color-mix(in srgb, var(--color-text) 30%, var(--color-border))';
+                    'color-mix(in srgb, var(--de-color-text) 30%, var(--de-color-border))';
                   e.currentTarget.style.background =
-                    'color-mix(in srgb, var(--color-text) 4%, var(--color-bg))';
+                    'color-mix(in srgb, var(--de-color-text) 4%, var(--de-color-bg))';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!open) {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.background = 'var(--color-bg)';
+                  e.currentTarget.style.borderColor = 'var(--de-color-border)';
+                  e.currentTarget.style.background = 'var(--de-color-bg)';
                 }
               }}
               style={{
@@ -70,11 +70,11 @@ export function UnifiedColorPicker({
                 padding: 3,
                 borderRadius: 8,
                 border: open
-                  ? '1.5px solid var(--color-primary)'
-                  : '1px solid var(--color-border)',
+                  ? '1.5px solid var(--de-color-primary)'
+                  : '1px solid var(--de-color-border)',
                 background: open
-                  ? 'color-mix(in srgb, var(--color-primary) 8%, var(--color-bg))'
-                  : 'var(--color-bg)',
+                  ? 'color-mix(in srgb, var(--de-color-primary) 8%, var(--de-color-bg))'
+                  : 'var(--de-color-bg)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -105,9 +105,9 @@ export function UnifiedColorPicker({
                 gap: 6,
                 width: 'auto',
                 background: open
-                  ? 'color-mix(in srgb, var(--color-primary) 18%, transparent)'
+                  ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
                   : TOOL_BTN?.background,
-                boxShadow: open ? '0 0 0 1px var(--color-primary)' : 'none',
+                boxShadow: open ? '0 0 0 1px var(--de-color-primary)' : 'none',
               }}
             >
               <span
@@ -130,7 +130,7 @@ export function UnifiedColorPicker({
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: 'var(--color-text-muted)',
+                  color: 'var(--de-color-text-muted)',
                 }}
               >
                 {label}

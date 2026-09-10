@@ -70,10 +70,10 @@ export const TextControls = ({
         }
         style={{
           width: 46,
-          background: 'var(--color-bg)',
-          border: '1px solid var(--color-border)',
+          background: 'var(--de-color-bg)',
+          border: '1px solid var(--de-color-border)',
           borderRadius: 6,
-          color: 'var(--color-text)',
+          color: 'var(--de-color-text)',
           fontSize: 12,
           padding: '4px 4px',
           textAlign: 'center',
@@ -191,9 +191,9 @@ export const TextControls = ({
             cursor: 'pointer',
             fontSize: 11,
             fontWeight: 600,
-            background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-            border: '1px solid var(--color-border)',
-            color: 'var(--color-text-muted)',
+            background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+            border: '1px solid var(--de-color-border)',
+            color: 'var(--de-color-text-muted)',
             outline: 'none',
             transition: 'all 0.15s',
           }}

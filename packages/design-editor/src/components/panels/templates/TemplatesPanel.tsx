@@ -113,7 +113,7 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
                   all: 'unset',
                   cursor: 'pointer',
                   fontSize: 12,
-                  color: 'var(--color-primary)',
+                  color: 'var(--de-color-primary)',
                 }}
               >
                 ← Back
@@ -139,14 +139,14 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
               style={{
                 all: 'unset',
                 cursor: 'pointer',
-                color: 'var(--color-primary)',
+                color: 'var(--de-color-primary)',
               }}
             >
               Retry
             </button>
           </div>
         ) : categories.length === 0 ? (
-          <div style={{ padding: 16, color: 'var(--color-text-muted)' }}>
+          <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
             No templates available. Host apps can supply a templateProvider.
           </div>
         ) : (

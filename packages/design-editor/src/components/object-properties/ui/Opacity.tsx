@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
-  <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12 }}>
+  <div style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div
         style={{
@@ -18,14 +18,14 @@ export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
           alignItems: 'center',
         }}
       >
-        <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+        <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
           Opacity
         </span>
         <span
           style={{
             fontSize: 12,
             fontWeight: 600,
-            color: 'var(--color-text)',
+            color: 'var(--de-color-text)',
             minWidth: 36,
             textAlign: 'right',
           }}
@@ -45,7 +45,7 @@ export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
         }}
         style={{
           width: '100%',
-          accentColor: 'var(--color-primary)',
+          accentColor: 'var(--de-color-primary)',
           cursor: 'pointer',
         }}
       />

@@ -8,7 +8,7 @@ import type {
   DesignTemplate,
   TemplateListOpts,
   TemplateProvider,
-} from '../../../providers/templates';
+} from '../../../providers';
 
 interface Props {
   provider: TemplateProvider;
@@ -79,7 +79,7 @@ export function TemplateGrid({
           style={{
             all: 'unset',
             cursor: 'pointer',
-            color: 'var(--color-primary)',
+            color: 'var(--de-color-primary)',
           }}
         >
           Retry
@@ -88,7 +88,7 @@ export function TemplateGrid({
     );
   if (items.length === 0)
     return (
-      <div style={{ padding: 16, color: 'var(--color-text-muted)' }}>
+      <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
         {emptyMessage}
       </div>
     );
@@ -110,9 +110,9 @@ export function TemplateGrid({
             style={{
               padding: '6px 14px',
               borderRadius: 6,
-              border: '1px solid var(--color-border)',
+              border: '1px solid var(--de-color-border)',
               background: 'transparent',
-              color: 'var(--color-text)',
+              color: 'var(--de-color-text)',
               cursor: 'pointer',
             }}
           >

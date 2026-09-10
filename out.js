@@ -271,10 +271,10 @@ export function ShapesPanel({ onAddShape }) {
         className: 'px-4 pt-4 pb-2',
         children: /* @__PURE__ */ jsxs('div', {
           className:
-            'flex items-center bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--color-border)] focus-within:border-[var(--color-primary)] transition-colors',
+            'flex items-center bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--de-color-border)] focus-within:border-[var(--de-color-primary)] transition-colors',
           children: [
             /* @__PURE__ */ jsx(SearchOutlined, {
-              className: 'text-[var(--color-text-muted)] mr-2',
+              className: 'text-[var(--de-color-text-muted)] mr-2',
             }),
             /* @__PURE__ */ jsx('input', {
               type: 'text',
@@ -282,7 +282,7 @@ export function ShapesPanel({ onAddShape }) {
               value: search,
               onChange: (e) => setSearch(e.target.value),
               className:
-                'bg-transparent border-none outline-none flex-1 text-[var(--color-text)] text-sm',
+                'bg-transparent border-none outline-none flex-1 text-[var(--de-color-text)] text-sm',
             }),
           ],
         }),
@@ -307,7 +307,7 @@ export function ShapesPanel({ onAddShape }) {
           filteredShapes.length === 0 &&
             /* @__PURE__ */ jsxs('div', {
               className:
-                'mt-8 text-center text-[var(--color-text-muted)] text-sm',
+                'mt-8 text-center text-[var(--de-color-text-muted)] text-sm',
               children: ['No shapes found for "', search, '"'],
             }),
         ],
@@ -327,14 +327,14 @@ const ShapeCategory = ({ title, shapes, onAddShape }) => {
         children: [
           /* @__PURE__ */ jsx('h3', {
             className:
-              'text-sm font-bold text-[var(--color-text)] tracking-tight',
+              'text-sm font-bold text-[var(--de-color-text)] tracking-tight',
             children: title,
           }),
           hasMore &&
             /* @__PURE__ */ jsxs('button', {
               onClick: () => setExpanded(!expanded),
               className:
-                'flex items-center text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors bg-transparent border-none cursor-pointer',
+                'flex items-center text-xs font-semibold text-[var(--de-color-text-muted)] hover:text-[var(--de-color-primary)] transition-colors bg-transparent border-none cursor-pointer',
               children: [
                 expanded ? 'Less' : `More (${shapes.length})`,
                 expanded
@@ -426,11 +426,11 @@ function ScrollRow({ shapes, onAddShape }) {
             width: 22,
             height: 22,
             borderRadius: 6,
-            background: 'var(--color-surface, #fff)',
-            boxShadow: '-8px 0 14px 8px var(--color-surface, #fff)',
+            background: 'var(--de-color-surface, #fff)',
+            boxShadow: '-8px 0 14px 8px var(--de-color-surface, #fff)',
           },
           children: /* @__PURE__ */ jsx(RightOutlined, {
-            style: { fontSize: 10, color: 'var(--color-text-muted)' },
+            style: { fontSize: 10, color: 'var(--de-color-text-muted)' },
           }),
         }),
     ],
@@ -458,8 +458,8 @@ function ShapeTile({ shape, onClick, expanded = false }) {
       style: {
         width: '100%',
         aspectRatio: '1 / 1',
-        background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-        boxShadow: hovered ? '0 0 0 2px var(--color-border, #d1d5db)' : 'none',
+        background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+        boxShadow: hovered ? '0 0 0 2px var(--de-color-border, #d1d5db)' : 'none',
         transform: hovered ? 'scale(1.03)' : 'scale(1)',
       },
       children: /* @__PURE__ */ jsx('img', {

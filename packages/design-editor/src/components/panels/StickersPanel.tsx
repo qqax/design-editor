@@ -263,10 +263,10 @@ export function StickersPanel({ onAddSticker }: Props) {
     <div className="bg-surface flex h-full flex-col">
       {/* SEARCH */}
       <div className="px-4 pb-2 pt-4">
-        <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--color-primary)]">
-          <Search className="mr-2 text-[var(--color-text-muted)]" size={14} />
+        <div className="flex items-center rounded-lg border border-[var(--de-color-border)] bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--de-color-primary)]">
+          <Search className="mr-2 text-[var(--de-color-text-muted)]" size={14} />
           <input
-            className="flex-1 border-none bg-transparent text-sm text-[var(--color-text)] outline-none"
+            className="flex-1 border-none bg-transparent text-sm text-[var(--de-color-text)] outline-none"
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search stickers..."
             type="text"
@@ -294,7 +294,7 @@ export function StickersPanel({ onAddSticker }: Props) {
         })}
 
         {filteredStickers.length === 0 && (
-          <div className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
+          <div className="mt-8 text-center text-sm text-[var(--de-color-text-muted)]">
             No stickers found for "{search}"
           </div>
         )}
@@ -326,13 +326,13 @@ function StickerCategory({
     <div className="mt-5">
       {/* HEADER */}
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-bold tracking-tight text-[var(--color-text)]">
+        <h3 className="text-sm font-bold tracking-tight text-[var(--de-color-text)]">
           {title}
         </h3>
 
         {hasMore ? (
           <button
-            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
+            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--de-color-text-muted)] transition-colors hover:text-[var(--de-color-primary)]"
             onClick={() => setExpanded(!expanded)}
           >
             {expanded ? 'Less' : `More (${stickers.length})`}
@@ -441,13 +441,13 @@ function ScrollRow({
             width: 22,
             height: 22,
             borderRadius: 6,
-            background: 'var(--color-surface, #fff)',
-            boxShadow: '-8px 0 14px 8px var(--color-surface, #fff)',
+            background: 'var(--de-color-surface, #fff)',
+            boxShadow: '-8px 0 14px 8px var(--de-color-surface, #fff)',
           }}
         >
           <ChevronRight
             size={14}
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: 'var(--de-color-text-muted)' }}
           />
         </button>
       ) : null}
@@ -487,10 +487,10 @@ function StickerTile({
           width: '100%',
           aspectRatio: '1 / 1',
 
-          background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
+          background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
 
           boxShadow: hovered
-            ? '0 0 0 2px var(--color-border, #d1d5db)'
+            ? '0 0 0 2px var(--de-color-border, #d1d5db)'
             : 'none',
 
           transform: hovered ? 'scale(1.03)' : 'scale(1)',

@@ -4,7 +4,7 @@ import React, {memo, useContext, useEffect, useRef} from 'react';
 
 import {Editor, Context} from '../engine';
 
-const WORKSPACE_BG = 'var(--color-bg)';
+const WORKSPACE_BG = 'var(--de-color-bg)';
 
 // ─── FrozenCanvas ─────────────────────────────────────────────────────────────
 const FrozenCanvas = memo(
@@ -215,10 +215,10 @@ export const CanvasArea = memo(function CanvasArea({
         inset: 0,
         backgroundColor: workspaceBg ?? WORKSPACE_BG,
         backgroundImage:
-          'radial-gradient(color-mix(in srgb, var(--color-text) 8%, transparent) 1.5px, transparent 1.5px)',
+          'radial-gradient(color-mix(in srgb, var(--de-color-text) 8%, transparent) 1.5px, transparent 1.5px)',
         backgroundSize: '24px 24px',
         overflow: 'hidden',
-        outline: dragOver ? '3px solid var(--color-primary)' : 'none',
+        outline: dragOver ? '3px solid var(--de-color-primary)' : 'none',
         outlineOffset: -3,
         transition: 'outline 0.15s',
       }}
@@ -235,7 +235,7 @@ export const CanvasArea = memo(function CanvasArea({
             pointerEvents: 'none',
             zIndex: 10,
             background:
-              'color-mix(in srgb, var(--color-primary) 88%, transparent)',
+              'color-mix(in srgb, var(--de-color-primary) 88%, transparent)',
             backdropFilter: 'blur(8px)',
             color: '#fff',
             fontSize: 13,
@@ -243,7 +243,7 @@ export const CanvasArea = memo(function CanvasArea({
             padding: '8px 20px',
             borderRadius: 10,
             boxShadow:
-              '0 4px 24px color-mix(in srgb, var(--color-primary) 50%, transparent)',
+              '0 4px 24px color-mix(in srgb, var(--de-color-primary) 50%, transparent)',
           }}
         >
           Drop to add to canvas

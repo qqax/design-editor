@@ -51,14 +51,14 @@
 //   return (
 //     <div className="flex flex-col h-full bg-surface">
 //       <div className="px-4 pt-4 pb-2">
-//         <div className="flex items-center bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--color-border)] focus-within:border-[var(--color-primary)] transition-colors">
-//           <SearchOutlined className="text-[var(--color-text-muted)] mr-2" />
+//         <div className="flex items-center bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] rounded-lg px-3 py-2 border border-[var(--de-color-border)] focus-within:border-[var(--de-color-primary)] transition-colors">
+//           <SearchOutlined className="text-[var(--de-color-text-muted)] mr-2" />
 //           <input
 //             type="text"
 //             placeholder="Search shapes..."
 //             value={search}
 //             onChange={(e) => setSearch(e.target.value)}
-//             className="bg-transparent border-none outline-none flex-1 text-[var(--color-text)] text-sm"
+//             className="bg-transparent border-none outline-none flex-1 text-[var(--de-color-text)] text-sm"
 //           />
 //         </div>
 //       </div>
@@ -70,7 +70,7 @@
 //         <ShapeCategory title="Image" styleType="image" shapes={filteredShapes} onAddShape={onAddShape} />
 
 //         {filteredShapes.length === 0 && (
-//            <div className="mt-8 text-center text-[var(--color-text-muted)] text-sm">
+//            <div className="mt-8 text-center text-[var(--de-color-text-muted)] text-sm">
 //              No shapes found for "{search}"
 //            </div>
 //         )}
@@ -91,11 +91,11 @@
 //   return (
 //     <div className="mt-5">
 //       <div className="flex items-center justify-between mb-3">
-//         <h3 className="text-sm font-bold text-[var(--color-text)] tracking-tight">{title}</h3>
+//         <h3 className="text-sm font-bold text-[var(--de-color-text)] tracking-tight">{title}</h3>
 //         {shapes.length > 3 && (
 //           <button
 //             onClick={() => setExpanded(!expanded)}
-//             className="flex items-center text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors bg-transparent border-none cursor-pointer"
+//             className="flex items-center text-xs font-semibold text-[var(--de-color-text-muted)] hover:text-[var(--de-color-primary)] transition-colors bg-transparent border-none cursor-pointer"
 //           >
 //             {expanded ? 'Less' : `More (${shapes.length})`}
 //             {expanded ? <UpOutlined className="ml-1 text-[10px]" /> : <DownOutlined className="ml-1 text-[10px]" />}
@@ -138,8 +138,8 @@
 //         onMouseLeave={() => setHov(false)}
 //         className="w-[72px] h-[72px] rounded-xl flex items-center justify-center cursor-pointer border-none outline-none transition-all duration-200 relative overflow-hidden"
 //         style={{
-//           background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-//           boxShadow: hov ? '0 0 0 2px var(--color-primary)' : 'none',
+//           background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+//           boxShadow: hov ? '0 0 0 2px var(--de-color-primary)' : 'none',
 //         }}
 //       >
 //         <img
@@ -468,10 +468,10 @@ export function ShapesPanel({ onAddShape }: Props) {
     <div className="bg-surface flex h-full flex-col">
       {/* SEARCH */}
       <div className="px-4 pb-2 pt-4">
-        <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--color-primary)]">
-          <Search className="mr-2 text-[var(--color-text-muted)]" size={14} />
+        <div className="flex items-center rounded-lg border border-[var(--de-color-border)] bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--de-color-primary)]">
+          <Search className="mr-2 text-[var(--de-color-text-muted)]" size={14} />
           <input
-            className="flex-1 border-none bg-transparent text-sm text-[var(--color-text)] outline-none"
+            className="flex-1 border-none bg-transparent text-sm text-[var(--de-color-text)] outline-none"
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search shapes..."
             type="text"
@@ -498,7 +498,7 @@ export function ShapesPanel({ onAddShape }: Props) {
         })}
 
         {filteredShapes.length === 0 && (
-          <div className="mt-8 text-center text-sm text-[var(--color-text-muted)]">
+          <div className="mt-8 text-center text-sm text-[var(--de-color-text-muted)]">
             No shapes found for "{search}"
           </div>
         )}
@@ -530,13 +530,13 @@ function ShapeCategory({
     <div className="mt-5">
       {/* HEADER */}
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-bold tracking-tight text-[var(--color-text)]">
+        <h3 className="text-sm font-bold tracking-tight text-[var(--de-color-text)]">
           {title}
         </h3>
 
         {hasMore ? (
           <button
-            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-primary)]"
+            className="flex cursor-pointer items-center border-none bg-transparent text-xs font-semibold text-[var(--de-color-text-muted)] transition-colors hover:text-[var(--de-color-primary)]"
             onClick={() => setExpanded(!expanded)}
           >
             {expanded ? 'Less' : `More (${shapes.length})`}
@@ -645,13 +645,13 @@ function ScrollRow({
             width: 22,
             height: 22,
             borderRadius: 6,
-            background: 'var(--color-surface, #fff)',
-            boxShadow: '-8px 0 14px 8px var(--color-surface, #fff)',
+            background: 'var(--de-color-surface, #fff)',
+            boxShadow: '-8px 0 14px 8px var(--de-color-surface, #fff)',
           }}
         >
           <ChevronRight
             size={14}
-            style={{ color: 'var(--color-text-muted)' }}
+            style={{ color: 'var(--de-color-text-muted)' }}
           />
         </button>
       ) : null}
@@ -695,10 +695,10 @@ function ShapeTile({
           width: '100%',
           aspectRatio: '1 / 1',
 
-          background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
+          background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
 
           boxShadow: hovered
-            ? '0 0 0 2px var(--color-border, #d1d5db)'
+            ? '0 0 0 2px var(--de-color-border, #d1d5db)'
             : 'none',
 
           transform: hovered ? 'scale(1.03)' : 'scale(1)',

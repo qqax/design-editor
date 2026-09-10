@@ -52,7 +52,7 @@ export function LayerActions({
 
       <Tooltip title="Delete">
         <button
-          style={{ ...ICON_BTN, color: 'var(--color-danger)' }}
+          style={{ ...ICON_BTN, color: 'var(--de-color-danger)' }}
           onClick={(e) => {
             stop(e);
             onDelete(id);

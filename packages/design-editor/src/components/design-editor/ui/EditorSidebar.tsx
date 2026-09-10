@@ -53,8 +53,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         left: 64,
         bottom: 0,
         width: 320,
-        background: 'var(--color-surface, var(--de-color-bg-elevated))',
-        borderRight: '1px solid var(--color-border, var(--de-color-border))',
+        background: 'var(--de-color-bg-elevated)',
+        borderRight: '1px solid var(--de-color-border)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 10,
@@ -74,7 +74,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             fontSize: 14,
             fontWeight: 600,
             textTransform: 'capitalize',
-            color: 'var(--color-text)',
+            color: 'var(--de-color-text)',
           }}
         >
           {activePanel}
@@ -86,7 +86,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             all: 'unset',
             cursor: 'pointer',
             fontSize: 18,
-            color: 'var(--color-text-muted)',
+            color: 'var(--de-color-text-muted)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

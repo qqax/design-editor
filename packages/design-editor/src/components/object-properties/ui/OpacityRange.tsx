@@ -13,7 +13,7 @@ export const OpacityRange = ({ opacity, setOpacity, editor }: Props) => (
     <span
       style={{
         fontSize: 11,
-        color: 'var(--color-text-muted)',
+        color: 'var(--de-color-text-muted)',
         flexShrink: 0,
       }}
     >
@@ -31,14 +31,14 @@ export const OpacityRange = ({ opacity, setOpacity, editor }: Props) => (
       }}
       style={{
         width: 72,
-        accentColor: 'var(--color-primary)',
+        accentColor: 'var(--de-color-primary)',
         cursor: 'pointer',
       }}
     />
     <span
       style={{
         fontSize: 11,
-        color: 'var(--color-text)',
+        color: 'var(--de-color-text)',
         minWidth: 28,
         textAlign: 'right',
       }}

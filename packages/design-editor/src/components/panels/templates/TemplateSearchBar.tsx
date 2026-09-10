@@ -42,10 +42,10 @@ export function TemplateSearchBar({
           width: '100%',
           padding: '8px 12px',
           fontSize: 13,
-          border: '1px solid var(--color-border)',
+          border: '1px solid var(--de-color-border)',
           borderRadius: 6,
-          background: 'var(--color-bg)',
-          color: 'var(--color-text)',
+          background: 'var(--de-color-bg)',
+          color: 'var(--de-color-text)',
           outline: 'none',
         }}
       />

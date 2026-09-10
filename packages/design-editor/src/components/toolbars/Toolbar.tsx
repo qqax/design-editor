@@ -61,9 +61,9 @@ interface Props {
 
 const TOOL_BTN_ACTIVE: CSSProperties = {
   ...TOOL_BTN,
-  background: 'color-mix(in srgb, var(--color-primary) 18%, transparent)',
-  color: 'var(--color-primary)',
-  boxShadow: '0 0 0 1px var(--color-primary)',
+  background: 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)',
+  color: 'var(--de-color-primary)',
+  boxShadow: '0 0 0 1px var(--de-color-primary)',
 };
 
 export function Toolbar(props: Props) {
@@ -101,10 +101,10 @@ export function Toolbar(props: Props) {
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
-        background: 'var(--color-surface)',
+        background: 'var(--de-color-surface)',
         borderRadius: 12,
         padding: 16,
-        border: '1px solid var(--color-border)',
+        border: '1px solid var(--de-color-border)',
         boxShadow: '0 10px 30px var(--shadow-color)',
       }}
     >
@@ -112,7 +112,7 @@ export function Toolbar(props: Props) {
         style={{
           fontWeight: 700,
           fontSize: 12,
-          color: 'var(--color-primary)',
+          color: 'var(--de-color-primary)',
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
         }}
@@ -131,7 +131,7 @@ export function Toolbar(props: Props) {
             justifyContent: 'space-between',
           }}
         >
-          <span style={{ fontSize: 13, color: 'var(--color-text)' }}>
+          <span style={{ fontSize: 13, color: 'var(--de-color-text)' }}>
             {label}
           </span>
           <Switch
@@ -141,12 +141,12 @@ export function Toolbar(props: Props) {
         </div>
       ))}
       <div
-        style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12 }}
+        style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}
       >
         <div
           style={{
             fontSize: 11,
-            color: 'var(--color-text-muted)',
+            color: 'var(--de-color-text-muted)',
             marginBottom: 8,
             textTransform: 'uppercase',
             letterSpacing: '0.06em',
@@ -167,16 +167,16 @@ export function Toolbar(props: Props) {
                 cursor: 'pointer',
                 border:
                   settings.railSide === side
-                    ? '1.5px solid var(--color-primary)'
-                    : '1px solid var(--color-border)',
+                    ? '1.5px solid var(--de-color-primary)'
+                    : '1px solid var(--de-color-border)',
                 background:
                   settings.railSide === side
-                    ? 'color-mix(in srgb, var(--color-primary) 18%, transparent)'
-                    : 'color-mix(in srgb, var(--color-text) 3%, transparent)',
+                    ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
+                    : 'color-mix(in srgb, var(--de-color-text) 3%, transparent)',
                 color:
                   settings.railSide === side
-                    ? 'var(--color-primary)'
-                    : 'var(--color-text-muted)',
+                    ? 'var(--de-color-primary)'
+                    : 'var(--de-color-text-muted)',
                 fontSize: 12,
                 fontWeight: 700,
                 textTransform: 'capitalize',
@@ -196,9 +196,9 @@ export function Toolbar(props: Props) {
       onClick={!hasUnsavedChanges ? onBack : undefined}
       type="button"
       onMouseEnter={(e) => {
-        e.currentTarget.style.color = 'var(--color-text)';
+        e.currentTarget.style.color = 'var(--de-color-text)';
         e.currentTarget.style.background =
-          'color-mix(in srgb, var(--color-text) 10%, transparent)';
+          'color-mix(in srgb, var(--de-color-text) 10%, transparent)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.color = 'var(--color-text-muted)';
@@ -227,7 +227,7 @@ export function Toolbar(props: Props) {
 
   return (
     <div
-      className="scrollbar-hide z-50 flex h-[56px] shrink-0 items-center gap-1 overflow-x-auto whitespace-nowrap px-[16px]"
+      className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto whitespace-nowrap px-4"
       style={{
         background: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
         borderBottom: '1px solid var(--color-border)',
@@ -277,24 +277,6 @@ export function Toolbar(props: Props) {
           marginRight: 4,
         }}
       >
-        <div
-          style={{
-            width: 26,
-            height: 26,
-            borderRadius: 7,
-            background:
-              'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            fontWeight: 900,
-            color: '#fff',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          A
-        </div>
         <span
           className="hidden md:inline"
           style={{
@@ -354,14 +336,14 @@ export function Toolbar(props: Props) {
           textAlign: 'center',
           fontSize: 12,
           fontWeight: 700,
-          color: 'var(--color-primary)',
+          color: 'var(--de-color-primary)',
           background:
-            'color-mix(in srgb, var(--color-primary) 12%, transparent)',
+            'color-mix(in srgb, var(--de-color-primary) 12%, transparent)',
           borderRadius: 7,
           padding: '4px 8px',
           userSelect: 'none',
           border:
-            '1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)',
+            '1px solid color-mix(in srgb, var(--de-color-primary) 25%, transparent)',
         }}
       >
         {zoomPct}%
@@ -419,7 +401,7 @@ export function Toolbar(props: Props) {
               style={{
                 fontWeight: 700,
                 fontSize: 12,
-                color: 'var(--color-primary)',
+                color: 'var(--de-color-primary)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.07em',
               }}
@@ -429,7 +411,7 @@ export function Toolbar(props: Props) {
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <div className="relative flex-1">
                 <input
-                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--color-primary)]"
+                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
                   max={8000}
                   min={100}
                   onChange={(e) => setCustomW(Number(e.target.value) || 100)}
@@ -448,7 +430,7 @@ export function Toolbar(props: Props) {
               </span>
               <div className="relative flex-1">
                 <input
-                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--color-primary)]"
+                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
                   max={8000}
                   min={100}
                   onChange={(e) => setCustomH(Number(e.target.value) || 100)}

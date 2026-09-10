@@ -55,8 +55,8 @@ export const ImageMoreContent = ({
       gap: 12,
       padding: '14px 16px',
       minWidth: 220,
-      background: 'var(--color-surface)',
-      border: '1px solid var(--color-border)',
+      background: 'var(--de-color-surface)',
+      border: '1px solid var(--de-color-border)',
       borderRadius: 12,
       boxShadow: '0 8px 32px var(--shadow-color)',
     }}
@@ -65,7 +65,7 @@ export const ImageMoreContent = ({
       style={{
         fontWeight: 700,
         fontSize: 11,
-        color: 'var(--color-primary)',
+        color: 'var(--de-color-primary)',
         textTransform: 'uppercase',
         letterSpacing: '0.08em',
       }}
@@ -81,14 +81,14 @@ export const ImageMoreContent = ({
           alignItems: 'center',
         }}
       >
-          <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+          <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
             Corner Radius
           </span>
         <span
           style={{
             fontSize: 12,
             fontWeight: 600,
-            color: 'var(--color-text)',
+            color: 'var(--de-color-text)',
             minWidth: 36,
             textAlign: 'right',
           }}
@@ -105,7 +105,7 @@ export const ImageMoreContent = ({
         value={borderRadius}
         style={{
           width: '100%',
-          accentColor: 'var(--color-primary)',
+          accentColor: 'var(--de-color-primary)',
           cursor: 'pointer',
         }}
       />
@@ -118,7 +118,7 @@ export const ImageMoreContent = ({
         justifyContent: 'space-between',
       }}
     >
-        <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+        <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
           Drop Shadow
         </span>
       <button
@@ -130,14 +130,14 @@ export const ImageMoreContent = ({
           fontSize: 11,
           fontWeight: 600,
           background: shadowEnabled
-            ? 'color-mix(in srgb, var(--color-primary) 15%, transparent)'
-            : 'color-mix(in srgb, var(--color-text) 5%, transparent)',
+            ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
+            : 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
           border: shadowEnabled
-            ? '1.5px solid var(--color-primary)'
-            : '1px solid var(--color-border)',
+            ? '1.5px solid var(--de-color-primary)'
+            : '1px solid var(--de-color-border)',
           color: shadowEnabled
-            ? 'var(--color-primary)'
-            : 'var(--color-text-muted)',
+            ? 'var(--de-color-primary)'
+            : 'var(--de-color-text-muted)',
           outline: 'none',
           transition: 'all 0.15s',
         }}
@@ -150,7 +150,7 @@ export const ImageMoreContent = ({
         <span
           style={{
             fontSize: 12,
-            color: 'var(--color-text-muted)',
+            color: 'var(--de-color-text-muted)',
             display: 'block',
             marginBottom: 6,
           }}
@@ -182,12 +182,12 @@ export const ImageMoreContent = ({
               }
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-primary)';
-              e.currentTarget.style.color = 'var(--color-primary)';
+              e.currentTarget.style.borderColor = 'var(--de-color-primary)';
+              e.currentTarget.style.color = 'var(--de-color-primary)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.color = 'var(--color-text-muted)';
+              e.currentTarget.style.borderColor = 'var(--de-color-border)';
+              e.currentTarget.style.color = 'var(--de-color-text-muted)';
             }}
             style={{
               flex: 1,
@@ -200,9 +200,9 @@ export const ImageMoreContent = ({
               justifyContent: 'center',
               gap: 4,
               background:
-                'color-mix(in srgb, var(--color-text) 5%, transparent)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-muted)',
+                'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+              border: '1px solid var(--de-color-border)',
+              color: 'var(--de-color-text-muted)',
               borderRadius: 6,
               outline: 'none',
               transition: 'all 0.15s',

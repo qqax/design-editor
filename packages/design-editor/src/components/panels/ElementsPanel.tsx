@@ -11,7 +11,7 @@ import { STICKERS } from './StickersPanel';
 import type {
   TextDesign,
   TextDesignProvider,
-} from '../../providers/textDesigns';
+} from '../../providers';
 
 // ─────────────────────────────────────────────────────────────
 // PROPS
@@ -153,7 +153,7 @@ function Section({
         }}
       >
         <span
-          style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text)' }}
+          style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-color-text)' }}
         >
           {title}
         </span>
@@ -164,7 +164,7 @@ function Section({
             cursor: 'pointer',
             fontSize: 11,
             fontWeight: 600,
-            color: 'var(--color-primary)',
+            color: 'var(--de-color-primary)',
             display: 'flex',
             alignItems: 'center',
             gap: 3,
@@ -229,8 +229,8 @@ function TextDesignThumb({
         outline: 'none',
         cursor: 'pointer',
         overflow: 'hidden',
-        background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-        boxShadow: hovered ? '0 0 0 2px var(--color-primary)' : 'none',
+        background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+        boxShadow: hovered ? '0 0 0 2px var(--de-color-primary)' : 'none',
         transition: 'box-shadow 0.15s',
         display: 'flex',
         alignItems: 'center',
@@ -250,11 +250,11 @@ function TextDesignThumb({
           }}
         />
       ) : loading ? (
-        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+        <span style={{ fontSize: 10, color: 'var(--de-color-text-muted)' }}>
           …
         </span>
       ) : (
-        <span style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>
+        <span style={{ fontSize: 10, color: 'var(--de-color-text-muted)' }}>
           {design.name}
         </span>
       )}
@@ -291,8 +291,8 @@ function ImageThumb({
         outline: 'none',
         cursor: 'pointer',
         overflow: 'hidden',
-        background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-        boxShadow: hovered ? '0 0 0 2px var(--color-primary)' : 'none',
+        background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+        boxShadow: hovered ? '0 0 0 2px var(--de-color-primary)' : 'none',
         transition: 'box-shadow 0.15s',
         display: 'flex',
         alignItems: 'center',
@@ -329,12 +329,12 @@ function PlaceholderThumb({ label }: { label: string }) {
         width: 140,
         height: 140,
         borderRadius: 10,
-        background: 'color-mix(in srgb, var(--color-text) 4%, transparent)',
+        background: 'color-mix(in srgb, var(--de-color-text) 4%, transparent)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: 11,
-        color: 'var(--color-text-muted)',
+        color: 'var(--de-color-text-muted)',
       }}
     >
       {label}
