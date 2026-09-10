@@ -60,6 +60,7 @@ export default [
         },
       ],
       '@typescript-eslint/no-explicit-any': 'off',
+      'no-underscore-dangle': 'off',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-invalid-void-type': 'off',
       '@typescript-eslint/naming-convention': 'off',

@@ -16,8 +16,10 @@ export function useCanvasPanning(editor: Editor | null) {
   const panRef = useRef<{ lastX: number; lastY: number } | null>(null);
   const originalSelectionRef = useRef<boolean>(true);
 
-  // FIX: Storing the editor in a Ref entirely shields the compiler from
-  // worrying about mutations across async effect boundaries.
+  const priorStatesRef = useRef<
+    Map<FabricObject, { selectable: boolean; evented: boolean }>
+  >(new Map());
+
   const editorRef = useRef<Editor | null>(null);
   useEffect(() => {
     editorRef.current = editor;
@@ -32,6 +34,12 @@ export function useCanvasPanning(editor: Editor | null) {
       fabricCanvas.set('selection', false);
 
       fabricCanvas.forEachObject((obj: FabricObject) => {
+        if (!priorStatesRef.current.has(obj)) {
+          priorStatesRef.current.set(obj, {
+            selectable: obj.selectable,
+            evented: obj.evented,
+          });
+        }
         obj.set({
           selectable: false,
           evented: false,
@@ -40,18 +48,27 @@ export function useCanvasPanning(editor: Editor | null) {
     } else {
       fabricCanvas.set('selection', originalSelectionRef.current);
       fabricCanvas.forEachObject((obj: FabricObject) => {
-        obj.set({
-          selectable: true,
-          evented: true,
-        });
+        const prior = priorStatesRef.current.get(obj);
+        if (prior) {
+          obj.set({
+            selectable: prior.selectable,
+            evented: prior.evented,
+          });
+        } else {
+          obj.set({
+            selectable: true,
+            evented: true,
+          });
+        }
       });
+      priorStatesRef.current.clear();
     }
     fabricCanvas.requestRenderAll();
-  }, [spaceDown]); // No more 'editor' variable mutation dependencies!
+  }, [spaceDown]);
 
+  const canvasInstance = editor?.canvas?.canvas;
   useEffect(() => {
-    const fabricCanvas = editorRef.current?.canvas?.canvas;
-    if (!fabricCanvas) return;
+    if (!canvasInstance) return;
 
     const handleCanvasWheel = (opt: any) => {
       const currentCanvas = editorRef.current?.canvas?.canvas;
@@ -90,12 +107,12 @@ export function useCanvasPanning(editor: Editor | null) {
       currentCanvas.requestRenderAll();
     };
 
-    fabricCanvas.on('mouse:wheel', handleCanvasWheel);
+    canvasInstance.on('mouse:wheel', handleCanvasWheel);
 
     return () => {
-      fabricCanvas.off('mouse:wheel', handleCanvasWheel);
+      canvasInstance.off('mouse:wheel', handleCanvasWheel);
     };
-  }, []); // Run on mount/unmount safely
+  }, [canvasInstance]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -136,7 +153,6 @@ export function useCanvasPanning(editor: Editor | null) {
     };
   }, []);
 
-  // 4. Mouse Down Handler (Space + Click)
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       const fabricCanvas = editorRef.current?.canvas?.canvas;
@@ -149,7 +165,6 @@ export function useCanvasPanning(editor: Editor | null) {
     [spaceDown]
   );
 
-  // 5. Mouse Move Handler (Space + Drag)
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       const fabricCanvas = editorRef.current?.canvas?.canvas;
