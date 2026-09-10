@@ -10,13 +10,10 @@ import { RowTile } from './RowTile';
 
 import type { ScrollRowType } from '../model';
 
-export function ScrollRow<T extends ScrollRowType>({
-  items,
-  onAddItem,
-}: {
-  items: T[];
-  onAddItem: (src: string) => void;
-}) {
+export function ScrollRow<
+  T extends ScrollRowType<CategoryT>,
+  CategoryT extends string,
+>({ items, onAddItem }: { items: T[]; onAddItem: (src: string) => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -57,14 +54,7 @@ export function ScrollRow<T extends ScrollRowType>({
               width: 'calc((100% - 24px) / 4)',
             }}
           >
-            <RowTile
-              item={shape}
-              onClick={() =>
-                onAddItem(
-                  `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`
-                )
-              }
-            />
+            <RowTile item={shape} onClick={() => onAddItem(shape.src)} />
           </div>
         ))}
       </div>

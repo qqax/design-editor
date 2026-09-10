@@ -1,2 +1,1 @@
-export { StickersPanel } from './ui';
-export { STICKERS } from './model';
+export { COLLAPSED_COUNT, STICKERS, STICKERS_ORDER } from './constants';

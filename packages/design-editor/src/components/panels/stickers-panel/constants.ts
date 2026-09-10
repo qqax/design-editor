@@ -196,7 +196,7 @@ export const STICKERS: StickerDef[] = Object.entries(STICKER_FILES).flatMap(
 // CATEGORY ORDER
 // ─────────────────────────────────────────────────────────────
 
-export const CATEGORY_ORDER: {
+export const STICKERS_ORDER: {
   key: StickerCategoryType;
   label: string;
 }[] = [

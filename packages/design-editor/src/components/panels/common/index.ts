@@ -1,1 +1,2 @@
-export { Category, RowTile, ScrollRow } from './ui';
+export { Panel } from './ui';
+export { getItemsFactory } from './lib';

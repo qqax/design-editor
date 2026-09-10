@@ -1,1 +1,0 @@
-export { ShapesPanel } from './ShapesPanel';

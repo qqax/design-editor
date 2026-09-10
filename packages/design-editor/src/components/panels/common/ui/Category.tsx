@@ -11,7 +11,10 @@ import { ScrollRow } from './ScrollRow';
 
 import type { ScrollRowType } from '../model';
 
-export function Category<T extends ScrollRowType>({
+export function Category<
+  T extends ScrollRowType<CategoryT>,
+  CategoryT extends string,
+>({
   title,
   items,
   onAddItem,
@@ -60,7 +63,6 @@ export function Category<T extends ScrollRowType>({
                 key={item.id}
                 item={item}
                 onClick={() => onAddItem(item.src)}
-                src={item.src}
               />
             );
           })}

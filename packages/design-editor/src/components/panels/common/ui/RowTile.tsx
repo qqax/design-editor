@@ -8,23 +8,24 @@ import { Tooltip } from '../../../primitives';
 
 import type { ScrollRowType } from '../model';
 
-export function RowTile<T extends ScrollRowType>({
+export function RowTile<
+  T extends ScrollRowType<CategoryT>,
+  CategoryT extends string,
+>({
   item,
   onClick,
   expanded = false,
-  src,
 }: {
   item: T;
   onClick: () => void;
   expanded?: boolean;
-  src: string;
 }) {
   const [hovered, setHovered] = useState(false);
 
   const handleDragStart = (e: React.DragEvent<HTMLButtonElement>) => {
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('text/x-qqax-type', 'shape');
-    e.dataTransfer.setData('text/x-qqax-shape-src', src);
+    e.dataTransfer.setData('text/x-qqax-shape-src', item.src);
   };
 
   return (
@@ -55,7 +56,7 @@ export function RowTile<T extends ScrollRowType>({
           alt={item.label}
           className="pointer-events-none h-[78%] w-[78%] object-contain transition-opacity duration-200 select-none"
           draggable={false}
-          src={src}
+          src={item.src}
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}

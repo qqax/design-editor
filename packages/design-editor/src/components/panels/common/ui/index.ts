@@ -1,3 +1,1 @@
-export { RowTile } from './RowTile';
-export { ScrollRow } from './ScrollRow';
-export { Category } from './Category';
+export { Panel } from './Panel';

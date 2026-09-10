@@ -1,2 +1,1 @@
-export { ShapesPanel } from './ui';
-export { SHAPES } from './model';
+export { SHAPES, SHAPES_ORDER } from './constants';

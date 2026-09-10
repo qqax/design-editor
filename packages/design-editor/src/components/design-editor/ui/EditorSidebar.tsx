@@ -1,8 +1,9 @@
 import React from 'react';
 
+import { getItemsFactory, Panel } from '../../panels/common';
 import { ElementsPanel } from '../../panels/elements-panel';
-import { ShapesPanel } from '../../panels/shapes-panel';
-import { StickersPanel } from '../../panels/stickers-panel';
+import { SHAPES, SHAPES_ORDER } from '../../panels/shapes-panel';
+import { STICKERS, STICKERS_ORDER } from '../../panels/stickers-panel';
 import { TemplatesPanel } from '../../panels/templates/TemplatesPanel';
 import { TextPanel } from '../../panels/text/TextPanel';
 import { UploadPanel } from '../../panels/UploadPanel';
@@ -144,11 +145,29 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         )}
 
         {activePanel === 'shapes' && (
-          <ShapesPanel onAddShape={addImageToCanvas} />
+          <Panel
+            onAddItem={addImageToCanvas}
+            getItems={getItemsFactory(
+              SHAPES.map((shape) => ({
+                ...shape,
+                src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`,
+              })),
+              SHAPES_ORDER
+            )}
+          />
         )}
 
         {activePanel === 'stickers' && (
-          <StickersPanel onAddSticker={addImageToCanvas} />
+          <Panel
+            onAddItem={addImageToCanvas}
+            getItems={getItemsFactory(
+              STICKERS.map((sticker) => ({
+                ...sticker,
+                src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/stickers/${sticker.category}/${sticker.file}`,
+              })),
+              STICKERS_ORDER
+            )}
+          />
         )}
 
         {activePanel === 'upload' &&

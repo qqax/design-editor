@@ -1,1 +1,1 @@
-export type { ScrollRowType } from './types';
+export type { GroupedCategoryResult, ScrollRowType } from './types';
