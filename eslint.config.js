@@ -35,6 +35,9 @@ export default [
           project: './tsconfig.json',
         },
       },
+      react: {
+        version: "19.3",
+      }
     },
     rules: {
       'import-x/no-extraneous-dependencies': [

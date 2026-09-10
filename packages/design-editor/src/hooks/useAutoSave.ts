@@ -44,7 +44,9 @@ export function useAutoSave(
             workspaceBg,
           };
           localStorage.setItem(key, JSON.stringify(payload));
-        } catch {}
+        } catch {
+          /* empty */
+        }
       }, 1500);
     };
     canvas.on('object:modified', schedule);
@@ -61,24 +63,29 @@ export function useAutoSave(
   // Track background changes explicitly
   useEffect(() => {
     if (!editor) return;
-    setHasUnsavedChanges(true);
+
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       try {
+        setHasUnsavedChanges(true);
         const payload = {
           scene: editor.scene.exportToJSON(),
           canvasBg,
           workspaceBg,
         };
         localStorage.setItem(key, JSON.stringify(payload));
-      } catch {}
+      } catch {
+        /* empty */
+      }
     }, 1500);
+
+    return () => clearTimeout(timerRef.current);
   }, [canvasBg, workspaceBg, editor, key]);
 
   return { hasUnsavedChanges, setHasUnsavedChanges };
 }
 
-export function loadAutosave(sceneKey?: string): any | null {
+export function loadAutosave(sceneKey?: string): any {
   try {
     const raw = localStorage.getItem(getAutosaveKey(sceneKey));
     return raw ? JSON.parse(raw) : null;

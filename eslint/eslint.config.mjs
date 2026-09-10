@@ -7,8 +7,7 @@
 
 import path from 'node:path';
 
-// Using the recommended official config utility instead of the deprecated @eslint/compat export
-import { includeIgnoreFile } from 'eslint/config';
+import { includeIgnoreFile } from "eslint/config";
 import js from '@eslint/js';
 import { configs, plugins, rules } from 'eslint-config-airbnb-extended';
 import { rules as prettierConfigRules } from 'eslint-config-prettier';
@@ -85,4 +84,15 @@ export default [
   ...typescriptConfig,
   // Prettier Config
   ...prettierConfig,
+
+  // FIX: Disable rules that are incompatible with ESLint v9
+  {
+    name: 'patches/eslint-v9-compat',
+    rules: {
+      'react/forward-ref-uses-ref': 'off',
+      'react/jsx-filename-extension': 'off',
+      // If you run into a similar error with default-props later, you can add it here too:
+      // 'react/default-props-match-prop-types': 'off'
+    }
+  }
 ];

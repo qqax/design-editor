@@ -102,9 +102,6 @@ export function Toolbar(props: Props) {
         flexDirection: 'column',
         gap: 14,
         background: 'var(--de-color-surface)',
-        borderRadius: 12,
-        padding: 16,
-        border: '1px solid var(--de-color-border)',
         boxShadow: '0 10px 30px var(--shadow-color)',
       }}
     >
@@ -141,7 +138,10 @@ export function Toolbar(props: Props) {
         </div>
       ))}
       <div
-        style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}
+        style={{
+          borderTop: '1px solid var(--de-color-border)',
+          paddingTop: 12,
+        }}
       >
         <div
           style={{
@@ -227,7 +227,7 @@ export function Toolbar(props: Props) {
 
   return (
     <div
-      className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto whitespace-nowrap px-4"
+      className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto px-4 whitespace-nowrap"
       style={{
         background: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
         borderBottom: '1px solid var(--color-border)',
@@ -419,7 +419,7 @@ export function Toolbar(props: Props) {
                   type="number"
                   value={customW}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
                   px
                 </span>
               </div>
@@ -438,7 +438,7 @@ export function Toolbar(props: Props) {
                   type="number"
                   value={customH}
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
+                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
                   px
                 </span>
               </div>
