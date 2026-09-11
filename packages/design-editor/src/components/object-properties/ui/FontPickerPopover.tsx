@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronDown, Upload } from 'lucide-react';
 
-import { Input, Popover } from '../primitives';
+import { Input, Popover } from '../../primitives';
 
-import type { FontDescriptor, FontProvider } from '../../providers';
+import type { FontDescriptor, FontProvider } from '../../../providers';
 
 interface FontPickerPopoverProps {
   fontProvider: FontProvider;
@@ -28,7 +28,7 @@ export function FontPickerPopover({
   useEffect(() => {
     if (!fontProvider.onChange) return;
     return fontProvider.onChange(() => {
-      fontProvider.list().then(setFonts);
+      void fontProvider.list().then(setFonts);
     });
   }, [fontProvider]);
 
@@ -37,7 +37,7 @@ export function FontPickerPopover({
     (next: boolean) => {
       setOpen(next);
       if (next) {
-        fontProvider.list().then((list) => {
+        void fontProvider.list().then((list) => {
           setFonts(list);
           // Fire-and-forget: load each font for preview rendering
           list.forEach((f) => {
@@ -86,6 +86,7 @@ export function FontPickerPopover({
 
   const trigger = (
     <button
+      type="button"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -217,6 +218,7 @@ export function FontPickerPopover({
       >
         <button
           onClick={() => fileInputRef.current?.click()}
+          type="button"
           style={{
             width: '100%',
             padding: '7px',

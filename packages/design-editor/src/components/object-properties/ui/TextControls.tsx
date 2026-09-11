@@ -9,11 +9,11 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 
+import { FontPickerPopover } from './FontPickerPopover';
 import { TextMoreContent } from './TextMoreContent';
 import { createDefaultFontProvider } from '../../../providers';
 import { UnifiedColorPicker } from '../../panels/color-picker';
 import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
-import { FontPickerPopover } from '../../toolbars/FontPickerPopover';
 import { useTextControls } from '../model';
 
 import type { Editor } from '../../../engine';
@@ -191,7 +191,8 @@ export const TextControls = ({
             cursor: 'pointer',
             fontSize: 11,
             fontWeight: 600,
-            background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+            background:
+              'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
             border: '1px solid var(--de-color-border)',
             color: 'var(--de-color-text-muted)',
             outline: 'none',

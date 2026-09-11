@@ -2,33 +2,18 @@
 
 import React from 'react';
 
-import {
-  ArrowLeft,
-  LayoutGrid,
-  Redo,
-  Save,
-  Settings,
-  Undo,
-  ZoomIn,
-  ZoomOut,
-} from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
-import { AD_SIZES } from '../../hooks/useCanvasSize';
 import { TOOL_BTN, UnifiedColorPicker } from '../panels/color-picker';
-import {
-  Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-  HDivider,
-  Popover,
-  Select,
-  Switch,
-  Tooltip,
-} from '../primitives';
+import { HDivider, Tooltip } from '../primitives';
+import { Brand } from './Brand';
+import { CanvasSizeSelector } from './CanvasSizeSelector';
+import { ExitButton } from './ExitButton';
+import { SaveButton } from './SaveButton';
+import { CanvasSettings } from './SettingsContent';
+import { UndoRedo } from './UndoRedo';
+import { UnsavedChangesProtector } from './UnsavedChangesProtector';
+import { Zoom } from './Zoom';
 
 import type { CSSProperties } from 'react';
 
@@ -66,165 +51,32 @@ const TOOL_BTN_ACTIVE: CSSProperties = {
   boxShadow: '0 0 0 1px var(--de-color-primary)',
 };
 
-export function Toolbar(props: Props) {
-  const {
-    editor,
-    zoomPct,
-    size,
-    customOpen,
-    setCustomOpen,
-    customW,
-    setCustomW,
-    customH,
-    setCustomH,
-    handleSizeChange,
-    handleApplyCustom,
-    layerPanelOpen,
-    onToggleLayers,
-    exporting,
-    onExport,
-    onBack,
-    settings,
-    onSettings,
-    canvasBg,
-    onBgChange,
-    workspaceBg,
-    onWorkspaceBgChange,
-    title,
-    hasUnsavedChanges,
-  } = props;
-
-  const settingsContent = (
-    <div
-      style={{
-        width: 230,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        background: 'var(--de-color-surface)',
-        boxShadow: '0 10px 30px var(--shadow-color)',
-      }}
-    >
-      <div
-        style={{
-          fontWeight: 700,
-          fontSize: 12,
-          color: 'var(--de-color-primary)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-        }}
-      >
-        Editor Settings
-      </div>
-      {[
-        { label: 'Grid overlay', key: 'showGrid' as const },
-        { label: 'Snap to grid', key: 'snapGrid' as const },
-      ].map(({ label, key }) => (
-        <div
-          key={key}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <span style={{ fontSize: 13, color: 'var(--de-color-text)' }}>
-            {label}
-          </span>
-          <Switch
-            checked={settings[key]}
-            onCheckedChange={(v) => onSettings({ [key]: v })}
-          />
-        </div>
-      ))}
-      <div
-        style={{
-          borderTop: '1px solid var(--de-color-border)',
-          paddingTop: 12,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--de-color-text-muted)',
-            marginBottom: 8,
-            textTransform: 'uppercase',
-            letterSpacing: '0.06em',
-          }}
-        >
-          Panel Rail
-        </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {(['left', 'right'] as const).map((side) => (
-            <button
-              key={side}
-              onClick={() => onSettings({ railSide: side })}
-              type="button"
-              style={{
-                flex: 1,
-                padding: '7px 0',
-                borderRadius: 8,
-                cursor: 'pointer',
-                border:
-                  settings.railSide === side
-                    ? '1.5px solid var(--de-color-primary)'
-                    : '1px solid var(--de-color-border)',
-                background:
-                  settings.railSide === side
-                    ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
-                    : 'color-mix(in srgb, var(--de-color-text) 3%, transparent)',
-                color:
-                  settings.railSide === side
-                    ? 'var(--de-color-primary)'
-                    : 'var(--de-color-text-muted)',
-                fontSize: 12,
-                fontWeight: 700,
-                textTransform: 'capitalize',
-                outline: 'none',
-              }}
-            >
-              {side}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const exitButton = (
-    <button
-      onClick={!hasUnsavedChanges ? onBack : undefined}
-      type="button"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.color = 'var(--de-color-text)';
-        e.currentTarget.style.background =
-          'color-mix(in srgb, var(--de-color-text) 10%, transparent)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.color = 'var(--color-text-muted)';
-        e.currentTarget.style.background =
-          'color-mix(in srgb, var(--color-text) 5%, transparent)';
-      }}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 7,
-        background: 'color-mix(in srgb, var(--color-text) 5%, transparent)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 9,
-        padding: '6px 13px',
-        cursor: 'pointer',
-        color: 'var(--color-text-muted)',
-        fontSize: 12,
-        fontWeight: 600,
-        transition: 'all 0.15s',
-        outline: 'none',
-      }}
-    >
-      <ArrowLeft size={14} /> <span className="hidden md:inline">Exit</span>
-    </button>
-  );
-
+export function Toolbar({
+  editor,
+  zoomPct,
+  size,
+  customOpen,
+  setCustomOpen,
+  customW,
+  setCustomW,
+  customH,
+  setCustomH,
+  handleSizeChange,
+  handleApplyCustom,
+  layerPanelOpen,
+  onToggleLayers,
+  exporting,
+  onExport,
+  onBack,
+  settings,
+  onSettings,
+  canvasBg,
+  onBgChange,
+  workspaceBg,
+  onWorkspaceBgChange,
+  title,
+  hasUnsavedChanges,
+}: Props) {
   return (
     <div
       className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto px-4 whitespace-nowrap"
@@ -239,126 +91,24 @@ export function Toolbar(props: Props) {
     >
       {onBack ? (
         hasUnsavedChanges ? (
-          <Dialog>
-            <DialogTrigger asChild>{exitButton}</DialogTrigger>
-            <DialogContent className="max-w-md p-6">
-              <DialogTitle className="mb-2 text-lg font-semibold text-[var(--color-text)]">
-                Leave without saving?
-              </DialogTitle>
-              <DialogDescription className="mb-6 text-[var(--color-text-muted)]">
-                Any unsaved changes will be lost.
-              </DialogDescription>
-              <div className="flex justify-end gap-3">
-                <DialogClose asChild>
-                  <Button size="md" variant="secondary">
-                    Stay
-                  </Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button onClick={onBack} size="md" variant="primary">
-                    Exit
-                  </Button>
-                </DialogClose>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <UnsavedChangesProtector
+            hasUnsavedChanges={hasUnsavedChanges}
+            onBack={onBack}
+          />
         ) : (
-          exitButton
+          <ExitButton hasUnsavedChanges={hasUnsavedChanges} onBack={onBack} />
         )
       ) : null}
 
-      {/* Brand */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          marginLeft: 8,
-          marginRight: 4,
-        }}
-      >
-        <span
-          className="hidden md:inline"
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--color-text)',
-            letterSpacing: '-0.01em',
-          }}
-        >
-          {title || 'Design Studio'}
-        </span>
-      </div>
+      <Brand title={title} />
 
       <HDivider />
 
-      {/* Undo / Redo */}
-      <Tooltip placement="bottom" title="Undo (Ctrl+Z)">
-        <button
-          style={TOOL_BTN}
-          type="button"
-          onClick={() => {
-            editor?.history.undo();
-          }}
-        >
-          <Undo size={16} />
-        </button>
-      </Tooltip>
-      <Tooltip placement="bottom" title="Redo (Ctrl+Y)">
-        <button
-          style={TOOL_BTN}
-          type="button"
-          onClick={() => {
-            editor?.history.redo();
-          }}
-        >
-          <Redo size={16} />
-        </button>
-      </Tooltip>
+      <UndoRedo editor={editor} />
 
       <HDivider />
 
-      {/* Zoom */}
-      <Tooltip placement="bottom" title="Zoom out">
-        <button
-          style={TOOL_BTN}
-          type="button"
-          onClick={() => {
-            editor?.zoom.zoomOut();
-          }}
-        >
-          <ZoomOut size={16} />
-        </button>
-      </Tooltip>
-      <div
-        style={{
-          minWidth: 50,
-          textAlign: 'center',
-          fontSize: 12,
-          fontWeight: 700,
-          color: 'var(--de-color-primary)',
-          background:
-            'color-mix(in srgb, var(--de-color-primary) 12%, transparent)',
-          borderRadius: 7,
-          padding: '4px 8px',
-          userSelect: 'none',
-          border:
-            '1px solid color-mix(in srgb, var(--de-color-primary) 25%, transparent)',
-        }}
-      >
-        {zoomPct}%
-      </div>
-      <Tooltip placement="bottom" title="Zoom in">
-        <button
-          style={TOOL_BTN}
-          type="button"
-          onClick={() => {
-            editor?.zoom.zoomIn();
-          }}
-        >
-          <ZoomIn size={16} />
-        </button>
-      </Tooltip>
+      <Zoom editor={editor} zoomPct={zoomPct} />
 
       <HDivider />
 
@@ -382,95 +132,21 @@ export function Toolbar(props: Props) {
 
       <div style={{ flex: 1 }} />
 
-      {/* Canvas size selector */}
-      <Popover
-        onOpenChange={(open) => !open && setCustomOpen(false)}
-        open={customOpen}
-        placement="bottom"
-        content={
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-              width: 220,
-              padding: 4,
-            }}
-          >
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 12,
-                color: 'var(--de-color-primary)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.07em',
-              }}
-            >
-              Custom Canvas Size
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <div className="relative flex-1">
-                <input
-                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
-                  max={8000}
-                  min={100}
-                  onChange={(e) => setCustomW(Number(e.target.value) || 100)}
-                  placeholder="Width"
-                  type="number"
-                  value={customW}
-                />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
-                  px
-                </span>
-              </div>
-              <span
-                style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}
-              >
-                ×
-              </span>
-              <div className="relative flex-1">
-                <input
-                  className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--color-text)_5%,transparent)] px-3 py-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
-                  max={8000}
-                  min={100}
-                  onChange={(e) => setCustomH(Number(e.target.value) || 100)}
-                  placeholder="Height"
-                  type="number"
-                  value={customH}
-                />
-                <span className="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-[var(--color-text-muted)]">
-                  px
-                </span>
-              </div>
-            </div>
-            <Button
-              onClick={handleApplyCustom}
-              size="sm"
-              style={{ width: '100%' }}
-              variant="primary"
-            >
-              Apply
-            </Button>
-          </div>
-        }
-      >
-        <Select
-          className="studio-size-select flex-1 md:flex-none"
-          onValueChange={handleSizeChange}
-          options={AD_SIZES}
-          style={{ width: 'auto', minWidth: 160, maxWidth: 220 }}
-          value={size}
-        />
-      </Popover>
+      <CanvasSizeSelector
+        customH={customH}
+        customOpen={customOpen}
+        customW={customW}
+        handleApplyCustom={handleApplyCustom}
+        handleSizeChange={handleSizeChange}
+        setCustomH={setCustomH}
+        setCustomOpen={setCustomOpen}
+        setCustomW={setCustomW}
+        size={size}
+      />
 
       <HDivider />
 
-      {/* Settings */}
-      <Popover content={settingsContent} placement="bottom">
-        <button style={TOOL_BTN} type="button">
-          <Settings size={18} />
-        </button>
-      </Popover>
+      <CanvasSettings onSettings={onSettings} settings={settings} />
 
       {/* Layers toggle */}
       <Tooltip placement="bottom" title="Toggle layers panel">
@@ -486,38 +162,7 @@ export function Toolbar(props: Props) {
       <HDivider />
 
       {/* Save */}
-      <button
-        disabled={exporting}
-        onClick={onExport}
-        type="button"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          background: exporting
-            ? 'color-mix(in srgb, var(--de-color-primary) 30%, transparent)'
-            : 'var(--de-color-primary)',
-          border: 'none',
-          borderRadius: 10,
-          padding: '8px 20px',
-          color: 'var(--de-color-primary-fg)',
-          fontWeight: 700,
-          fontSize: 13,
-          cursor: exporting ? 'wait' : 'pointer',
-          boxShadow: exporting
-            ? 'none'
-            : '0 0 20px color-mix(in srgb, var(--de-color-primary) 35%, transparent), 0 4px 12px var(--shadow-color)',
-          transition: 'all 0.2s',
-          letterSpacing: '-0.01em',
-          outline: 'none',
-        }}
-      >
-        <Save size={16} />
-        <span className="hidden md:inline">
-          {exporting ? 'Saving…' : 'Save to Library'}
-        </span>
-        <span className="md:hidden">{exporting ? '…' : 'Save'}</span>
-      </button>
+      <SaveButton exporting={exporting} onExport={onExport} />
     </div>
   );
 }

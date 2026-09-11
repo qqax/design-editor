@@ -17,7 +17,7 @@ import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
 import { ObjectPropertiesBar } from '../../object-properties';
 import { Toolbar } from '../../toolbars';
-import { setStorageSafe, storageSafe } from '../lib';
+import { getStorageSafe, setStorageSafe } from '../lib';
 import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 
 import type { FabricImage } from 'fabric';
@@ -67,17 +67,17 @@ export function DesignEditorInner({
   const [canvasBg, setCanvasBg] = useState<string>(
     () =>
       (initialScene?.canvasBg ||
-        storageSafe<string>('studio_canvasBg', '#ffffff')) as string
+        getStorageSafe<string>('studio_canvasBg', '#ffffff')) as string
   );
 
   const [workspaceBg, setWorkspaceBg] = useState<string>(
     () =>
       (initialScene?.workspaceBg ||
-        storageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
+        getStorageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
   );
 
   const [settings, setSettings] = useState<Settings>(() =>
-    storageSafe('studio_settings', {
+    getStorageSafe('studio_settings', {
       showGrid: false,
       snapGrid: false,
       railSide: 'left',
@@ -136,7 +136,7 @@ export function DesignEditorInner({
     if (editor && canvasBg) {
       try {
         (editor as any).frame?.setBackgroundColor?.(canvasBg);
-      } catch (e) {
+      } catch {
         // console.error(e);
       }
     }
