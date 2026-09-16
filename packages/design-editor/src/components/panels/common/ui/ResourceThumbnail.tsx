@@ -37,6 +37,7 @@ export function ResourceThumbnail({ resource, onClick }: Props) {
       style={{
         display: 'block',
         width: '100%',
+        height: '100%',
         aspectRatio,
         border: '1px solid var(--de-color-border)',
         borderRadius: 6,
