@@ -2,10 +2,10 @@ import React from 'react';
 
 import { ZoomIn, ZoomOut } from 'lucide-react';
 
-import { TOOL_BTN } from '../panels/color-picker';
-import { Tooltip } from '../primitives';
+import { TOOL_BTN } from '../../panels/color-picker';
+import { Tooltip } from '../../primitives';
 
-import type { Editor } from '../../engine';
+import type { Editor } from '../../../engine';
 
 interface ZoomProps {
   zoomPct: number;

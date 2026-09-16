@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Settings } from 'lucide-react';
 
-import { TOOL_BTN } from '../panels/color-picker';
-import { Popover, Switch } from '../primitives';
+import { TOOL_BTN } from '../../panels/color-picker';
+import { Popover, Switch } from '../../primitives';
 
-import type { SettingsType } from '../../engine';
+import type { SettingsType } from '../../../engine';
 
 interface SettingsProps {
   settings: SettingsType;

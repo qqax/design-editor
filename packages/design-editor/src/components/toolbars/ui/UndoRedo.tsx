@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Redo, Undo } from 'lucide-react';
 
-import { TOOL_BTN } from '../panels/color-picker';
-import { Tooltip } from '../primitives';
+import { TOOL_BTN } from '../../panels/color-picker';
+import { Tooltip } from '../../primitives';
 
-import type { Editor } from '../../engine';
+import type { Editor } from '../../../engine';
 
 interface UndoRedoProps {
   editor: Editor | null;

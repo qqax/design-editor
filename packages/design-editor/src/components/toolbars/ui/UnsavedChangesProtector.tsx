@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { ExitButton } from './ExitButton';
 import {
   Button,
   Dialog,
@@ -8,8 +9,7 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-} from '../primitives';
-import { ExitButton } from './ExitButton';
+} from '../../primitives';
 
 interface UnsavedChangesProtectorProps {
   hasUnsavedChanges: boolean;

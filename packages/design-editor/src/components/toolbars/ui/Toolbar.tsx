@@ -4,8 +4,6 @@ import React from 'react';
 
 import { LayoutGrid } from 'lucide-react';
 
-import { TOOL_BTN, UnifiedColorPicker } from '../panels/color-picker';
-import { HDivider, Tooltip } from '../primitives';
 import { Brand } from './Brand';
 import { CanvasSizeSelector } from './CanvasSizeSelector';
 import { ExitButton } from './ExitButton';
@@ -14,24 +12,17 @@ import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
 import { Zoom } from './Zoom';
+import { TOOL_BTN, UnifiedColorPicker } from '../../panels/color-picker';
+import { HDivider, Tooltip } from '../../primitives';
 
 import type { CSSProperties } from 'react';
 
-import type { SettingsType } from '../../engine';
-import type { SelectOptions } from '../primitives';
+import type { SettingsType } from '../../../engine';
+import type { SelectOptions } from '../../primitives';
 
 interface Props {
   editor: any;
   zoomPct: number;
-  size: string;
-  customOpen: boolean;
-  setCustomOpen: (v: boolean) => void;
-  customW: number;
-  setCustomW: (v: number) => void;
-  customH: number;
-  setCustomH: (v: number) => void;
-  handleSizeChange: (v: string) => void;
-  handleApplyCustom: () => void;
   layerPanelOpen: boolean;
   onToggleLayers: () => void;
   exporting: boolean;
@@ -58,15 +49,6 @@ const TOOL_BTN_ACTIVE: CSSProperties = {
 export function Toolbar({
   editor,
   zoomPct,
-  size,
-  customOpen,
-  setCustomOpen,
-  customW,
-  setCustomW,
-  customH,
-  setCustomH,
-  handleSizeChange,
-  handleApplyCustom,
   layerPanelOpen,
   onToggleLayers,
   exporting,
@@ -137,18 +119,7 @@ export function Toolbar({
 
       <div style={{ flex: 1 }} />
 
-      <CanvasSizeSelector
-        adSizes={adSizes}
-        customH={customH}
-        customOpen={customOpen}
-        customW={customW}
-        handleApplyCustom={handleApplyCustom}
-        handleSizeChange={handleSizeChange}
-        setCustomH={setCustomH}
-        setCustomOpen={setCustomOpen}
-        setCustomW={setCustomW}
-        size={size}
-      />
+      <CanvasSizeSelector adSizes={adSizes} editor={editor} />
 
       <HDivider />
 

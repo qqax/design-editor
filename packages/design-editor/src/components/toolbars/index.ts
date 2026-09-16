@@ -1,2 +1,1 @@
-export { Toolbar } from './Toolbar';
-export type { Settings } from './SettingsContent';
+export { Toolbar } from './ui';

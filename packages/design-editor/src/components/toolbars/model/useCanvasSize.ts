@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import type { Editor } from '../engine';
+import type { Editor } from '../../../engine';
 
 export const AD_SIZES = [
   { label: '1920×1080 (Landscape)', value: '1920x1080' },

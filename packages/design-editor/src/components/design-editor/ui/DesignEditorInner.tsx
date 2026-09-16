@@ -8,7 +8,6 @@ import {
   loadAutosave,
   useAutoSave,
 } from '../../../hooks/useAutoSave';
-import { useCanvasSize } from '../../../hooks/useCanvasSize';
 import { useStudioExport } from '../../../hooks/useStudioExport';
 import { useToast } from '../../../hooks/useToast';
 import { CanvasArea } from '../../canvas';
@@ -182,17 +181,6 @@ export function DesignEditorInner({
   }, [editor, initialScene, setHasUnsavedChanges, sceneKey]);
 
   const zoomPct = Math.round(zoomRatio * 100);
-  const {
-    size,
-    customOpen,
-    setCustomOpen,
-    customW,
-    setCustomW,
-    customH,
-    setCustomH,
-    handleSizeChange,
-    handleApplyCustom,
-  } = useCanvasSize(editor);
 
   return (
     <div
@@ -218,13 +206,8 @@ export function DesignEditorInner({
         <Toolbar
           adSizes={adSizes}
           canvasBg={canvasBg}
-          customH={customH}
-          customOpen={customOpen}
-          customW={customW}
           editor={editor}
           exporting={exporting}
-          handleApplyCustom={handleApplyCustom}
-          handleSizeChange={handleSizeChange}
           hasUnsavedChanges={hasUnsavedChanges}
           layerPanelOpen={layerPanelOpen}
           onBgChange={setCanvasBg}
@@ -232,11 +215,7 @@ export function DesignEditorInner({
           onSettings={(patch) => setSettings((p) => ({ ...p, ...patch }))}
           onToggleLayers={() => setLayerPanelOpen((p) => !p)}
           onWorkspaceBgChange={setWorkspaceBg}
-          setCustomH={setCustomH}
-          setCustomOpen={setCustomOpen}
-          setCustomW={setCustomW}
           settings={settings}
-          size={size}
           title={title}
           workspaceBg={workspaceBg}
           zoomPct={zoomPct}
