@@ -19,10 +19,6 @@ interface ElementsPanelProps {
   onSeeAll: (panel: 'text' | 'shapes' | 'stickers') => void;
 }
 
-// ─────────────────────────────────────────────────────────────
-// MAIN PANEL
-// ─────────────────────────────────────────────────────────────
-
 export function ElementsPanel({
   textDesignProvider,
   onApplyTextDesign,
