@@ -3,6 +3,8 @@ import React from 'react';
 import { AD_SIZES } from '../../hooks/useCanvasSize';
 import { Button, Popover, Select } from '../primitives';
 
+import type { SelectOptions } from '../primitives';
+
 interface CanvasSizeSelectorProps {
   size: string;
   customOpen: boolean;
@@ -13,6 +15,7 @@ interface CanvasSizeSelectorProps {
   setCustomH: (h: number) => void;
   handleApplyCustom: () => void;
   handleSizeChange: (size: string) => void;
+  adSizes?: SelectOptions;
 }
 
 export const CanvasSizeSelector = ({
@@ -25,6 +28,7 @@ export const CanvasSizeSelector = ({
   setCustomH,
   handleApplyCustom,
   handleSizeChange,
+  adSizes = AD_SIZES,
 }: CanvasSizeSelectorProps) => (
   <Popover
     onOpenChange={(open) => !open && setCustomOpen(false)}
@@ -98,7 +102,7 @@ export const CanvasSizeSelector = ({
     <Select
       className="studio-size-select flex-1 md:flex-none"
       onValueChange={handleSizeChange}
-      options={AD_SIZES}
+      options={adSizes}
       style={{ width: 'auto', minWidth: 160, maxWidth: 220 }}
       value={size}
     />

@@ -25,6 +25,7 @@ import type { FabricImage } from 'fabric';
 import type { SettingsType } from '../../../engine';
 import type { TextDesignProvider } from '../../../providers';
 import type { PanelKey } from '../../icon-reail';
+import type { SelectOptions } from '../../primitives';
 import type {
   LibraryPanelRenderProp,
   TemplatesPanelRenderProp,
@@ -40,6 +41,7 @@ export function DesignEditorInner({
   libraryPanel,
   title,
   textDesignProvider,
+  adSizes,
 }: {
   onBack?: () => void;
   initialScene?: any;
@@ -48,6 +50,7 @@ export function DesignEditorInner({
   libraryPanel?: LibraryPanelRenderProp;
   title?: React.ReactNode;
   textDesignProvider: TextDesignProvider;
+  adSizes?: SelectOptions;
 }) {
   const editor = useEditor();
   const activeObj = useActiveObject<FabricImage>();
@@ -213,6 +216,7 @@ export function DesignEditorInner({
         }}
       >
         <Toolbar
+          adSizes={adSizes}
           canvasBg={canvasBg}
           customH={customH}
           customOpen={customOpen}

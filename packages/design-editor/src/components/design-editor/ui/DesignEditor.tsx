@@ -46,6 +46,7 @@ export function DesignEditor({
   templatesPanel,
   libraryPanel,
   title,
+  adSizes,
 }: DesignEditorProps) {
   const resolvedBackgroundRemovalProvider =
     backgroundRemovalProvider ?? createImglyBackgroundRemoval();
@@ -76,6 +77,7 @@ export function DesignEditor({
     <EngineProvider>
       <EditorContextProvider value={ctx}>
         <DesignEditorInner
+          adSizes={adSizes}
           className={className}
           initialScene={initialScene}
           libraryPanel={libraryPanel}

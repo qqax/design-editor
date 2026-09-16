@@ -13,7 +13,7 @@ export const AD_SIZES = [
   { label: 'Custom…', value: 'custom' },
 ];
 
-export function useCanvasSize(editor: Editor) {
+export function useCanvasSize(editor: Editor | null) {
   const [size, setSize] = useState('1920x1080');
   const [customOpen, setCustomOpen] = useState(false);
   const [customW, setCustomW] = useState(1920);

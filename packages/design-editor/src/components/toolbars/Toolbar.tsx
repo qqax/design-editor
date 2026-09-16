@@ -18,6 +18,7 @@ import { Zoom } from './Zoom';
 import type { CSSProperties } from 'react';
 
 import type { SettingsType } from '../../engine';
+import type { SelectOptions } from '../primitives';
 
 interface Props {
   editor: any;
@@ -44,6 +45,7 @@ interface Props {
   onWorkspaceBgChange: (color: string) => void;
   title?: React.ReactNode;
   hasUnsavedChanges?: boolean;
+  adSizes?: SelectOptions;
 }
 
 const TOOL_BTN_ACTIVE: CSSProperties = {
@@ -78,6 +80,7 @@ export function Toolbar({
   onWorkspaceBgChange,
   title,
   hasUnsavedChanges,
+  adSizes,
 }: Props) {
   return (
     <div
@@ -135,6 +138,7 @@ export function Toolbar({
       <div style={{ flex: 1 }} />
 
       <CanvasSizeSelector
+        adSizes={adSizes}
         customH={customH}
         customOpen={customOpen}
         customW={customW}
