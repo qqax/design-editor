@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
 
@@ -14,8 +15,9 @@ interface Props {
   provider: ResourceProvider;
   listOpts: ResourceListOpts;
   emptyMessage: string;
-  onSelect: (t: DesignResource) => void;
+  onSelect: (resource: DesignResource) => void;
   errorMessage: string;
+  errorLoadMoreMessage: string;
 }
 
 export function ResourceDesignGrid({
@@ -24,66 +26,82 @@ export function ResourceDesignGrid({
   emptyMessage,
   onSelect,
   errorMessage,
+  errorLoadMoreMessage,
 }: Props) {
-  const [items, setItems] = React.useState<DesignResource[]>([]);
-  const [cursor, setCursor] = React.useState<string | undefined>(undefined);
-  const [loading, setLoading] = React.useState(true);
-  const [loadingMore, setLoadingMore] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [items, setItems] = useState<DesignResource[]>([]);
+  const [cursor, setCursor] = useState<string | undefined>();
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // initial / opts-changed load
-  React.useEffect(() => {
+  useEffect(() => {
     let cancelled = false;
     const ac = new AbortController();
-    setLoading(true);
-    setError(null);
+
     provider
-      .list({ ...listOpts, signal: ac.signal })
+      .list({
+        ...listOpts,
+        signal: ac.signal,
+      })
       .then((res) => {
         if (cancelled) return;
+
         setItems(res.items);
         setCursor(res.nextCursor);
+        setError(null);
+        setLoading(false);
       })
       .catch((e) => {
-        if (!cancelled && e?.name !== 'AbortError')
-          setError('Failed to load text designs');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (cancelled || e?.name === 'AbortError') return;
+
+        setError(errorMessage);
+        setLoading(false);
       });
+
     return () => {
       cancelled = true;
       ac.abort();
     };
-  }, [
-    provider,
-    listOpts.categoryId,
-    listOpts.search,
-    listOpts.limit,
-    listOpts,
-  ]);
+  }, [errorMessage, listOpts, provider]);
 
   const loadMore = React.useCallback(async () => {
-    if (!cursor) return;
+    if (!cursor || loadingMore) return;
+
     setLoadingMore(true);
+
     try {
-      const res = await provider.list({ ...listOpts, cursor });
+      const res = await provider.list({
+        ...listOpts,
+        cursor,
+      });
+
       setItems((prev) => [...prev, ...res.items]);
       setCursor(res.nextCursor);
-    } catch {
-      setError(errorMessage);
+      setError(null);
+    } catch (e) {
+      if ((e as { name?: string })?.name !== 'AbortError') {
+        setError(errorLoadMoreMessage);
+      }
     } finally {
       setLoadingMore(false);
     }
-  }, [cursor, provider, listOpts, errorMessage]);
+  }, [cursor, loadingMore, provider, listOpts, errorLoadMoreMessage]);
 
-  if (loading) return <div style={{ padding: 16 }}>Loading...</div>;
-  if (error)
+  const handleRetry = React.useCallback(() => {
+    setLoading(true);
+    setError(null);
+  }, []);
+
+  if (loading) {
+    return <div style={{ padding: 16 }}>Loading...</div>;
+  }
+
+  if (error) {
     return (
       <div style={{ padding: 16 }}>
         {error} —{' '}
         <button
-          onClick={() => setItems([])}
+          onClick={handleRetry}
           type="button"
           style={{
             all: 'unset',
@@ -95,23 +113,46 @@ export function ResourceDesignGrid({
         </button>
       </div>
     );
-  if (items.length === 0)
+  }
+
+  if (items.length === 0) {
     return (
-      <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
+      <div
+        style={{
+          padding: 16,
+          color: 'var(--de-color-text-muted)',
+        }}
+      >
         {emptyMessage}
       </div>
     );
+  }
 
   return (
     <div style={{ padding: 12 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        {items.map((t) => (
-          <ResourceThumbnail key={t.id} onClick={onSelect} resource={t} />
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 10,
+        }}
+      >
+        {items.map((resource) => (
+          <ResourceThumbnail
+            key={resource.id}
+            onClick={onSelect}
+            resource={resource}
+          />
         ))}
       </div>
+
       {cursor ? (
         <div
-          style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 12,
+          }}
         >
           <button
             disabled={loadingMore}
@@ -123,7 +164,7 @@ export function ResourceDesignGrid({
               border: '1px solid var(--de-color-border)',
               background: 'transparent',
               color: 'var(--de-color-text)',
-              cursor: 'pointer',
+              cursor: loadingMore ? 'default' : 'pointer',
             }}
           >
             {loadingMore ? 'Loading...' : 'Load more'}

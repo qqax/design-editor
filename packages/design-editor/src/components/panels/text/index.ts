@@ -1,1 +1,0 @@
-export { TextPanel } from './TextPanel';

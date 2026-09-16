@@ -13,7 +13,7 @@ import type {
 interface Props {
   category: ResourceCategory;
   provider: ResourceProvider;
-  onSelect: (t: DesignResource) => void;
+  onSelect: (resource: DesignResource) => void;
   onSeeMore: (categoryId: string) => void;
 }
 
@@ -29,34 +29,58 @@ export function ResourceCategoryRow({
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
 
-  const load = React.useCallback(() => {
-    let cancelled = false;
-    const ac = new AbortController();
+  const fetchResources = React.useCallback(
+    async (signal: AbortSignal) =>
+      provider.list({
+        categoryId: category.id,
+        limit: ROW_LIMIT,
+        signal,
+      }),
+    [provider, category.id]
+  );
+
+  const handleRetry = React.useCallback(() => {
+    const controller = new AbortController();
+
     setLoading(true);
     setError(false);
-    provider
-      .list({ categoryId: category.id, limit: ROW_LIMIT, signal: ac.signal })
+
+    fetchResources(controller.signal)
       .then((res) => {
-        if (!cancelled) {
-          setItems(res.items);
-          setLoading(false);
-        }
+        setItems(res.items);
+        setLoading(false);
       })
       .catch((e) => {
-        if (!cancelled && e?.name !== 'AbortError') {
-          setError(true);
-          setLoading(false);
+        if (e?.name === 'AbortError') {
+          return;
         }
+
+        setError(true);
+        setLoading(false);
       });
-    return () => {
-      cancelled = true;
-      ac.abort();
-    };
-  }, [provider, category.id]);
+  }, [fetchResources]);
 
   React.useEffect(() => {
-    return load();
-  }, [load]);
+    const controller = new AbortController();
+
+    fetchResources(controller.signal)
+      .then((res) => {
+        setItems(res.items);
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (e?.name === 'AbortError') {
+          return;
+        }
+
+        setError(true);
+        setLoading(false);
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [fetchResources]);
 
   return (
     <div style={{ padding: '12px 12px 4px 12px' }}>
@@ -78,6 +102,7 @@ export function ResourceCategoryRow({
         >
           {category.name}
         </h3>
+
         <button
           onClick={() => onSeeMore(category.id)}
           type="button"
@@ -92,11 +117,12 @@ export function ResourceCategoryRow({
           See more
         </button>
       </div>
+
       {error ? (
         <div style={{ fontSize: 12 }}>
           Failed to load —{' '}
           <button
-            onClick={load}
+            onClick={handleRetry}
             type="button"
             style={{
               all: 'unset',
@@ -122,8 +148,13 @@ export function ResourceCategoryRow({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
-          No text designs yet
+        <div
+          style={{
+            fontSize: 12,
+            color: 'var(--de-color-text-muted)',
+          }}
+        >
+          No resources yet
         </div>
       ) : (
         <div
@@ -136,8 +167,12 @@ export function ResourceCategoryRow({
             paddingBottom: 4,
           }}
         >
-          {items.map((t) => (
-            <ResourceThumbnail key={t.id} onClick={onSelect} resource={t} />
+          {items.map((resource) => (
+            <ResourceThumbnail
+              key={resource.id}
+              onClick={onSelect}
+              resource={resource}
+            />
           ))}
         </div>
       )}

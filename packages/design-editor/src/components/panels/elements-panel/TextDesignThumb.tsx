@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import { useSceneThumbnail } from '../_shared/useSceneThumbnail';
+import { useSceneThumbnail } from '../common/model';
 
 import type { TextDesign } from '../../../providers';
 

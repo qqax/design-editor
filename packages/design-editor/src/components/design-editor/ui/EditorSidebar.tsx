@@ -4,12 +4,11 @@ import {
   ElementsPanel,
   getItemsFactory,
   Panel,
+  ResourcePanel,
   SHAPES,
   SHAPES_ORDER,
   STICKERS,
   STICKERS_ORDER,
-  TemplatesPanel,
-  TextPanel,
   UploadPanel,
 } from '../../panels';
 
@@ -122,8 +121,14 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               templatesPanel
             )
           ) : (
-            <TemplatesPanel
-              onApplyTemplate={handleApplyTemplate}
+            <ResourcePanel
+              emptyMessage="No templates in this category"
+              errorLoadMoreMessage="Failed to load more templates"
+              errorMessage="Failed to load more templates"
+              noMatchMessage="No templates match"
+              noResourceAvailableMessage="No templates available. Host apps can supply a templateProvider."
+              onApplyResource={handleApplyTemplate}
+              placeholder="Search templates"
               provider={templateProvider}
             />
           ))}
@@ -139,9 +144,16 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         )}
 
         {activePanel === 'text' && (
-          <TextPanel
-            onApplyTextDesign={handleApplyTextDesign}
+          <ResourcePanel
+            emptyMessage="No text designs in this category"
+            errorLoadMoreMessage="Failed to load more text designs"
+            errorMessage="Failed to load text designs"
+            noMatchMessage="No text designs match"
+            noResourceAvailableMessage="No text designs available. Host apps can supply a textDesignProvider."
+            onApplyResource={handleApplyTextDesign}
+            placeholder="Search text designs"
             provider={textDesignProvider}
+            title="Text Designs"
             onAddPlainText={(preset) => {
               const map = { heading: 72, subheading: 48, body: 28 } as const;
               handleAddText(preset, map[preset]);

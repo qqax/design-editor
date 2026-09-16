@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ResourceCategoryRow } from './ResourceCategoryRow';
 import { ResourceDesignGrid } from './ResourceDesignGrid';
@@ -12,14 +13,17 @@ import type {
   ResourceProvider,
 } from '../provider';
 
-interface TextPanelProps {
+interface ResourcePanelProps {
   provider: ResourceProvider;
-  onApplyTextDesign: (design: DesignResource) => void;
+  onApplyResource: (design: DesignResource) => void;
   onAddPlainText?: (preset: 'heading' | 'subheading' | 'body') => void;
+  title?: string;
   placeholder: string;
   emptyMessage: string;
   errorMessage: string;
   noMatchMessage: string;
+  noResourceAvailableMessage: string;
+  errorLoadMoreMessage: string;
 }
 
 type Mode =
@@ -33,75 +37,116 @@ const QUICK_ADD_PRESETS: {
   fontSize: number;
   fontWeight: number;
 }[] = [
-  { label: 'Heading', preset: 'heading', fontSize: 72, fontWeight: 800 },
-  { label: 'Subheading', preset: 'subheading', fontSize: 48, fontWeight: 600 },
-  { label: 'Body', preset: 'body', fontSize: 28, fontWeight: 400 },
+  {
+    label: 'Heading',
+    preset: 'heading',
+    fontSize: 72,
+    fontWeight: 800,
+  },
+  {
+    label: 'Subheading',
+    preset: 'subheading',
+    fontSize: 48,
+    fontWeight: 600,
+  },
+  {
+    label: 'Body',
+    preset: 'body',
+    fontSize: 28,
+    fontWeight: 400,
+  },
 ];
 
 export function ResourcePanel({
   provider,
-  onApplyTextDesign,
+  onApplyResource,
   onAddPlainText,
+  title,
   placeholder,
   emptyMessage,
   errorMessage,
   noMatchMessage,
-}: TextPanelProps) {
-  const [categories, setCategories] = React.useState<ResourceCategory[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const [mode, setMode] = React.useState<Mode>({ kind: 'browse' });
+  noResourceAvailableMessage,
+  errorLoadMoreMessage,
+}: ResourcePanelProps) {
+  const [categories, setCategories] = useState<ResourceCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [mode, setMode] = useState<Mode>({
+    kind: 'browse',
+  });
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const loadCategories = React.useCallback(() => {
+  useEffect(() => {
     let cancelled = false;
-    const ac = new AbortController();
-    setLoading(true);
-    setError(false);
+    const controller = new AbortController();
+
     provider
-      .categories({ signal: ac.signal })
-      .then((cats) => {
-        if (!cancelled) {
-          setCategories(cats);
-          setLoading(false);
-        }
+      .categories({
+        signal: controller.signal,
       })
-      .catch((e) => {
-        if (!cancelled && e?.name !== 'AbortError') {
-          setError(true);
-          setLoading(false);
+      .then((result) => {
+        if (cancelled) return;
+
+        setCategories(result);
+        setLoading(false);
+        setError(false);
+      })
+      .catch((reason: unknown) => {
+        if (cancelled || (reason as { name?: string })?.name === 'AbortError') {
+          return;
         }
+
+        setError(true);
+        setLoading(false);
       });
+
     return () => {
       cancelled = true;
-      ac.abort();
+      controller.abort();
     };
-  }, [provider]);
+  }, [provider, reloadKey]);
 
-  React.useEffect(() => loadCategories(), [loadCategories]);
+  const handleRetry = useCallback(() => {
+    setLoading(true);
+    setError(false);
+    setReloadKey((value) => value + 1);
+  }, []);
 
-  // search bar drives mode
-  const handleSearchChange = React.useCallback((next: string) => {
-    setSearch(next);
-    if (next.trim()) {
-      setMode({ kind: 'search', query: next.trim() });
+  const handleSearchChange = useCallback((next: string) => {
+    const query = next.trim();
+
+    if (query) {
+      setMode({
+        kind: 'search',
+        query,
+      });
     } else {
-      setMode({ kind: 'browse' });
+      setMode({
+        kind: 'browse',
+      });
     }
   }, []);
 
-  const handleSeeMore = React.useCallback((categoryId: string) => {
-    setMode({ kind: 'category', categoryId });
+  const handleSeeMore = useCallback((categoryId: string) => {
+    setMode({
+      kind: 'category',
+      categoryId,
+    });
   }, []);
 
-  const handleBack = React.useCallback(() => {
-    setMode({ kind: 'browse' });
+  const handleBack = useCallback(() => {
+    setMode({
+      kind: 'browse',
+    });
   }, []);
 
   const activeCategory =
     mode.kind === 'category'
-      ? categories.find((c) => c.id === mode.categoryId)
+      ? categories.find((category) => category.id === mode.categoryId)
       : undefined;
+
+  const searchValue = mode.kind === 'search' ? mode.query : '';
 
   return (
     <div
@@ -112,21 +157,28 @@ export function ResourcePanel({
         overflow: 'hidden',
       }}
     >
-      {/* Panel header */}
       <div style={{ padding: '12px 12px 0 12px' }}>
-        <h2
-          style={{
-            margin: '0 0 10px 0',
-            fontSize: 15,
-            fontWeight: 700,
-            color: 'var(--de-color-text)',
-          }}
-        >
-          Text Designs
-        </h2>
-        {/* Quick add row */}
+        {title ? (
+          <h2
+            style={{
+              margin: '0 0 10px 0',
+              fontSize: 15,
+              fontWeight: 700,
+              color: 'var(--de-color-text)',
+            }}
+          >
+            {title}
+          </h2>
+        ) : null}
+
         {onAddPlainText ? (
-          <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 6,
+              marginBottom: 4,
+            }}
+          >
             {QUICK_ADD_PRESETS.map(
               ({ label, preset, fontSize, fontWeight }) => (
                 <button
@@ -153,6 +205,7 @@ export function ResourcePanel({
                   }}
                 >
                   {label}
+
                   <span
                     style={{
                       display: 'block',
@@ -169,19 +222,30 @@ export function ResourcePanel({
           </div>
         ) : null}
       </div>
+
       <ResourceSearchBar
         onChange={handleSearchChange}
         placeholder={placeholder}
-        value={search}
+        value={searchValue}
       />
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+        }}
+      >
         {mode.kind === 'search' ? (
           <ResourceDesignGrid
             emptyMessage={`${noMatchMessage} "${mode.query}"`}
+            errorLoadMoreMessage={errorLoadMoreMessage}
             errorMessage={errorMessage}
-            listOpts={{ search: mode.query, limit: 12 }}
-            onSelect={onApplyTextDesign}
+            onSelect={onApplyResource}
             provider={provider}
+            listOpts={{
+              search: mode.query,
+              limit: 12,
+            }}
           />
         ) : mode.kind === 'category' && activeCategory ? (
           <React.Fragment>
@@ -205,16 +269,28 @@ export function ResourcePanel({
               >
                 ← Back
               </button>
-              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: 14,
+                  fontWeight: 600,
+                }}
+              >
                 {activeCategory.name}
               </h3>
             </div>
+
             <ResourceDesignGrid
               emptyMessage={emptyMessage}
+              errorLoadMoreMessage={errorLoadMoreMessage}
               errorMessage={errorMessage}
-              listOpts={{ categoryId: activeCategory.id, limit: 12 }}
-              onSelect={onApplyTextDesign}
+              onSelect={onApplyResource}
               provider={provider}
+              listOpts={{
+                categoryId: activeCategory.id,
+                limit: 12,
+              }}
             />
           </React.Fragment>
         ) : loading ? (
@@ -223,7 +299,7 @@ export function ResourcePanel({
           <div style={{ padding: 16 }}>
             Failed to load text designs —{' '}
             <button
-              onClick={loadCategories}
+              onClick={handleRetry}
               type="button"
               style={{
                 all: 'unset',
@@ -235,17 +311,21 @@ export function ResourcePanel({
             </button>
           </div>
         ) : categories.length === 0 ? (
-          <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
-            No text designs available. Host apps can supply a
-            textDesignProvider.
+          <div
+            style={{
+              padding: 16,
+              color: 'var(--de-color-text-muted)',
+            }}
+          >
+            {noResourceAvailableMessage}
           </div>
         ) : (
-          categories.map((c) => (
+          categories.map((category) => (
             <ResourceCategoryRow
-              key={c.id}
-              category={c}
+              key={category.id}
+              category={category}
               onSeeMore={handleSeeMore}
-              onSelect={onApplyTextDesign}
+              onSelect={onApplyResource}
               provider={provider}
             />
           ))

@@ -24,9 +24,7 @@ export function ResourceThumbnail({ resource, onClick }: Props) {
   );
 
   const aspectRatio =
-    resource.scene?.frame &&
-    resource.scene.frame.width &&
-    resource.scene.frame.height
+    resource.scene?.frame?.width && resource.scene.frame.height
       ? `${resource.scene.frame.width} / ${resource.scene.frame.height}`
       : '1 / 1';
 
