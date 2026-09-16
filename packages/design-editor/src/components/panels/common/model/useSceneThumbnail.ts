@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import { useEditor } from '../../../engine';
+import { useEditor } from '../../../../engine';
 
-import type { IScene } from '../../../engine';
+import type { IScene } from '../../../../engine';
 
 const cache = new Map<string, string>();
 const inFlight = new Map<string, Promise<string>>();

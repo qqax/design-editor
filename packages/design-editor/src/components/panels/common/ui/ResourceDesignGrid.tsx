@@ -2,28 +2,30 @@
 
 import * as React from 'react';
 
-import { TemplateThumbnail } from './TemplateThumbnail';
+import { ResourceThumbnail } from './ResourceThumbnail';
 
 import type {
-  DesignTemplate,
-  TemplateListOpts,
-  TemplateProvider,
-} from '../../../providers';
+  DesignResource,
+  ResourceListOpts,
+  ResourceProvider,
+} from '../provider';
 
 interface Props {
-  provider: TemplateProvider;
-  listOpts: TemplateListOpts;
+  provider: ResourceProvider;
+  listOpts: ResourceListOpts;
   emptyMessage: string;
-  onSelect: (t: DesignTemplate) => void;
+  onSelect: (t: DesignResource) => void;
+  errorMessage: string;
 }
 
-export function TemplateGrid({
+export function ResourceDesignGrid({
   provider,
   listOpts,
   emptyMessage,
   onSelect,
+  errorMessage,
 }: Props) {
-  const [items, setItems] = React.useState<DesignTemplate[]>([]);
+  const [items, setItems] = React.useState<DesignResource[]>([]);
   const [cursor, setCursor] = React.useState<string | undefined>(undefined);
   const [loading, setLoading] = React.useState(true);
   const [loadingMore, setLoadingMore] = React.useState(false);
@@ -44,7 +46,7 @@ export function TemplateGrid({
       })
       .catch((e) => {
         if (!cancelled && e?.name !== 'AbortError')
-          setError('Failed to load templates');
+          setError('Failed to load text designs');
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -69,11 +71,11 @@ export function TemplateGrid({
       setItems((prev) => [...prev, ...res.items]);
       setCursor(res.nextCursor);
     } catch {
-      setError('Failed to load more templates');
+      setError(errorMessage);
     } finally {
       setLoadingMore(false);
     }
-  }, [provider, listOpts, cursor]);
+  }, [cursor, provider, listOpts, errorMessage]);
 
   if (loading) return <div style={{ padding: 16 }}>Loading...</div>;
   if (error)
@@ -82,6 +84,7 @@ export function TemplateGrid({
         {error} —{' '}
         <button
           onClick={() => setItems([])}
+          type="button"
           style={{
             all: 'unset',
             cursor: 'pointer',
@@ -103,7 +106,7 @@ export function TemplateGrid({
     <div style={{ padding: 12 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         {items.map((t) => (
-          <TemplateThumbnail key={t.id} onClick={onSelect} template={t} />
+          <ResourceThumbnail key={t.id} onClick={onSelect} resource={t} />
         ))}
       </div>
       {cursor ? (
@@ -113,6 +116,7 @@ export function TemplateGrid({
           <button
             disabled={loadingMore}
             onClick={loadMore}
+            type="button"
             style={{
               padding: '6px 14px',
               borderRadius: 6,

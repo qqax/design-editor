@@ -4,8 +4,8 @@ import React, { useRef, useState } from 'react';
 
 import { CloudUpload, Loader2, Trash2 } from 'lucide-react';
 
-import { useLocalMedia } from '../../hooks/useLocalMedia';
-import { useToast } from '../../hooks/useToast';
+import { useToast } from '../../../../hooks/useToast';
+import { useLocalMedia } from '../model';
 
 interface Props {
   onUploadFile: (url: string) => void;

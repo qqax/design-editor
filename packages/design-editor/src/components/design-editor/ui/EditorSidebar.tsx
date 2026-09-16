@@ -1,12 +1,17 @@
 import React from 'react';
 
-import { getItemsFactory, Panel } from '../../panels/common';
-import { ElementsPanel } from '../../panels/elements-panel';
-import { SHAPES, SHAPES_ORDER } from '../../panels/shapes-panel';
-import { STICKERS, STICKERS_ORDER } from '../../panels/stickers-panel';
-import { TemplatesPanel } from '../../panels/templates/TemplatesPanel';
-import { TextPanel } from '../../panels/text/TextPanel';
-import { UploadPanel } from '../../panels/UploadPanel';
+import {
+  ElementsPanel,
+  getItemsFactory,
+  Panel,
+  SHAPES,
+  SHAPES_ORDER,
+  STICKERS,
+  STICKERS_ORDER,
+  TemplatesPanel,
+  TextPanel,
+  UploadPanel,
+} from '../../panels';
 
 import type { TextDesign, TextDesignProvider } from '../../../providers';
 import type { PanelKey } from '../../icon-reail';

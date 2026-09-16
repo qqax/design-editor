@@ -125,6 +125,7 @@ export function TextPanel({
                   key={preset}
                   onClick={() => onAddPlainText(preset)}
                   title={`Add ${label} (${fontSize}px)`}
+                  type="button"
                   style={{
                     flex: 1,
                     padding: '6px 4px',
@@ -181,6 +182,7 @@ export function TextPanel({
             >
               <button
                 onClick={handleBack}
+                type="button"
                 style={{
                   all: 'unset',
                   cursor: 'pointer',
@@ -208,6 +210,7 @@ export function TextPanel({
             Failed to load text designs —{' '}
             <button
               onClick={loadCategories}
+              type="button"
               style={{
                 all: 'unset',
                 cursor: 'pointer',

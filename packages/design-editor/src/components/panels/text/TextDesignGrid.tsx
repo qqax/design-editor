@@ -53,7 +53,13 @@ export function TextDesignGrid({
       cancelled = true;
       ac.abort();
     };
-  }, [provider, listOpts.categoryId, listOpts.search, listOpts.limit]);
+  }, [
+    provider,
+    listOpts.categoryId,
+    listOpts.search,
+    listOpts.limit,
+    listOpts,
+  ]);
 
   const loadMore = React.useCallback(async () => {
     if (!cursor) return;

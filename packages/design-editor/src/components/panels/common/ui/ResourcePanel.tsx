@@ -2,19 +2,24 @@
 
 import * as React from 'react';
 
-import { TemplateCategoryRow } from './TemplateCategoryRow';
-import { TemplateGrid } from './TemplateGrid';
-import { TemplateSearchBar } from './TemplateSearchBar';
+import { ResourceCategoryRow } from './ResourceCategoryRow';
+import { ResourceDesignGrid } from './ResourceDesignGrid';
+import { ResourceSearchBar } from './ResourceSearchBar';
 
 import type {
-  DesignTemplate,
-  TemplateCategory,
-  TemplateProvider,
-} from '../../../providers';
+  DesignResource,
+  ResourceCategory,
+  ResourceProvider,
+} from '../provider';
 
-interface Props {
-  provider: TemplateProvider;
-  onApplyTemplate: (t: DesignTemplate) => void;
+interface TextPanelProps {
+  provider: ResourceProvider;
+  onApplyTextDesign: (design: DesignResource) => void;
+  onAddPlainText?: (preset: 'heading' | 'subheading' | 'body') => void;
+  placeholder: string;
+  emptyMessage: string;
+  errorMessage: string;
+  noMatchMessage: string;
 }
 
 type Mode =
@@ -22,8 +27,27 @@ type Mode =
   | { kind: 'category'; categoryId: string }
   | { kind: 'search'; query: string };
 
-export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
-  const [categories, setCategories] = React.useState<TemplateCategory[]>([]);
+const QUICK_ADD_PRESETS: {
+  label: string;
+  preset: 'heading' | 'subheading' | 'body';
+  fontSize: number;
+  fontWeight: number;
+}[] = [
+  { label: 'Heading', preset: 'heading', fontSize: 72, fontWeight: 800 },
+  { label: 'Subheading', preset: 'subheading', fontSize: 48, fontWeight: 600 },
+  { label: 'Body', preset: 'body', fontSize: 28, fontWeight: 400 },
+];
+
+export function ResourcePanel({
+  provider,
+  onApplyTextDesign,
+  onAddPlainText,
+  placeholder,
+  emptyMessage,
+  errorMessage,
+  noMatchMessage,
+}: TextPanelProps) {
+  const [categories, setCategories] = React.useState<ResourceCategory[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
   const [search, setSearch] = React.useState('');
@@ -88,13 +112,75 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
         overflow: 'hidden',
       }}
     >
-      <TemplateSearchBar onChange={handleSearchChange} value={search} />
+      {/* Panel header */}
+      <div style={{ padding: '12px 12px 0 12px' }}>
+        <h2
+          style={{
+            margin: '0 0 10px 0',
+            fontSize: 15,
+            fontWeight: 700,
+            color: 'var(--de-color-text)',
+          }}
+        >
+          Text Designs
+        </h2>
+        {/* Quick add row */}
+        {onAddPlainText ? (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
+            {QUICK_ADD_PRESETS.map(
+              ({ label, preset, fontSize, fontWeight }) => (
+                <button
+                  key={preset}
+                  onClick={() => onAddPlainText(preset)}
+                  title={`Add ${label} (${fontSize}px)`}
+                  type="button"
+                  style={{
+                    flex: 1,
+                    padding: '6px 4px',
+                    fontSize: 11,
+                    fontWeight,
+                    cursor: 'pointer',
+                    background:
+                      'color-mix(in srgb, var(--de-color-text) 4%, var(--de-color-surface-2))',
+                    border: '1px solid var(--de-color-border)',
+                    borderRadius: 6,
+                    color: 'var(--de-color-text)',
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {label}
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 9,
+                      fontWeight: 400,
+                      opacity: 0.6,
+                    }}
+                  >
+                    {fontSize}px
+                  </span>
+                </button>
+              )
+            )}
+          </div>
+        ) : null}
+      </div>
+      <ResourceSearchBar
+        onChange={handleSearchChange}
+        placeholder={placeholder}
+        value={search}
+      />
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {mode.kind === 'search' ? (
-          <TemplateGrid
-            emptyMessage={`No templates match "${mode.query}"`}
+          <ResourceDesignGrid
+            emptyMessage={`${noMatchMessage} "${mode.query}"`}
+            errorMessage={errorMessage}
             listOpts={{ search: mode.query, limit: 12 }}
-            onSelect={onApplyTemplate}
+            onSelect={onApplyTextDesign}
             provider={provider}
           />
         ) : mode.kind === 'category' && activeCategory ? (
@@ -123,10 +209,11 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
                 {activeCategory.name}
               </h3>
             </div>
-            <TemplateGrid
-              emptyMessage="No templates in this category"
+            <ResourceDesignGrid
+              emptyMessage={emptyMessage}
+              errorMessage={errorMessage}
               listOpts={{ categoryId: activeCategory.id, limit: 12 }}
-              onSelect={onApplyTemplate}
+              onSelect={onApplyTextDesign}
               provider={provider}
             />
           </React.Fragment>
@@ -134,7 +221,7 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
           <div style={{ padding: 16 }}>Loading...</div>
         ) : error ? (
           <div style={{ padding: 16 }}>
-            Failed to load templates —{' '}
+            Failed to load text designs —{' '}
             <button
               onClick={loadCategories}
               type="button"
@@ -149,15 +236,16 @@ export function TemplatesPanel({ provider, onApplyTemplate }: Props) {
           </div>
         ) : categories.length === 0 ? (
           <div style={{ padding: 16, color: 'var(--de-color-text-muted)' }}>
-            No templates available. Host apps can supply a templateProvider.
+            No text designs available. Host apps can supply a
+            textDesignProvider.
           </div>
         ) : (
           categories.map((c) => (
-            <TemplateCategoryRow
+            <ResourceCategoryRow
               key={c.id}
               category={c}
               onSeeMore={handleSeeMore}
-              onSelect={onApplyTemplate}
+              onSelect={onApplyTextDesign}
               provider={provider}
             />
           ))
