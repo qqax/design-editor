@@ -79,9 +79,10 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   return (
     <div
-      className="absolute bottom-16.5 right-0 top-0 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:bottom-0 md:top-0 md:z-auto md:w-57.5"
+      className="absolute top-0 right-0 bottom-16.5 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:top-0 md:bottom-0 md:z-auto md:w-57.5"
       style={{
-        background: 'color-mix(in srgb, var(--de-color-bg-elevated) 97%, transparent)',
+        background:
+          'color-mix(in srgb, var(--de-color-bg-elevated) 97%, transparent)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderLeft: '1px solid var(--de-color-border)',
@@ -89,6 +90,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
         flexDirection: 'column',
         overflow: 'hidden',
         boxShadow: '-8px 0 40px var(--de-shadow-color)',
+        zIndex: 100,
       }}
     >
       {/* Header */}

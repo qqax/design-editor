@@ -4,6 +4,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 import { Editor } from '../core';
 import { Context } from './context';
+import { CANVAS_ID } from '../../components/canvas/constants';
 
 import type { EditorConfig } from '../types';
 
@@ -94,7 +95,7 @@ export const Canvas = (props: Props) => {
           inset: 0,
         }}
       >
-        <canvas id="layerhub_io_canvas" />
+        <canvas id={CANVAS_ID} />
       </div>
     </div>
   );

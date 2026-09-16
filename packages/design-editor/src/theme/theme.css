@@ -29,6 +29,7 @@
 :root {
   --de-color-bg: #ffffff;
   --de-color-bg-elevated: #f5f5f7;
+  --de-color-surface: #f5f5f7;
   --de-color-fg: #18181b;
   --de-color-text: #18181b;
   --de-color-fg-muted: #71717a;

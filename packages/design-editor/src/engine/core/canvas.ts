@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Canvas as FabricCanvasClass } from 'fabric';
 
 import type { Editor } from '.';
@@ -8,7 +9,9 @@ class Canvas {
   private editor: Editor;
 
   public container: HTMLDivElement;
+
   public canvasContainer: HTMLDivElement;
+
   public canvasElement: HTMLCanvasElement;
 
   public canvas: FabricCanvas;
@@ -23,10 +26,10 @@ class Canvas {
   private config: EditorConfig;
 
   constructor({
-                id,
-                config,
-                editor,
-              }: {
+    id,
+    config,
+    editor,
+  }: {
     id: string;
     config: EditorConfig;
     editor: Editor;
@@ -39,16 +42,13 @@ class Canvas {
   }
 
   public initialize = () => {
-    this.canvas = new FabricCanvasClass(
-      this.canvasId,
-      {
-        backgroundColor: this.config.background,
-        preserveObjectStacking: true,
-        fireRightClick: true,
-        height: this.config.size.height,
-        width: this.config.size.width,
-      },
-    );
+    this.canvas = new FabricCanvasClass(this.canvasId, {
+      backgroundColor: this.config.background,
+      preserveObjectStacking: true,
+      fireRightClick: true,
+      height: this.config.size.height,
+      width: this.config.size.width,
+    });
 
     this.options.width = this.config.size.width;
     this.options.height = this.config.size.height;
@@ -68,7 +68,7 @@ class Canvas {
   };
 
   private debugLayout = (label: string) => {
-    const canvas = this.canvas;
+    const { canvas } = this;
 
     if (!canvas) {
       console.log(`[EDITOR DEBUG] ${label}: no canvas`);
@@ -111,18 +111,10 @@ class Canvas {
 
       if (vpt) {
         console.log('FRAME SCREEN', {
-          left:
-            frame.left! * vpt[0] + vpt[4],
-          top:
-            frame.top! * vpt[3] + vpt[5],
-          centerX:
-            center.x * vpt[0] +
-            center.y * vpt[2] +
-            vpt[4],
-          centerY:
-            center.x * vpt[1] +
-            center.y * vpt[3] +
-            vpt[5],
+          left: frame.left * vpt[0] + vpt[4],
+          top: frame.top * vpt[3] + vpt[5],
+          centerX: center.x * vpt[0] + center.y * vpt[2] + vpt[4],
+          centerY: center.x * vpt[1] + center.y * vpt[3] + vpt[5],
         });
       }
     }
@@ -139,39 +131,28 @@ class Canvas {
         scaleX: object.scaleX,
         scaleY: object.scaleY,
         center: object.getCenterPoint(),
-      })),
+      }))
     );
 
     const element = canvas.getElement();
 
     if (element) {
-      console.log(
-        'DOM RECT',
-        element.getBoundingClientRect(),
-      );
+      console.log('DOM RECT', element.getBoundingClientRect());
     }
 
     console.groupEnd();
   };
 
+  // eslint-disable-next-line class-methods-use-this
   public destroy = () => {
     // this.canvas.dispose();
   };
 
-  public resize = ({
-                     width,
-                     height,
-                   }: {
-    width: number;
-    height: number;
-  }) => {
+  public resize = ({ width, height }: { width: number; height: number }) => {
     const oldWidth = this.options.width;
     const oldHeight = this.options.height;
 
-    if (
-      oldWidth === width &&
-      oldHeight === height
-    ) {
+    if (oldWidth === width && oldHeight === height) {
       return;
     }
 
@@ -205,14 +186,7 @@ class Canvas {
       const dx = (width - oldWidth) / 2;
       const dy = (height - oldHeight) / 2;
 
-      const nextVpt: [
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-      ] = [
+      const nextVpt: [number, number, number, number, number, number] = [
         vpt[0],
         vpt[1],
         vpt[2],
@@ -238,18 +212,14 @@ class Canvas {
 
     console.log(
       '[EDITOR DEBUG] VPT AFTER RESIZE',
-      this.canvas.viewportTransform
-        ? [...this.canvas.viewportTransform]
-        : null,
+      this.canvas.viewportTransform ? [...this.canvas.viewportTransform] : null
     );
 
     this.editor.emit('canvas:resized');
   };
 
   public getBoundingClientRect() {
-    const canvasEl = document.getElementById(
-      this.canvasId,
-    );
+    const canvasEl = document.getElementById(this.canvasId);
 
     if (!canvasEl) {
       return {
@@ -258,8 +228,7 @@ class Canvas {
       };
     }
 
-    const rect =
-      canvasEl.getBoundingClientRect();
+    const rect = canvasEl.getBoundingClientRect();
 
     return {
       left: rect.left,
@@ -275,9 +244,7 @@ class Canvas {
     return this.canvas.backgroundColor;
   }
 
-  public setBackgroundColor(
-    color: string,
-  ) {
+  public setBackgroundColor(color: string) {
     this.canvas.backgroundColor = color;
     this.canvas.requestRenderAll();
 

@@ -17,6 +17,8 @@ import { Zoom } from './Zoom';
 
 import type { CSSProperties } from 'react';
 
+import type { SettingsType } from '../../engine';
+
 interface Props {
   editor: any;
   zoomPct: number;
@@ -34,8 +36,8 @@ interface Props {
   exporting: boolean;
   onExport: () => void;
   onBack?: () => void;
-  settings?: any;
-  onSettings: (patch: Partial<any>) => void;
+  settings: SettingsType;
+  onSettings: (patch: Partial<SettingsType>) => void;
   canvasBg: string;
   onBgChange: (color: string) => void;
   workspaceBg: string;

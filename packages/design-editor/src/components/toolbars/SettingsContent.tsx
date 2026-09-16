@@ -5,9 +5,11 @@ import { Settings } from 'lucide-react';
 import { TOOL_BTN } from '../panels/color-picker';
 import { Popover, Switch } from '../primitives';
 
+import type { SettingsType } from '../../engine';
+
 interface SettingsProps {
-  settings: Record<string, any>;
-  onSettings: (s: Record<string, any>) => void;
+  settings: SettingsType;
+  onSettings: (s: Partial<SettingsType>) => void;
 }
 
 const SettingsContent = ({ settings, onSettings }: SettingsProps) => (
@@ -17,7 +19,6 @@ const SettingsContent = ({ settings, onSettings }: SettingsProps) => (
       display: 'flex',
       flexDirection: 'column',
       gap: 14,
-      background: 'var(--de-color-surface)',
       boxShadow: '0 10px 30px var(--shadow-color)',
     }}
   >
@@ -53,57 +54,57 @@ const SettingsContent = ({ settings, onSettings }: SettingsProps) => (
         />
       </div>
     ))}
-    <div
-      style={{
-        borderTop: '1px solid var(--de-color-border)',
-        paddingTop: 12,
-      }}
-    >
-      <div
-        style={{
-          fontSize: 11,
-          color: 'var(--de-color-text-muted)',
-          marginBottom: 8,
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-        }}
-      >
-        Panel Rail
-      </div>
-      <div style={{ display: 'flex', gap: 6 }}>
-        {(['left', 'right'] as const).map((side) => (
-          <button
-            key={side}
-            onClick={() => onSettings({ railSide: side })}
-            type="button"
-            style={{
-              flex: 1,
-              padding: '7px 0',
-              borderRadius: 8,
-              cursor: 'pointer',
-              border:
-                settings.railSide === side
-                  ? '1.5px solid var(--de-color-primary)'
-                  : '1px solid var(--de-color-border)',
-              background:
-                settings.railSide === side
-                  ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
-                  : 'color-mix(in srgb, var(--de-color-text) 3%, transparent)',
-              color:
-                settings.railSide === side
-                  ? 'var(--de-color-primary)'
-                  : 'var(--de-color-text-muted)',
-              fontSize: 12,
-              fontWeight: 700,
-              textTransform: 'capitalize',
-              outline: 'none',
-            }}
-          >
-            {side}
-          </button>
-        ))}
-      </div>
-    </div>
+    {/* <div */}
+    {/*  style={{ */}
+    {/*    borderTop: '1px solid var(--de-color-border)', */}
+    {/*    paddingTop: 12, */}
+    {/*  }} */}
+    {/* > */}
+    {/*  <div */}
+    {/*    style={{ */}
+    {/*      fontSize: 11, */}
+    {/*      color: 'var(--de-color-text-muted)', */}
+    {/*      marginBottom: 8, */}
+    {/*      textTransform: 'uppercase', */}
+    {/*      letterSpacing: '0.06em', */}
+    {/*    }} */}
+    {/*  > */}
+    {/*    Panel Rail */}
+    {/*  </div> */}
+    {/*  <div style={{ display: 'flex', gap: 6 }}> */}
+    {/*    {(['left', 'right'] as const).map((side) => ( */}
+    {/*      <button */}
+    {/*        key={side} */}
+    {/*        onClick={() => onSettings({ railSide: side })} */}
+    {/*        type="button" */}
+    {/*        style={{ */}
+    {/*          flex: 1, */}
+    {/*          padding: '7px 0', */}
+    {/*          borderRadius: 8, */}
+    {/*          cursor: 'pointer', */}
+    {/*          border: */}
+    {/*            settings.railSide === side */}
+    {/*              ? '1.5px solid var(--de-color-primary)' */}
+    {/*              : '1px solid var(--de-color-border)', */}
+    {/*          background: */}
+    {/*            settings.railSide === side */}
+    {/*              ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)' */}
+    {/*              : 'color-mix(in srgb, var(--de-color-text) 3%, transparent)', */}
+    {/*          color: */}
+    {/*            settings.railSide === side */}
+    {/*              ? 'var(--de-color-primary)' */}
+    {/*              : 'var(--de-color-text-muted)', */}
+    {/*          fontSize: 12, */}
+    {/*          fontWeight: 700, */}
+    {/*          textTransform: 'capitalize', */}
+    {/*          outline: 'none', */}
+    {/*        }} */}
+    {/*      > */}
+    {/*        {side} */}
+    {/*      </button> */}
+    {/*    ))} */}
+    {/*  </div> */}
+    {/* </div> */}
   </div>
 );
 

@@ -11,7 +11,7 @@ import {
 import { useCanvasSize } from '../../../hooks/useCanvasSize';
 import { useStudioExport } from '../../../hooks/useStudioExport';
 import { useToast } from '../../../hooks/useToast';
-import { CanvasArea } from '../../Canvas';
+import { CanvasArea } from '../../canvas';
 import { useEditorContext } from '../../EditorContext';
 import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
@@ -22,6 +22,7 @@ import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 
 import type { FabricImage } from 'fabric';
 
+import type { SettingsType } from '../../../engine';
 import type { TextDesignProvider } from '../../../providers';
 import type { PanelKey } from '../../icon-reail';
 import type {
@@ -30,12 +31,6 @@ import type {
 } from '../model';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';
-
-interface Settings {
-  showGrid: boolean;
-  snapGrid: boolean;
-  railSide: 'left' | 'right';
-}
 
 export function DesignEditorInner({
   onBack,
@@ -76,7 +71,7 @@ export function DesignEditorInner({
         getStorageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
   );
 
-  const [settings, setSettings] = useState<Settings>(() =>
+  const [settings, setSettings] = useState<SettingsType>(() =>
     getStorageSafe('studio_settings', {
       showGrid: false,
       snapGrid: false,
@@ -259,22 +254,51 @@ export function DesignEditorInner({
             position: 'relative',
           }}
         >
-          <IconRail activePanel={activePanel} onTogglePanel={setActivePanel} />
-
-          <EditorSidebar
-            activePanel={activePanel}
-            addImageToCanvas={addImageToCanvas}
-            handleAddMedia={handleAddMedia}
-            handleAddText={handleAddText}
-            handleApplyTemplate={handleApplyTemplate}
-            handleApplyTextDesign={handleApplyTextDesign}
-            libraryPanel={libraryPanel}
-            onClose={() => setActivePanel(null)}
-            setActivePanel={setActivePanel}
-            templateProvider={templateProvider}
-            templatesPanel={templatesPanel}
-            textDesignProvider={textDesignProvider}
-          />
+          {settings.railSide === 'left' ? (
+            <React.Fragment>
+              <IconRail
+                activePanel={activePanel}
+                onTogglePanel={setActivePanel}
+                side={settings.railSide}
+              />
+              <EditorSidebar
+                activePanel={activePanel}
+                addImageToCanvas={addImageToCanvas}
+                handleAddMedia={handleAddMedia}
+                handleAddText={handleAddText}
+                handleApplyTemplate={handleApplyTemplate}
+                handleApplyTextDesign={handleApplyTextDesign}
+                libraryPanel={libraryPanel}
+                onClose={() => setActivePanel(null)}
+                setActivePanel={setActivePanel}
+                templateProvider={templateProvider}
+                templatesPanel={templatesPanel}
+                textDesignProvider={textDesignProvider}
+              />
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <EditorSidebar
+                activePanel={activePanel}
+                addImageToCanvas={addImageToCanvas}
+                handleAddMedia={handleAddMedia}
+                handleAddText={handleAddText}
+                handleApplyTemplate={handleApplyTemplate}
+                handleApplyTextDesign={handleApplyTextDesign}
+                libraryPanel={libraryPanel}
+                onClose={() => setActivePanel(null)}
+                setActivePanel={setActivePanel}
+                templateProvider={templateProvider}
+                templatesPanel={templatesPanel}
+                textDesignProvider={textDesignProvider}
+              />
+              <IconRail
+                activePanel={activePanel}
+                onTogglePanel={setActivePanel}
+                side={settings.railSide}
+              />
+            </React.Fragment>
+          )}
 
           <div
             ref={canvasWrapRef}
@@ -294,6 +318,7 @@ export function DesignEditorInner({
               dragOver={dragOver}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
+              settings={settings}
               workspaceBg={workspaceBg}
               onDragOver={(e) => {
                 e.preventDefault();

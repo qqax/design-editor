@@ -2,7 +2,13 @@ import type { Dimension, RotationControlPosition } from './common';
 
 type SceneType = 'CUSTOMIZATION' | 'GRAPHIC' | 'PRESENTATION' | 'VIDEO';
 
-export interface EditorConfig {
+export interface SettingsType {
+  showGrid: boolean;
+  snapGrid: boolean;
+  railSide: 'left' | 'right';
+}
+
+export interface EditorConfig extends SettingsType {
   id: string;
   clipToFrame: boolean;
   scrollLimit: number;

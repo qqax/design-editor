@@ -28,17 +28,28 @@ const ICONS: { key: PanelKey; icon: React.ReactNode; label: string }[] = [
 interface Props {
   activePanel: PanelKey | null;
   onTogglePanel: (key: PanelKey) => void;
+  side?: 'left' | 'right';
 }
 
-export function IconRail({ activePanel, onTogglePanel }: Props) {
+export function IconRail({ activePanel, onTogglePanel, side = 'left' }: Props) {
   return (
     <div
-      className="z-10 flex h-[66px] w-full shrink-0 flex-row items-center gap-1 overflow-x-auto px-3 py-1 md:h-auto md:w-16 md:flex-col md:overflow-visible md:px-0 md:py-3"
+      className="z-10 flex h-16.5 w-full shrink-0 flex-row items-center gap-1 overflow-x-auto px-3 py-1 md:h-auto md:w-16 md:flex-col md:overflow-visible md:px-0 md:py-3"
       style={{
-        background: 'color-mix(in srgb, var(--de-color-surface) 96%, transparent)',
-        borderRight: '1px solid var(--de-color-border)',
-        borderTop: '1px solid var(--de-color-border)',
-        boxShadow: '0 -4px 20px var(--shadow-color)',
+        background:
+          'color-mix(in srgb, var(--de-color-surface) 96%, transparent)',
+        borderRight:
+          side === 'left' ? '1px solid var(--de-color-border)' : 'none',
+        borderLeft:
+          side === 'right' ? '1px solid var(--de-color-border)' : 'none',
+        boxShadow:
+          side === 'left'
+            ? '0 -4px 20px var(--shadow-color)'
+            : '0 4px 20px var(--shadow-color)',
+        position: 'absolute',
+        [side]: 0,
+        top: 0,
+        bottom: 0,
       }}
     >
       {ICONS.map(({ key, icon, label }) => (
