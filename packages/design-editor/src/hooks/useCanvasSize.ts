@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from 'react';
 
+import type { Editor } from '../engine';
+
 export const AD_SIZES = [
   { label: '1920×1080 (Landscape)', value: '1920x1080' },
   { label: '1080×1080 (Square)', value: '1080x1080' },
@@ -11,7 +13,7 @@ export const AD_SIZES = [
   { label: 'Custom…', value: 'custom' },
 ];
 
-export function useCanvasSize(editor: any) {
+export function useCanvasSize(editor: Editor) {
   const [size, setSize] = useState('1920x1080');
   const [customOpen, setCustomOpen] = useState(false);
   const [customW, setCustomW] = useState(1920);

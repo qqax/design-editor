@@ -1,14 +1,10 @@
 import React, { memo, useEffect, useRef } from 'react';
 
-import { CANVAS_ID } from './constants';
-import { Editor } from '../../engine';
+import { Editor } from '../../../engine';
+import { applyEditorSettings } from '../lib';
+import { CANVAS_ID } from '../model';
 
-import type { EditorConfig } from '../../engine';
-
-interface FabricContext2D {
-  fillStyle: string;
-  fillRect: (x: number, y: number, w: number, h: number) => void;
-}
+import type { EditorConfig } from '../../../engine';
 
 export const FrozenCanvas = memo(
   ({
@@ -23,55 +19,6 @@ export const FrozenCanvas = memo(
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<InstanceType<typeof Editor> | null>(null);
 
-    const applyEditorSettings = (
-      editor: InstanceType<typeof Editor>,
-      showGrid?: boolean,
-      snapGrid?: boolean
-    ) => {
-      const fabricCanvas = editor.canvas.canvas;
-      const w = containerRef.current?.clientWidth || 800;
-      const h = containerRef.current?.clientHeight || 600;
-
-      // Настройка сетки
-      if (showGrid || snapGrid) {
-        const gridSize = 24;
-        const gridColor = 'rgba(0, 0, 0, 0.05)';
-
-        fabricCanvas.backgroundColor = {
-          source: (ctx: FabricContext2D) => {
-            ctx.fillStyle = gridColor;
-            const canvasW = fabricCanvas.width ?? w;
-            const canvasH = fabricCanvas.height ?? h;
-
-            for (let x = 0; x < canvasW; x += gridSize) {
-              for (let y = 0; y < canvasH; y += gridSize) {
-                ctx.fillRect(x, y, 1, 1);
-              }
-            }
-          },
-          top: 0,
-          left: 0,
-        } as any;
-      } else {
-        fabricCanvas.backgroundColor = '';
-      }
-
-      if (snapGrid) {
-        Object.assign(fabricCanvas, {
-          snapThreshold: 10,
-          snapAngle: 45,
-        });
-      } else {
-        Object.assign(fabricCanvas, {
-          snapThreshold: undefined,
-          snapAngle: undefined,
-        });
-      }
-
-      editor.canvas.requestRenderAll();
-    };
-
-    // Эффект 1: Инициализация и уничтожение редактора
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
@@ -107,7 +54,7 @@ export const FrozenCanvas = memo(
 
         editorRef.current = editor;
 
-        applyEditorSettings(editor, config?.showGrid, config?.snapGrid);
+        applyEditorSettings(editor, config?.snapGrid);
 
         const resizeObserver = new ResizeObserver(() => {
           if (!container || !editor) return;
@@ -143,7 +90,7 @@ export const FrozenCanvas = memo(
           /* ignore */
         }
 
-        editorRef.current = null; // Не забываем очистить реф
+        editorRef.current = null;
         delete (container as any).__layerhubEditor;
         delete (container as any).__layerhubObserver;
       };
@@ -163,13 +110,9 @@ export const FrozenCanvas = memo(
 
     useEffect(() => {
       if (editorRef.current) {
-        applyEditorSettings(
-          editorRef.current,
-          config?.showGrid,
-          config?.snapGrid
-        );
+        applyEditorSettings(editorRef.current, config?.snapGrid);
       }
-    }, [config?.showGrid, config?.snapGrid]);
+    }, [canvasBg, config?.showGrid, config?.snapGrid]);
 
     return (
       <div style={{ position: 'absolute', inset: 0 }}>

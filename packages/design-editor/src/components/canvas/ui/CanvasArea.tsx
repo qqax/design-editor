@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { CanvasContextBridge } from './CanvasContextBridge';
 
-import type { EditorConfig } from '../../engine';
+import type { EditorConfig } from '../../../engine';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';
 
@@ -33,8 +33,9 @@ export const CanvasArea = memo(
           position: 'absolute',
           inset: 0,
           backgroundColor: workspaceBg ?? WORKSPACE_BG,
-          backgroundImage:
-            'radial-gradient(color-mix(in srgb, var(--de-color-text) 8%, transparent) 1.5px, transparent 1.5px)',
+          backgroundImage: settings.showGrid
+            ? 'radial-gradient(color-mix(in srgb, var(--de-color-text) 8%, transparent) 1.5px, transparent 1.5px)'
+            : 'none',
           backgroundSize: '24px 24px',
           overflow: 'hidden',
           outline: dragOver ? '3px solid var(--de-color-primary)' : 'none',

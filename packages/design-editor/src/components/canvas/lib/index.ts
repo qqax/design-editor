@@ -1,0 +1,1 @@
+export { applyEditorSettings } from './applyEditorSettings';

@@ -35,7 +35,7 @@ const SettingsContent = ({ settings, onSettings }: SettingsProps) => (
     </div>
     {[
       { label: 'Grid overlay', key: 'showGrid' as const },
-      { label: 'Snap to grid', key: 'snapGrid' as const },
+      // { label: 'Snap to grid', key: 'snapGrid' as const },
     ].map(({ label, key }) => (
       <div
         key={key}

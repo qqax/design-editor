@@ -3,9 +3,9 @@
 import React, { useContext, useRef } from 'react';
 
 import { FrozenCanvas } from './FrozenCanvas';
-import { Context } from '../../engine';
+import { Context } from '../../../engine';
 
-import type { EditorConfig } from '../../engine';
+import type { EditorConfig } from '../../../engine';
 
 const CANVAS_CONFIG = {
   clipToFrame: true,

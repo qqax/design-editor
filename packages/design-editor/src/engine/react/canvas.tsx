@@ -4,7 +4,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 import { Editor } from '../core';
 import { Context } from './context';
-import { CANVAS_ID } from '../../components/canvas/constants';
+import { CANVAS_ID } from '../../components/canvas/model';
 
 import type { EditorConfig } from '../types';
 
