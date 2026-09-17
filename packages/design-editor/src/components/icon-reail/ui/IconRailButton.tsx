@@ -17,7 +17,7 @@ export function IconRailButton({
 
   return (
     <button
-      className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-none outline-none transition-all duration-200"
+      className="relative flex shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-none transition-all duration-200 outline-none"
       onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
