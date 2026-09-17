@@ -3,18 +3,20 @@ import type React from 'react';
 import type { IScene } from '../../../engine';
 import type {
   BackgroundRemovalProvider,
-  DesignTemplate,
   FontProvider,
   PersistenceProvider,
-  TemplateProvider,
-  TextDesignProvider,
 } from '../../../providers';
+import type { PanelsConfigType } from '../../panels';
+import type {
+  DesignResource,
+  ResourceProvider,
+} from '../../panels/common/provider';
 import type { SelectOptions } from '../../primitives';
 
 export type TemplatesPanelRenderProp =
   | React.ReactNode
   | ((props: {
-      onApplyTemplate: (t: DesignTemplate) => void;
+      onApplyTemplate: (t: DesignResource) => void;
     }) => React.ReactNode);
 export type LibraryPanelRenderProp =
   | React.ReactNode
@@ -35,9 +37,9 @@ export interface DesignEditorProps {
     scene: IScene
   ) => void | Promise<void>;
   /** Template provider. Defaults to a small bundled starter set. */
-  templateProvider?: TemplateProvider;
+  templateProvider?: ResourceProvider;
   /** Text design provider. Defaults to the bundled text designs set. */
-  textDesignProvider?: TextDesignProvider;
+  textDesignProvider?: ResourceProvider;
   /** Font provider. Defaults to a Google Fonts provider. */
   fontProvider?: FontProvider;
   /** Background removal provider. Defaults to `@imgly/background-removal` if installed. */
@@ -53,4 +55,5 @@ export interface DesignEditorProps {
   /** Optional title to display in the toolbar. Defaults to "Design Studio". */
   title?: React.ReactNode;
   adSizes?: SelectOptions;
+  panelsConfig?: PanelsConfigType;
 }

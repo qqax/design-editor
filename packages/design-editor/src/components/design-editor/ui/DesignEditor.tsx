@@ -6,12 +6,15 @@ import { DesignEditorInner } from './DesignEditorInner';
 import { Provider as EngineProvider } from '../../../engine/react';
 import {
   createDefaultFontProvider,
-  createDefaultTemplateProvider,
-  createDefaultTextDesignProvider,
   createImglyBackgroundRemoval,
   createLocalStoragePersistence,
 } from '../../../providers';
 import { EditorContextProvider } from '../../EditorContext';
+import {
+  createDefaultDesignProvider,
+  TEMPLATES_BUNDLE_JSON,
+  TEXT_BUNDLE_JSON,
+} from '../../panels';
 
 import type { DesignEditorProps } from '../model';
 
@@ -37,8 +40,8 @@ export function DesignEditor({
   sceneKey,
   onBack,
   onExport,
-  templateProvider = createDefaultTemplateProvider(),
-  textDesignProvider = createDefaultTextDesignProvider(),
+  templateProvider = createDefaultDesignProvider(TEMPLATES_BUNDLE_JSON),
+  textDesignProvider = createDefaultDesignProvider(TEXT_BUNDLE_JSON),
   fontProvider = createDefaultFontProvider(),
   backgroundRemovalProvider,
   persistenceProvider = createLocalStoragePersistence(),

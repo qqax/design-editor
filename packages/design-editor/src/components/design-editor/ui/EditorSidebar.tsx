@@ -1,7 +1,6 @@
 import React from 'react';
 
 import {
-  ElementsPanel,
   getItemsFactory,
   Panel,
   ResourcePanel,
@@ -13,7 +12,7 @@ import {
 } from '../../panels';
 
 import type { TextDesign, TextDesignProvider } from '../../../providers';
-import type { PanelKey } from '../../icon-reail';
+import type { PanelKey } from '../../panels';
 import type {
   LibraryPanelRenderProp,
   TemplatesPanelRenderProp,
@@ -31,7 +30,7 @@ interface EditorSidebarProps {
   handleApplyTextDesign: (design: TextDesign) => void;
   handleAddText: (text: string, size: number) => void;
   handleAddMedia: (url: string) => Promise<void>;
-  setActivePanel: (panel: PanelKey | null) => void;
+  // setActivePanel: (panel: PanelKey | null) => void;
 }
 
 export const EditorSidebar: React.FC<EditorSidebarProps> = ({
@@ -46,7 +45,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   handleApplyTextDesign,
   handleAddText,
   handleAddMedia,
-  setActivePanel,
+  // setActivePanel,
 }) => {
   if (!activePanel) return null;
 
@@ -133,15 +132,15 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             />
           ))}
 
-        {activePanel === 'elements' && (
-          <ElementsPanel
-            onAddShape={addImageToCanvas}
-            onAddSticker={addImageToCanvas}
-            onApplyTextDesign={handleApplyTextDesign}
-            onSeeAll={setActivePanel}
-            textDesignProvider={textDesignProvider}
-          />
-        )}
+        {/* {activePanel === 'elements' && ( */}
+        {/*  <ElementsPanel */}
+        {/*    onAddShape={addImageToCanvas} */}
+        {/*    onAddSticker={addImageToCanvas} */}
+        {/*    onApplyTextDesign={handleApplyTextDesign} */}
+        {/*    onSeeAll={setActivePanel} */}
+        {/*    textDesignProvider={textDesignProvider} */}
+        {/*  /> */}
+        {/* )} */}
 
         {activePanel === 'text' && (
           <ResourcePanel

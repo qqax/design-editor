@@ -1,2 +1,1 @@
-export { IconRail } from './IconRail';
-export type { PanelKey } from './IconRail';
+export { IconRail } from './ui';

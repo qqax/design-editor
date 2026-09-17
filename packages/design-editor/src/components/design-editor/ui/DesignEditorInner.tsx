@@ -23,7 +23,7 @@ import type { FabricImage } from 'fabric';
 
 import type { SettingsType } from '../../../engine';
 import type { TextDesignProvider } from '../../../providers';
-import type { PanelKey } from '../../icon-reail';
+import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { SelectOptions } from '../../primitives';
 import type {
   LibraryPanelRenderProp,
@@ -31,6 +31,18 @@ import type {
 } from '../model';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';
+
+interface DesignEditorInnerProps {
+  onBack?: () => void;
+  initialScene?: any;
+  className?: string;
+  templatesPanel?: TemplatesPanelRenderProp;
+  libraryPanel?: LibraryPanelRenderProp;
+  title?: React.ReactNode;
+  textDesignProvider: TextDesignProvider;
+  adSizes?: SelectOptions;
+  panelsConfig?: PanelsConfigType;
+}
 
 export function DesignEditorInner({
   onBack,
@@ -41,16 +53,8 @@ export function DesignEditorInner({
   title,
   textDesignProvider,
   adSizes,
-}: {
-  onBack?: () => void;
-  initialScene?: any;
-  className?: string;
-  templatesPanel?: TemplatesPanelRenderProp;
-  libraryPanel?: LibraryPanelRenderProp;
-  title?: React.ReactNode;
-  textDesignProvider: TextDesignProvider;
-  adSizes?: SelectOptions;
-}) {
+  panelsConfig,
+}: DesignEditorInnerProps) {
   const editor = useEditor();
   const activeObj = useActiveObject<FabricImage>();
   const zoomRatio = useZoomRatio<number>();
@@ -242,6 +246,7 @@ export function DesignEditorInner({
               <IconRail
                 activePanel={activePanel}
                 onTogglePanel={setActivePanel}
+                panelsConfig={panelsConfig}
                 side={settings.railSide}
               />
               <EditorSidebar
@@ -253,7 +258,6 @@ export function DesignEditorInner({
                 handleApplyTextDesign={handleApplyTextDesign}
                 libraryPanel={libraryPanel}
                 onClose={() => setActivePanel(null)}
-                setActivePanel={setActivePanel}
                 templateProvider={templateProvider}
                 templatesPanel={templatesPanel}
                 textDesignProvider={textDesignProvider}
@@ -270,7 +274,6 @@ export function DesignEditorInner({
                 handleApplyTextDesign={handleApplyTextDesign}
                 libraryPanel={libraryPanel}
                 onClose={() => setActivePanel(null)}
-                setActivePanel={setActivePanel}
                 templateProvider={templateProvider}
                 templatesPanel={templatesPanel}
                 textDesignProvider={textDesignProvider}
