@@ -11,23 +11,23 @@ import {
   UploadPanel,
 } from '../../panels';
 
-import type { TextDesign, TextDesignProvider } from '../../../providers';
 import type { PanelKey } from '../../panels';
+import type { RenderPropType } from '../../panels/common/model/types';
 import type {
-  LibraryPanelRenderProp,
-  TemplatesPanelRenderProp,
-} from '../model';
+  DesignResource,
+  ResourceProvider,
+} from '../../panels/common/provider';
 
 interface EditorSidebarProps {
   activePanel: PanelKey | null;
   onClose: () => void;
-  templatesPanel?: TemplatesPanelRenderProp;
-  libraryPanel?: LibraryPanelRenderProp;
+  templatesPanel?: RenderPropType;
+  libraryPanel?: RenderPropType;
   templateProvider: any;
-  textDesignProvider: TextDesignProvider;
+  textDesignProvider: ResourceProvider;
   handleApplyTemplate: (template: any) => void;
   addImageToCanvas: (src: string) => void;
-  handleApplyTextDesign: (design: TextDesign) => void;
+  handleApplyTextDesign: (design: DesignResource) => void;
   handleAddText: (text: string, size: number) => void;
   handleAddMedia: (url: string) => Promise<void>;
   // setActivePanel: (panel: PanelKey | null) => void;
@@ -115,7 +115,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         {activePanel === 'templates' &&
           (templatesPanel ? (
             typeof templatesPanel === 'function' ? (
-              templatesPanel({ onApplyTemplate: handleApplyTemplate })
+              templatesPanel({ onAddResource: handleApplyTemplate })
             ) : (
               templatesPanel
             )
@@ -189,7 +189,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
         {activePanel === 'upload' &&
           (libraryPanel ? (
             typeof libraryPanel === 'function' ? (
-              libraryPanel({ onAddMedia: handleAddMedia })
+              libraryPanel({ onAddResource: handleAddMedia })
             ) : (
               libraryPanel
             )

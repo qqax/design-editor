@@ -9,11 +9,11 @@ import { STICKERS } from '../stickers-panel';
 import { ImageThumb } from './ImageThumb';
 import { PlaceholderThumb } from './PlaceholderThumb';
 
-import type { TextDesign, TextDesignProvider } from '../../../providers';
+import type { DesignResource, ResourceProvider } from '../common/provider';
 
 interface ElementsPanelProps {
-  textDesignProvider: TextDesignProvider;
-  onApplyTextDesign: (design: TextDesign) => void;
+  textDesignProvider: ResourceProvider;
+  onApplyTextDesign: (design: DesignResource) => void;
   onAddShape: (shape: string) => void;
   onAddSticker: (sticker: string) => void;
   onSeeAll: (panel: 'text' | 'shapes' | 'stickers') => void;
@@ -26,7 +26,7 @@ export function ElementsPanel({
   onAddSticker,
   onSeeAll,
 }: ElementsPanelProps) {
-  const [textDesigns, setTextDesigns] = useState<TextDesign[]>([]);
+  const [textDesigns, setTextDesigns] = useState<DesignResource[]>([]);
 
   useEffect(() => {
     textDesignProvider

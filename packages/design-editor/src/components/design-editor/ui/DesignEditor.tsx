@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Toaster } from 'sonner';
 
@@ -10,11 +10,7 @@ import {
   createLocalStoragePersistence,
 } from '../../../providers';
 import { EditorContextProvider } from '../../EditorContext';
-import {
-  createDefaultDesignProvider,
-  TEMPLATES_BUNDLE_JSON,
-  TEXT_BUNDLE_JSON,
-} from '../../panels';
+import { DEFAULT_PANELS_CONFIG } from '../../icon-reail/model';
 
 import type { DesignEditorProps } from '../model';
 
@@ -40,20 +36,27 @@ export function DesignEditor({
   sceneKey,
   onBack,
   onExport,
-  templateProvider = createDefaultDesignProvider(TEMPLATES_BUNDLE_JSON),
-  textDesignProvider = createDefaultDesignProvider(TEXT_BUNDLE_JSON),
+
   fontProvider = createDefaultFontProvider(),
   backgroundRemovalProvider,
   persistenceProvider = createLocalStoragePersistence(),
-  className,
-  templatesPanel,
-  libraryPanel,
+
   title,
+
+  panelsConfig,
   adSizes,
+
+  className,
 }: DesignEditorProps) {
   const resolvedBackgroundRemovalProvider =
     backgroundRemovalProvider ?? createImglyBackgroundRemoval();
-  const ctx = React.useMemo(
+  const innerConfig = { ...DEFAULT_PANELS_CONFIG, ...panelsConfig };
+  const templateProvider = innerConfig.templates.provider;
+  const textDesignProvider = innerConfig.text.provider;
+  const templatesPanel = innerConfig.templates.renderProp;
+  const libraryPanel = innerConfig.upload.renderProp;
+
+  const ctx = useMemo(
     () => ({
       templateProvider,
       textDesignProvider,

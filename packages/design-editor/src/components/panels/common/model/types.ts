@@ -29,15 +29,26 @@ export interface BundledData {
 
 export type PanelKey = 'templates' | 'upload' | 'text' | 'shapes' | 'stickers';
 
+export type RenderPropType =
+  | React.ReactNode
+  | ((props: {
+      onAddResource:
+        ((resource: string) => void) | ((resource: DesignResource) => void);
+    }) => React.ReactNode);
+
 export type PanelsConfigType = Record<
-  PanelKey,
+  Extract<PanelKey, 'templates' | 'text'>,
   {
-    showPanel: boolean;
+    showPanel?: boolean;
     provider: ResourceProvider;
-    renderProp:
-      | React.ReactNode
-      | ((props: {
-          onAddResource: (resource: string | DesignResource) => void;
-        }) => React.ReactNode);
+    renderProp?: RenderPropType;
   }
->;
+> &
+  Record<
+    Exclude<PanelKey, 'templates' | 'text'>,
+    {
+      showPanel?: boolean;
+      provider?: ResourceProvider;
+      renderProp?: RenderPropType;
+    }
+  >;

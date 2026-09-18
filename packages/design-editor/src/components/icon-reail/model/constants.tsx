@@ -1,5 +1,11 @@
 import { LayoutTemplate, Shapes, Smile, Type, Upload } from 'lucide-react';
 
+import {
+  createDefaultDesignProvider,
+  TEMPLATES_BUNDLE_JSON,
+  TEXT_BUNDLE_JSON,
+} from '../../panels';
+
 import type { PanelKey, PanelsConfigType } from '../../panels';
 
 export const ICONS: { key: PanelKey; icon: React.ReactNode; label: string }[] =
@@ -17,10 +23,30 @@ export const ICONS: { key: PanelKey; icon: React.ReactNode; label: string }[] =
   ];
 
 export const DEFAULT_PANELS_CONFIG: PanelsConfigType = {
-  templates: { showPanel: true },
-  upload: { showPanel: true },
-  text: { showPanel: true },
-  shapes: { showPanel: true },
-  stickers: { showPanel: true },
+  templates: {
+    showPanel: true,
+    provider: createDefaultDesignProvider(TEMPLATES_BUNDLE_JSON),
+    renderProp: undefined,
+  },
+  text: {
+    showPanel: true,
+    provider: createDefaultDesignProvider(TEXT_BUNDLE_JSON),
+    renderProp: undefined,
+  },
+  shapes: {
+    showPanel: true,
+    provider: undefined,
+    renderProp: undefined,
+  },
+  stickers: {
+    showPanel: true,
+    provider: undefined,
+    renderProp: undefined,
+  },
+  upload: {
+    showPanel: true,
+    provider: undefined,
+    renderProp: undefined,
+  },
   // elements: { showPanel: false },
 };

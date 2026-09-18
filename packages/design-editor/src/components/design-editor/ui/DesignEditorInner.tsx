@@ -22,13 +22,10 @@ import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 import type { FabricImage } from 'fabric';
 
 import type { SettingsType } from '../../../engine';
-import type { TextDesignProvider } from '../../../providers';
 import type { PanelKey, PanelsConfigType } from '../../panels';
+import type { RenderPropType } from '../../panels/common/model/types';
+import type { ResourceProvider } from '../../panels/common/provider';
 import type { SelectOptions } from '../../primitives';
-import type {
-  LibraryPanelRenderProp,
-  TemplatesPanelRenderProp,
-} from '../model';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';
 
@@ -36,10 +33,10 @@ interface DesignEditorInnerProps {
   onBack?: () => void;
   initialScene?: any;
   className?: string;
-  templatesPanel?: TemplatesPanelRenderProp;
-  libraryPanel?: LibraryPanelRenderProp;
+  templatesPanel?: RenderPropType;
+  libraryPanel?: RenderPropType;
   title?: React.ReactNode;
-  textDesignProvider: TextDesignProvider;
+  textDesignProvider: ResourceProvider;
   adSizes?: SelectOptions;
   panelsConfig?: PanelsConfigType;
 }

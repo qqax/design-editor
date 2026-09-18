@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 
 import { useSceneThumbnail } from '../common/model';
 
-import type { TextDesign } from '../../../providers';
+import type { DesignResource } from '../common/provider';
 
 // ─────────────────────────────────────────────────────────────
 // TEXT DESIGN THUMB  (renders scene via useSceneThumbnail)
@@ -11,7 +11,7 @@ export function TextDesignThumb({
   design,
   onClick,
 }: {
-  design: TextDesign;
+  design: DesignResource;
   onClick: () => void;
 }) {
   const ref = useRef<HTMLButtonElement>(null);

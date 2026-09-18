@@ -1,21 +1,20 @@
 'use client';
 
-import * as React from 'react';
+import { createContext, useContext } from 'react';
 
 import type {
   BackgroundRemovalProvider,
   FontProvider,
   PersistenceProvider,
-  TemplateProvider,
-  TextDesignProvider,
 } from '../providers';
+import type { ResourceProvider } from './panels/common/provider';
 
 export interface EditorContextValue {
   fontProvider: FontProvider;
   backgroundRemovalProvider: BackgroundRemovalProvider;
   persistenceProvider: PersistenceProvider;
-  templateProvider: TemplateProvider;
-  textDesignProvider: TextDesignProvider;
+  templateProvider: ResourceProvider;
+  textDesignProvider: ResourceProvider;
   sceneKey?: string;
   onExport?: (
     blob: Blob,
@@ -25,11 +24,11 @@ export interface EditorContextValue {
   onBack?: () => void;
 }
 
-const Ctx = React.createContext<EditorContextValue | null>(null);
+const Context = createContext<EditorContextValue | null>(null);
 export function useEditorContext() {
-  const v = React.useContext(Ctx);
+  const v = useContext(Context);
   if (!v)
     throw new Error('useEditorContext must be used inside <DesignEditor>');
   return v;
 }
-export const EditorContextProvider = Ctx.Provider;
+export const EditorContextProvider = Context.Provider;
