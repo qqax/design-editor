@@ -60,7 +60,7 @@ interface Param {
 interface LayerBaseOptions {
   id: string;
   name?: string;
-  type: ILayerType | string;
+  type: ILayerType;
   top?: number;
   left?: number;
   angle?: number;
@@ -106,6 +106,8 @@ export interface IStaticText extends LayerBaseOptions {
   textAlign?: string;
   fontFamily?: string;
   fontSize?: number;
+  fontWeight?: string;
+  fontStyle?: string;
   charSpacing?: number;
   lineHeight?: number;
   underline?: boolean;
@@ -123,7 +125,7 @@ export interface IStaticImage extends LayerBaseOptions {
   cropY?: number;
 }
 
-export interface IBackgroundImage extends IStaticImage {}
+export type IBackgroundImage = IStaticImage;
 export interface IDynamicImage extends LayerBaseOptions {
   key: string;
 }
@@ -166,8 +168,7 @@ export type ILayer =
   | IStaticAudio
   | IStaticVideo
   | IStaticVector
-  | IGroup
-  | IBackgroundImage;
+  | IGroup;
 
 export type ILayerOptions = IStaticText &
   IDynamicText &
@@ -178,5 +179,4 @@ export type ILayerOptions = IStaticText &
   IStaticAudio &
   IStaticVideo &
   IStaticVector &
-  IGroup &
-  IBackgroundImage;
+  IGroup;

@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
 
-import type { DesignTemplate, TextDesign } from '../../../providers';
+import type { DesignResource } from '../../panels/common/provider';
 
 export function useEditorActions(
   editor: any,
@@ -93,7 +93,7 @@ export function useEditorActions(
   );
 
   const handleApplyTextDesign = useCallback(
-    (design: TextDesign) => {
+    (design: DesignResource) => {
       if (!editor) return;
       const frameOpts = editor.frame?.options;
       const dx = ((frameOpts?.width ?? 1080) - design.scene.frame.width) / 2;
@@ -121,7 +121,7 @@ export function useEditorActions(
   );
 
   const handleApplyTemplate = useCallback(
-    (template: DesignTemplate) => {
+    (template: DesignResource) => {
       if (!editor) return;
       editor.scene
         .importFromJSON(template.scene)
