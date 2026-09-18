@@ -12,7 +12,7 @@ import type { SelectOptions } from '../../primitives';
 /** Props for the top-level {@link DesignEditor} component. */
 export interface DesignEditorProps {
   /** A serialized scene to load on mount, or any scene-shaped object with optional `canvasBg`/`workspaceBg`. */
-  initialScene?: IScene | any;
+  initialScene?: IScene;
   /** Stable key identifying the scene for persistence; passed to the persistence provider. */
   sceneKey?: string;
   /** Called when the user clicks the back button in the toolbar. */
