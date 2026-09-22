@@ -1,16 +1,16 @@
+import { Group as FabricGroup } from 'fabric';
+
 import Base from './Base';
-import {LayerType} from '../common/constants';
+import { LayerType } from '../../types';
 import parseSVG from '../parser';
-import {fontLoader} from '../utils/font-loader';
-import getSelectionType from '../utils/get-selection-type';
-import {generateId} from '../utils/id';
+import { fontLoader } from '../utils/font-loader';
+import { getSelectionType } from '../utils/get-selection-type';
+import { generateId } from '../utils/id';
 import ObjectExporter from '../utils/object-exporter';
 import ObjectImporter from '../utils/object-importer';
-import {base64ImageToFile} from '../utils/parser';
+import { base64ImageToFile } from '../utils/parser';
 
-import {Group as FabricGroup} from 'fabric';
-
-import type {ILayer, IScene} from '../../types';
+import type { ILayer, IScene } from '../../types';
 
 class Scene extends Base {
   private id = '';
@@ -20,8 +20,9 @@ class Scene extends Base {
   public exportToJSON(): IScene {
     const animated = false;
 
-    // @ts-ignore
-    const canvasJSON: any = this.canvas.toJSON(this.config.propertiesToInclude);
+    const canvasJSON: any = this.canvas.toObject(
+      this.config.propertiesToInclude
+    );
     const frame = this.editor.frame.options;
     const template: IScene = {
       id: this.id ? this.id : generateId(),
@@ -64,11 +65,14 @@ class Scene extends Base {
       const propertiesToInclude = this.editor.config.propertiesToInclude as any;
 
       if (
-          activeObject.type === 'activeSelection' ||
-          activeObject.type === 'group'
+        activeObject.type === 'activeSelection' ||
+        activeObject.type === 'group'
       ) {
-        const objects = (activeObject as any)._objects || (activeObject as any).getObjects?.() || [];
-        let clonedObjects: any[] = [];
+        const objects =
+          (activeObject as any)._objects ||
+          (activeObject as any).getObjects?.() ||
+          [];
+        const clonedObjects: any[] = [];
 
         for (const object of objects) {
           const cloned = await object.clone();
@@ -95,7 +99,7 @@ class Scene extends Base {
         };
       }
 
-      const activeObjectData = activeObject.toObject(propertiesToInclude) as any;
+      const activeObjectData = activeObject.toObject(propertiesToInclude);
 
       const component = objectExporter.export(activeObjectData, frame) as any;
       const metadata = component.metadata ? component.metadata : {};

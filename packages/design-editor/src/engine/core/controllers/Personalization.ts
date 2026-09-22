@@ -1,10 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Control, controlsUtils, Object as FabricObject, Textbox,} from 'fabric';
+import { Control, controlsUtils, FabricObject, Textbox } from 'fabric';
 
 import Base from './Base';
-import {drawCircleIcon} from '../utils/drawer';
+import { drawCircleIcon } from '../utils/drawer';
 
-import type {ControllerOptions} from '../common/interfaces';
+import type { ControllerOptions } from '../common/interfaces';
 
 class Personalization extends Base {
   constructor(props: ControllerOptions) {
@@ -21,7 +22,7 @@ class Personalization extends Base {
     // Disable context menu
     const upperCanvas = document.getElementsByClassName('upper-canvas')[0];
     if (upperCanvas) {
-      upperCanvas.addEventListener('contextmenu', function (e) {
+      upperCanvas.addEventListener('contextmenu', (e) => {
         e.preventDefault();
       });
     }
@@ -189,7 +190,7 @@ class Personalization extends Base {
     this.canvas.selectionColor = 'rgba(55, 130, 247, 0.15)';
     this.canvas.selectionBorderColor = '#3782F7';
     this.canvas.selectionLineWidth = 1.5;
-    this.canvas.on('selection:created', (ev) => {
+    this.canvas.on('selection:created', () => {
       const objects = this.canvas.getActiveObjects();
       const selection = this.canvas.getActiveObject();
       if (objects.length > 1) {

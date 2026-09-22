@@ -1,20 +1,22 @@
 import { Gradient, Shadow } from 'fabric';
 import { isNaN } from 'lodash';
 
-import type { Object as FabricObject } from 'fabric';
+import type { FabricObject } from 'fabric';
 
 import type { ILayer } from '../../types';
 import type { ShadowOptions } from '../common/interfaces';
 
 export function angleToPoint(angle: number, sx: number, sy: number) {
-  while (angle < 0) angle += 360;
-  angle %= 360;
+  let innerAngle = angle;
+  while (innerAngle < 0) innerAngle += 360;
+  innerAngle %= 360;
   const a = sy;
   const b = a + sx;
   const c = b + sy;
   const p = (sx + sy) * 2;
   const rp = p * 0.00277;
-  const pp = Math.round((angle * rp + (sy >> 1)) % p);
+  // eslint-disable-next-line no-bitwise
+  const pp = Math.round((innerAngle * rp + (sy >> 1)) % p);
 
   if (pp <= a) return { x: 0, y: sy - pp };
   if (pp <= b) return { y: 0, x: pp - a };
@@ -27,7 +29,9 @@ const setObjectGradient = (
   angle: number,
   colors: string[]
 ) => {
+  // eslint-disable-next-line no-bitwise
   const odx = object.width >> 1;
+  // eslint-disable-next-line no-bitwise
   const ody = object.height >> 1;
   const startPoint = angleToPoint(angle, object.width, object.height);
   const endPoint = {
@@ -54,12 +58,12 @@ const setObjectGradient = (
 };
 
 export const setObjectShadow = (
-  object: FabricObject | any,
+  object: FabricObject,
   options: ShadowOptions
 ) => {
   if (options.enabled) {
     object.set({
-      shadow: new Shadow(options as any),
+      shadow: new Shadow(options),
     });
   } else {
     object.set({
@@ -68,10 +72,7 @@ export const setObjectShadow = (
   }
 };
 
-export const updateObjectShadow = (
-  object: FabricObject | any,
-  options: any
-) => {
+export const updateObjectShadow = (object: FabricObject, options: any) => {
   if (options) {
     object.set({
       shadow: new Shadow(options),
@@ -84,7 +85,7 @@ export const updateObjectShadow = (
 };
 
 export const updateObjectBounds = (
-  element: FabricObject | any,
+  element: FabricObject,
   options: Required<ILayer>
 ) => {
   const { top, left, width, height } = element;

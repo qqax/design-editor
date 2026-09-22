@@ -1,32 +1,28 @@
 import { ActiveSelection } from 'fabric';
-import type { Object as FabricObject } from 'fabric';
-
-import {
-  Direction,
-  ScaleType,
-  Size,
-} from '../../common/interfaces';
 
 import { LayerType } from '../../../types';
 
+import type { FabricObject } from 'fabric';
+
+import type { Direction, ScaleType, Size } from '../../common/interfaces';
+import type { Editor } from '../../editor';
+
 interface ObjectsAlignContext {
   readonly canvas: any;
-  readonly editor: any;
+  readonly editor: Editor;
   readonly state: any;
 
-  getRefObject(
-    id?: string,
-  ): FabricObject | null;
+  getRefObject: (id?: string) => FabricObject | null;
 }
 
 export class ObjectsAlign {
   private readonly canvas: ObjectsAlignContext['canvas'];
+
   private readonly editor: ObjectsAlignContext['editor'];
+
   private readonly state: ObjectsAlignContext['state'];
 
-  constructor(
-    context: ObjectsAlignContext,
-  ) {
+  constructor(context: ObjectsAlignContext) {
     /*
      * Do not keep the whole Objects instance here.
      *
@@ -39,24 +35,16 @@ export class ObjectsAlign {
     this.editor = context.editor;
     this.state = context.state;
 
-    this.getRefObject = context.getRefObject.bind(
-      context,
-    );
+    this.getRefObject = context.getRefObject.bind(context);
   }
 
-  private readonly getRefObject: (
-    id?: string,
-  ) => FabricObject | null;
+  private readonly getRefObject: (id?: string) => FabricObject | null;
 
   private get frame() {
     return this.editor.frame.frame;
   }
 
-  public position(
-    position: Direction,
-    value: number,
-    id?: string,
-  ) {
+  public position(position: Direction, value: number, id?: string) {
     const object = this.getRefObject(id);
 
     if (!object) {
@@ -71,11 +59,7 @@ export class ObjectsAlign {
     this.editor.history.save();
   }
 
-  public resize(
-    size: Size,
-    value: number,
-    id?: string,
-  ) {
+  public resize(size: Size, value: number, id?: string) {
     const object = this.getRefObject(id);
 
     if (!object) {
@@ -87,10 +71,7 @@ export class ObjectsAlign {
         return;
       }
 
-      object.set(
-        'scaleX',
-        value / object.width,
-      );
+      object.set('scaleX', value / object.width);
     }
 
     if (size === 'height') {
@@ -98,10 +79,7 @@ export class ObjectsAlign {
         return;
       }
 
-      object.set(
-        'scaleY',
-        value / object.height,
-      );
+      object.set('scaleY', value / object.height);
     }
 
     object.setCoords();
@@ -111,27 +89,19 @@ export class ObjectsAlign {
     this.editor.history.save();
   }
 
-  public scale(
-    type: ScaleType,
-    id?: string,
-  ) {
+  public scale(type: ScaleType, id?: string) {
     const object = this.getRefObject(id);
 
     if (!object) {
       return;
     }
 
-    const frame = this.frame;
+    const { frame } = this;
 
     const frameWidth = frame.width ?? 0;
     const frameHeight = frame.height ?? 0;
 
-    if (
-      !object.width ||
-      !object.height ||
-      !frameWidth ||
-      !frameHeight
-    ) {
+    if (!object.width || !object.height || !frameWidth || !frameHeight) {
       return;
     }
 
@@ -139,9 +109,7 @@ export class ObjectsAlign {
     const scaleY = frameHeight / object.height;
 
     const scale =
-      type === 'fill'
-        ? Math.max(scaleX, scaleY)
-        : Math.min(scaleX, scaleY);
+      type === 'fill' ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY);
 
     const scaledWidth = object.width * scale;
     const scaledHeight = object.height * scale;
@@ -150,15 +118,9 @@ export class ObjectsAlign {
       scaleX: scale,
       scaleY: scale,
 
-      left:
-        (frame.left ?? 0) +
-        frameWidth / 2 -
-        scaledWidth / 2,
+      left: (frame.left ?? 0) + frameWidth / 2 - scaledWidth / 2,
 
-      top:
-        (frame.top ?? 0) +
-        frameHeight / 2 -
-        scaledHeight / 2,
+      top: (frame.top ?? 0) + frameHeight / 2 - scaledHeight / 2,
     });
 
     object.setCoords();
@@ -175,14 +137,8 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
-      this.alignSelection(
-        object as ActiveSelection,
-        'top',
-        object.top ?? 0,
-      );
+    if (object.type === LayerType.ACTIVE_SELECTION) {
+      this.alignSelection(object as ActiveSelection, 'top', object.top ?? 0);
     } else {
       object.set({
         top: this.frame.top ?? 0,
@@ -201,19 +157,14 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
+    if (object.type === LayerType.ACTIVE_SELECTION) {
       const top = object.top ?? 0;
       const height = object.getScaledHeight();
 
       this.alignSelection(
         object as ActiveSelection,
         'middle',
-        (objectHeight) =>
-          top +
-          height / 2 -
-          objectHeight / 2,
+        (objectHeight) => top + height / 2 - objectHeight / 2
       );
     } else {
       object.set({
@@ -236,19 +187,14 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
+    if (object.type === LayerType.ACTIVE_SELECTION) {
       const top = object.top ?? 0;
       const height = object.getScaledHeight();
 
       this.alignSelection(
         object as ActiveSelection,
         'bottom',
-        (objectHeight) =>
-          top +
-          height -
-          objectHeight,
+        (objectHeight) => top + height - objectHeight
       );
     } else {
       object.set({
@@ -271,14 +217,8 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
-      this.alignSelection(
-        object as ActiveSelection,
-        'left',
-        object.left ?? 0,
-      );
+    if (object.type === LayerType.ACTIVE_SELECTION) {
+      this.alignSelection(object as ActiveSelection, 'left', object.left ?? 0);
     } else {
       object.set({
         left: this.frame.left ?? 0,
@@ -297,19 +237,14 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
+    if (object.type === LayerType.ACTIVE_SELECTION) {
       const left = object.left ?? 0;
       const width = object.getScaledWidth();
 
       this.alignSelection(
         object as ActiveSelection,
         'center',
-        (objectWidth) =>
-          left +
-          width / 2 -
-          objectWidth / 2,
+        (objectWidth) => left + width / 2 - objectWidth / 2
       );
     } else {
       object.set({
@@ -332,19 +267,14 @@ export class ObjectsAlign {
       return;
     }
 
-    if (
-      object.type === LayerType.ACTIVE_SELECTION
-    ) {
+    if (object.type === LayerType.ACTIVE_SELECTION) {
       const left = object.left ?? 0;
       const width = object.getScaledWidth();
 
       this.alignSelection(
         object as ActiveSelection,
         'right',
-        (objectWidth) =>
-          left +
-          width -
-          objectWidth,
+        (objectWidth) => left + width - objectWidth
       );
     } else {
       object.set({
@@ -362,85 +292,56 @@ export class ObjectsAlign {
 
   private alignSelection(
     activeSelection: ActiveSelection,
-    type:
-      | 'top'
-      | 'left'
-      | 'middle'
-      | 'center'
-      | 'bottom'
-      | 'right',
-    calculator:
-      | number
-      | ((size: number) => number),
+    type: 'top' | 'left' | 'middle' | 'center' | 'bottom' | 'right',
+    calculator: number | ((size: number) => number)
   ) {
-    const selectedObjects =
-      activeSelection.getObjects().slice();
+    const selectedObjects = activeSelection.getObjects().slice();
 
     this.canvas.discardActiveObject();
 
-    selectedObjects.forEach(
-      (object: FabricObject) => {
-        switch (type) {
-          case 'top':
-          case 'left':
-            object.set(
-              type,
-              calculator as number,
-            );
-            break;
+    selectedObjects.forEach((object: FabricObject) => {
+      switch (type) {
+        case 'top':
+        case 'left':
+          object.set(type, calculator);
+          break;
 
-          case 'middle':
-          case 'bottom':
-            object.set(
-              'top',
-              (calculator as (
-                size: number,
-              ) => number)(
-                object.getScaledHeight(),
-              ),
-            );
-            break;
+        case 'middle':
+        case 'bottom':
+          object.set(
+            'top',
+            (calculator as (size: number) => number)(object.getScaledHeight())
+          );
+          break;
 
-          case 'center':
-          case 'right':
-            object.set(
-              'left',
-              (calculator as (
-                size: number,
-              ) => number)(
-                object.getScaledWidth(),
-              ),
-            );
-            break;
-        }
+        case 'center':
+        case 'right':
+          object.set(
+            'left',
+            (calculator as (size: number) => number)(object.getScaledWidth())
+          );
+          break;
+      }
 
-        object.setCoords();
-      },
-    );
+      object.setCoords();
+    });
 
-    const selection =
-      new ActiveSelection(
-        selectedObjects,
-        {
-          canvas: this.canvas,
-        },
-      );
+    const selection = new ActiveSelection(selectedObjects, {
+      canvas: this.canvas,
+    });
 
     this.canvas.setActiveObject(selection);
     this.state.setActiveObject(selection);
   }
 
   private finishAlignment() {
-    const activeObject =
-      this.canvas.getActiveObject();
+    const activeObject = this.canvas.getActiveObject();
 
     activeObject?.setCoords();
 
     this.canvas.requestRenderAll();
 
-    this.state.setActiveObject(
-      activeObject ?? null,
-    );
+    this.state.setActiveObject(activeObject ?? null);
 
     this.editor.history.save();
   }

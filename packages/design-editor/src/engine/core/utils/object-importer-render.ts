@@ -11,9 +11,14 @@ import {
   StaticText,
   StaticVector,
 } from '../../objects';
-import { LayerType } from '../common/constants';
+import { LayerType } from '../../types';
 
-import type { Object as FabricObject } from 'fabric';
+import type {
+  FabricObject,
+  TComplexPathData,
+  TOriginX,
+  TOriginY,
+} from 'fabric';
 
 import type {
   IBackground,
@@ -82,14 +87,13 @@ class ObjectImporter {
           width: baseOptions.width ? baseOptions.width : 240,
           text: text || 'Empty Text',
           fill: fill || '#333333',
-          ...(textAlign && { textAlign }),
+          ...(textAlign && { textAlign: textAlign as any }),
           ...(fontFamily && { fontFamily }),
           ...(fontSize && { fontSize }),
           ...(charSpacing && { charSpacing }),
           ...(lineHeight && { lineHeight }),
           metadata,
         };
-        // @ts-ignore
         const element = new StaticText(textOptions);
 
         updateObjectShadow(element, item.shadow);
@@ -102,66 +106,48 @@ class ObjectImporter {
   }
 
   public async staticImage(item: ILayer): Promise<StaticImage> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        const { src, cropX, cropY } = item as IStaticImage;
+    const baseOptions = this.getBaseOptions(item);
+    const { src, cropX, cropY } = item as IStaticImage;
 
-        const image: any = await loadImageFromURL(src);
-        const element = new StaticImage(image, {
-          ...baseOptions,
-          cropX: cropX || 0,
-          cropY: cropY || 0,
-        });
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const image: any = await loadImageFromURL(src);
+    const element = new StaticImage(image, {
+      ...baseOptions,
+      cropX: cropX || 0,
+      cropY: cropY || 0,
     });
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async backgroundImage(item: ILayer): Promise<BackgroundImage> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        const { src, cropX, cropY } = item as IBackgroundImage;
+    const baseOptions = this.getBaseOptions(item);
+    const { src, cropX, cropY } = item as IBackgroundImage;
 
-        const image: any = await loadImageFromURL(src);
-        const element = new BackgroundImage(image, {
-          ...baseOptions,
-          cropX: cropX || 0,
-          cropY: cropY || 0,
-        });
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const image: any = await loadImageFromURL(src);
+    const element = new BackgroundImage(image, {
+      ...baseOptions,
+      cropX: cropX || 0,
+      cropY: cropY || 0,
     });
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async staticVideo(item: ILayer): Promise<StaticImage> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        const { preview: src, cropX, cropY } = item as IStaticImage;
+    const baseOptions = this.getBaseOptions(item);
+    const { preview: src, cropX, cropY } = item as IStaticImage;
 
-        const image: any = await loadImageFromURL(src as string);
-        const element = new StaticImage(image, {
-          ...baseOptions,
-          cropX: cropX || 0,
-          cropY: cropY || 0,
-        });
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const image: any = await loadImageFromURL(src as string);
+    const element = new StaticImage(image, {
+      ...baseOptions,
+      cropX: cropX || 0,
+      cropY: cropY || 0,
     });
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async staticPath(item: ILayer): Promise<StaticPath> {
@@ -172,8 +158,7 @@ class ObjectImporter {
 
         const element = new StaticPath({
           ...baseOptions,
-          // @ts-ignore
-          path,
+          path: path as unknown as TComplexPathData,
           fill,
         });
 
@@ -187,76 +172,54 @@ class ObjectImporter {
   }
 
   public async group(item: ILayer, params: any): Promise<Group> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        let objects: FabricObject[] = [];
+    const baseOptions = this.getBaseOptions(item);
+    const objects = await Promise.all(
+      (item as IGroup).objects.map(async (object) =>
+        this.import(object, params)
+      )
+    );
 
-        for (const object of (item as IGroup).objects) {
-          objects = objects.concat(await this.import(object, params));
-        }
-        // @ts-ignore
-        const element = new Group(objects, baseOptions);
+    const element = new Group(objects, baseOptions);
 
-        updateObjectShadow(element, item.shadow);
+    updateObjectShadow(element, item.shadow);
 
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    return element;
   }
 
   public async background(item: ILayer): Promise<Background> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        const { fill } = item as IBackground;
-        // @ts-ignore
-        const element = new Background({
-          ...baseOptions,
-          fill,
-          id: 'background',
-          name: '',
-        });
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const baseOptions = this.getBaseOptions(item);
+    const { fill } = item as IBackground;
+    return new Background({
+      ...baseOptions,
+      fill,
+      id: 'background',
+      name: '',
     });
   }
 
   public async staticVector(item: ILayer): Promise<StaticVector> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item);
-        const { src, colorMap = {} } = item as IStaticVector;
+    const baseOptions = this.getBaseOptions(item);
+    const { src, colorMap = {} } = item as IStaticVector;
 
-        loadSVGFromURL(src, (objects, opts) => {
-          const { width, height } = baseOptions;
-          if (!width || !height) {
-            baseOptions.width = opts.width;
-            baseOptions.height = opts.height;
-          }
+    const { objects, options: opts } = await loadSVGFromURL(src);
+    const { width, height } = baseOptions;
+    if (!width || !height) {
+      baseOptions.width = opts.width;
+      baseOptions.height = opts.height;
+    }
 
-          // @ts-ignore
-          const element = new StaticVector(objects, opts, {
-            ...baseOptions,
-            src,
-            colorMap,
-          });
-
-          updateObjectShadow(element, item.shadow);
-
-          resolve(element);
-        });
-      } catch (err) {
-        reject(err);
-      }
+    const element = new StaticVector(objects, opts, {
+      ...baseOptions,
+      src,
+      colorMap,
     });
+
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
+  // eslint-disable-next-line class-methods-use-this -- pure option-mapping helper shared by every import method
   getBaseOptions(item: ILayer) {
     const {
       id,
@@ -279,7 +242,7 @@ class ObjectImporter {
       angle,
     } = item;
     const metadata = item.metadata ? item.metadata : {};
-    const baseOptions = {
+    return {
       id,
       name,
       angle,
@@ -287,8 +250,8 @@ class ObjectImporter {
       left,
       width,
       height,
-      originX: originX || 'left',
-      originY: originY || 'top',
+      originX: (originX || 'left') as TOriginX,
+      originY: (originY || 'top') as TOriginY,
       scaleX: scaleX || 1,
       scaleY: scaleY || 1,
       opacity: opacity || 1,
@@ -299,14 +262,17 @@ class ObjectImporter {
       ...(stroke && { stroke }),
       strokeWidth: strokeWidth || 0,
       strokeDashArray: item.strokeDashArray ? item.strokeDashArray : null,
-      strokeLineCap: item.strokeLineCap ? item.strokeLineCap : 'butt',
-      strokeLineJoin: item.strokeLineJoin ? item.strokeLineJoin : 'miter',
+      strokeLineCap: (item.strokeLineCap
+        ? item.strokeLineCap
+        : 'butt') as CanvasLineCap,
+      strokeLineJoin: (item.strokeLineJoin
+        ? item.strokeLineJoin
+        : 'miter') as CanvasLineJoin,
       strokeUniform: item.strokeUniform || false,
       strokeMiterLimit: item.strokeMiterLimit ? item.strokeMiterLimit : 4,
       strokeDashOffset: item.strokeDashOffset ? item.strokeMiterLimit : 0,
       metadata,
     };
-    return baseOptions;
   }
 }
 

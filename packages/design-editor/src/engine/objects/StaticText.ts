@@ -2,7 +2,7 @@ import { classRegistry, Textbox } from 'fabric';
 
 import type { TextboxProps } from 'fabric';
 
-export type StaticTextOptions = TextboxProps & {
+export type StaticTextOptions = Partial<TextboxProps> & {
   text: string;
   fontURL?: string;
 };

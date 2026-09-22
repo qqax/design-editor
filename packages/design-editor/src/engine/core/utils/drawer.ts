@@ -1,12 +1,30 @@
-// @ts-nocheck
-import {util,} from 'fabric';
+import { util } from 'fabric';
+
+import type { controlsUtils } from 'fabric';
+
+function drawRectRounded(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + w, y, x + w, y + h, radius);
+  ctx.arcTo(x + w, y + h, x, y + h, radius);
+  ctx.arcTo(x, y + h, x, y, radius);
+  ctx.arcTo(x, y, x + w, y, radius);
+  ctx.closePath();
+}
 
 export function drawCircleIcon(
   ctx: CanvasRenderingContext2D,
-  left,
-  top,
-  __styleOverride,
-  fabricObject
+  left: number,
+  top: number,
+  __styleOverride: controlsUtils.ControlRenderingStyleOverride | undefined,
+  fabricObject: any
 ) {
   ctx.save();
   ctx.translate(left, top);
@@ -22,10 +40,10 @@ export function drawCircleIcon(
 
 export function drawVerticalLineIcon(
   ctx: CanvasRenderingContext2D,
-  left,
-  top,
-  _styleOverride,
-  fabricObject
+  left: number,
+  top: number,
+  __styleOverride: controlsUtils.ControlRenderingStyleOverride | undefined,
+  fabricObject: any
 ) {
   ctx.save();
   ctx.translate(left, top);
@@ -40,22 +58,22 @@ export function drawVerticalLineIcon(
   ctx.restore();
 }
 
-function drawRectRounded(ctx: CanvasRenderingContext2D, x, y, w, h, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + w, y, x + w, y + h, radius);
-  ctx.arcTo(x + w, y + h, x, y + h, radius);
-  ctx.arcTo(x, y + h, x, y, radius);
-  ctx.arcTo(x, y, x + w, y, radius);
-  ctx.closePath();
+function getPointOnCircle(
+  center: { x: number; y: number },
+  radius: number,
+  angle: number
+) {
+  const pX = center.x + Math.cos(angle) * radius;
+  const pY = center.y + Math.sin(angle) * radius;
+  return { x: pX, y: pY };
 }
 
 export function drawHorizontalLineIcon(
-  ctx,
-  left,
-  top,
-  _styleOverride,
-  fabricObject
+  ctx: CanvasRenderingContext2D,
+  left: number,
+  top: number,
+  __styleOverride: controlsUtils.ControlRenderingStyleOverride | undefined,
+  fabricObject: any
 ) {
   ctx.save();
   ctx.translate(left, top);
@@ -69,7 +87,12 @@ export function drawHorizontalLineIcon(
   ctx.restore();
 }
 
-export function drawRotateIcon(ctx, left, top, _styleOverride, _fabricObject) {
+export function drawRotateIcon(
+  ctx: CanvasRenderingContext2D,
+  left: number,
+  top: number,
+  __styleOverride: controlsUtils.ControlRenderingStyleOverride | undefined
+) {
   const radius = 6;
   const lineWidth = radius / 3;
   const arrowWidth = radius / 2;
@@ -78,7 +101,7 @@ export function drawRotateIcon(ctx, left, top, _styleOverride, _fabricObject) {
     y: top,
   };
   const arrow1 = {
-    startAngle: 0 * Math.PI + 0.6,
+    startAngle: 0.6,
     endAngle: 1.8 * Math.PI,
   };
 
@@ -86,7 +109,7 @@ export function drawRotateIcon(ctx, left, top, _styleOverride, _fabricObject) {
     startAngle: (3 / 2) * Math.PI + 0.6,
     endAngle: (1 / 2) * Math.PI,
   };
-  function draw(startAngle, endAngle) {
+  function draw(startAngle: number, endAngle: number) {
     ctx.beginPath();
     ctx.shadowBlur = 0;
 
@@ -109,12 +132,6 @@ export function drawRotateIcon(ctx, left, top, _styleOverride, _fabricObject) {
 
     ctx.closePath();
     ctx.fill();
-  }
-
-  function getPointOnCircle(center, radius, angle) {
-    const pX = center.x + Math.cos(angle) * radius;
-    const pY = center.y + Math.sin(angle) * radius;
-    return { x: pX, y: pY };
   }
 
   ctx.save();

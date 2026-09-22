@@ -9,7 +9,7 @@ const defaultShadow = {
   offsetY: 0,
 };
 
-export interface BackgroundOptions extends RectProps {
+export interface BackgroundOptions extends Partial<RectProps> {
   id: string;
   name: string;
   description?: string;

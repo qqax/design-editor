@@ -1,4 +1,4 @@
-import {LayerType} from '../common/constants';
+import { LayerType } from '../../types';
 
 import type {
   IBackground,
@@ -48,6 +48,15 @@ class ObjectExporter {
       case LayerType.STATIC_AUDIO:
         object = this.staticAudio(item, options, inGroup);
         break;
+      case LayerType.STATIC_GROUP:
+      case LayerType.DYNAMIC_GROUP:
+      case LayerType.DYNAMIC_PATH:
+      case LayerType.DYNAMIC_IMAGE:
+      case LayerType.DYNAMIC_TEXT:
+      case LayerType.FRAME:
+      case LayerType.GROUP:
+      case LayerType.PRINT_ITEM:
+      case LayerType.ACTIVE_SELECTION:
       default:
         object = this.background(item, options, inGroup);
     }

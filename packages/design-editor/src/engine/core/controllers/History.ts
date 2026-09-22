@@ -1,7 +1,7 @@
 import throttle from 'lodash/throttle';
 
 import Base from './Base';
-import { LayerType } from '../common/constants';
+import { LayerType } from '../../types';
 
 /**
  * Undo / Redo — Full-canvas JSON snapshot approach

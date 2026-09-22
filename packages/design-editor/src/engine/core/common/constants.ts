@@ -57,21 +57,6 @@ export const defaultFrameOptions = {
   hoverCursor: 'default',
 };
 
-export enum LayerType {
-  STATIC_VECTOR = 'StaticVector',
-  STATIC_GROUP = 'StaticGroup',
-  STATIC_PATH = 'StaticPath',
-  STATIC_IMAGE = 'StaticImage',
-  STATIC_VIDEO = 'StaticVideo',
-  STATIC_AUDIO = 'StaticAudio',
-  STATIC_TEXT = 'StaticText',
-  ACTIVE_SELECTION = 'activeSelection',
-  BACKGROUND = 'Background',
-  BACKGROUND_IMAGE = 'BackgroundImage',
-  FRAME = 'Frame',
-  GROUP = 'Group',
-}
-
 export const defaultBackgroundOptions = {
   width: 1200,
   height: 1200,
