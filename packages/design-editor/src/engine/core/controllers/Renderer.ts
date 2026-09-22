@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { StaticCanvas } from 'fabric';
 
+import { fontLoader } from '../utils/font-loader';
 import ObjectImporter from '../utils/object-importer-render';
 
 import type { ILayer, IScene } from '../../types';
@@ -74,6 +75,10 @@ class Renderer {
   ): Promise<void> {
     const { frame } = template;
     this.setDimensions(staticCanvas, frame);
+
+    // Text is measured as it is built, so every face must be ready up front.
+    await fontLoader.ensure(template);
+
     const objectImporter = new ObjectImporter();
 
     // РЕШЕНИЕ: Параллельный импорт всех слоев без использования циклов и await в цикле

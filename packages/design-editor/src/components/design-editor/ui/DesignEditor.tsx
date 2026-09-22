@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Toaster } from 'sonner';
 
 import { DesignEditorInner } from './DesignEditorInner';
+import { fontLoader } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
 import {
   createDefaultFontProvider,
@@ -55,6 +56,13 @@ export function DesignEditor({
   const textDesignProvider = innerConfig.text.provider;
   const templatesPanel = innerConfig.templates.renderProp;
   const libraryPanel = innerConfig.upload.renderProp;
+
+  // Registered during render rather than in an effect: child effects (the
+  // initial scene import) run before parent effects and would beat it. There
+  // is deliberately no unmount teardown — StrictMode's simulated unmount would
+  // clear the resolver after this call and leave it null. A later editor
+  // overwrites it here instead.
+  fontLoader.setResolver(async (family) => fontProvider.load(family));
 
   const ctx = useMemo(
     () => ({

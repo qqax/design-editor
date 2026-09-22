@@ -71,6 +71,7 @@ export * from './core/controllers/Renderer';
 export * from './core/parser';
 
 // utils
+export * from './core/utils/font-loader';
 export * from './core/utils/image-loader';
 export * from './core/utils/object-exporter';
 export * from './core/utils/object-importer';

@@ -1,6 +1,7 @@
 import Base from './Base';
 import {LayerType} from '../common/constants';
 import parseSVG from '../parser';
+import {fontLoader} from '../utils/font-loader';
 import getSelectionType from '../utils/get-selection-type';
 import {generateId} from '../utils/id';
 import ObjectExporter from '../utils/object-exporter';
@@ -193,6 +194,9 @@ class Scene extends Base {
     });
 
     const frame = this.editor.frame.frame as any;
+
+    await fontLoader.ensure(template);
+
     const objectImporter = new ObjectImporter(this.editor);
     const updatedTemplateLayers = template.layers.map((layer) => {
       if (layer.type === LayerType.BACKGROUND) {

@@ -1,20 +1,23 @@
-import type {Object as FabricObject} from 'fabric';
-import {Group, loadSVGFromURL} from 'fabric';
+import { Group, loadSVGFromURL } from 'fabric';
 
-import {updateObjectBounds, updateObjectShadow} from './fabric';
-import {generateId} from './id';
-import {loadImageFromURL} from './image-loader';
-import {createVideoElement} from './video-loader';
-import {Background} from '../../objects/Background';
-import {BackgroundImage} from '../../objects/BackgroundImage';
-import {StaticAudio} from '../../objects/StaticAudio';
-import {StaticImage} from '../../objects/StaticImage';
-import {StaticText} from '../../objects/StaticText';
-import {StaticPath} from '../../objects/StaticPath';
-import {StaticVector} from '../../objects/StaticVector';
-import {StaticVideo} from '../../objects/StaticVideo';
+import { updateObjectBounds, updateObjectShadow } from './fabric';
+import { fontLoader } from './font-loader';
+import { generateId } from './id';
+import { loadImageFromURL } from './image-loader';
+import { createVideoElement } from './video-loader';
+import {
+  Background,
+  BackgroundImage,
+  StaticAudio,
+  StaticImage,
+  StaticPath,
+  StaticText,
+  StaticVector,
+  StaticVideo,
+} from '../../objects';
+import { LayerType } from '../common/constants';
 
-import {LayerType} from '../common/constants';
+import type { Object as FabricObject } from 'fabric';
 
 import type {
   IBackground,
@@ -28,8 +31,7 @@ import type {
   IStaticVector,
   IStaticVideo,
 } from '../../types';
-import type {Editor} from '../editor';
-
+import type { Editor } from '../editor';
 
 class ObjectImporter {
   constructor(public editor: Editor) {}
@@ -82,6 +84,8 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticText> {
+    await fontLoader.ensure(item);
+
     return new Promise((resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item, options, inGroup);

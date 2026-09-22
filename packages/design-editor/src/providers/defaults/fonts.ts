@@ -61,7 +61,7 @@ function familyFromFilename(filename: string): string {
  * Each factory call returns an independent provider instance with its own state.
  */
 export function createDefaultFontProvider(): FontProvider {
-  const loadedFamilies = new Set<string>();
+  const loads = new Map<string, Promise<void>>();
   const uploads = new Map<string, FontDescriptor>();
   const subscribers = new Set<FontChangeHandler>();
 
@@ -69,13 +69,31 @@ export function createDefaultFontProvider(): FontProvider {
     subscribers.forEach((h) => h());
   }
 
-  function loadGoogleFont(family: string): void {
-    if (loadedFamilies.has(family)) return;
-    loadedFamilies.add(family);
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}&display=swap`;
-    document.head.appendChild(link);
+  /**
+   * Resolves only once the face is actually usable — appending the stylesheet
+   * is not enough, since callers render text on the very next tick.
+   */
+  async function loadGoogleFont(family: string): Promise<void> {
+    const pending = loads.get(family);
+    if (pending) return pending;
+
+    const href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(
+      family
+    ).replace(/%20/g, '+')}&display=swap`;
+
+    const promise = new Promise<void>((resolve) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.addEventListener('load', () => resolve());
+      link.addEventListener('error', () => resolve());
+      document.head.appendChild(link);
+    }).then(async () => {
+      await document.fonts.load(`1em "${family}"`);
+    });
+
+    loads.set(family, promise);
+    return promise;
   }
 
   return {
@@ -86,15 +104,14 @@ export function createDefaultFontProvider(): FontProvider {
     async load(family: string): Promise<void> {
       // If it's an uploaded font, FontFace is already registered — no-op.
       if (uploads.has(family)) return;
-      loadGoogleFont(family);
+      await loadGoogleFont(family);
     },
 
     async upload(file: File): Promise<FontDescriptor> {
       const family = familyFromFilename(file.name);
       const buffer = await file.arrayBuffer();
-      const face = new FontFace(family, buffer);
+      const face = await new FontFace(family, buffer).load();
       document.fonts.add(face);
-      await face.load();
 
       const descriptor: FontDescriptor = {
         family,

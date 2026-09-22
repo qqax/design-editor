@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronDown, Upload } from 'lucide-react';
 
+import { fontLoader } from '../../../engine';
 import { useEditorContext } from '../../EditorContext';
 import { Input, Popover } from '../../primitives';
 
@@ -42,9 +43,7 @@ export function FontPickerPopover({
           setFonts(list);
           // Fire-and-forget: load each font for preview rendering
           list.forEach((f) => {
-            fontProvider.load(f.family).catch(() => {
-              /* ignore */
-            });
+            void fontLoader.ensureFamily(f.family);
           });
         });
       } else {
@@ -60,14 +59,12 @@ export function FontPickerPopover({
 
   const handleSelect = useCallback(
     async (family: string) => {
-      await fontProvider.load(family).catch(() => {
-        /* ignore */
-      });
+      await fontLoader.ensureFamily(family);
       onChange(family);
       setOpen(false);
       setSearch('');
     },
-    [fontProvider, onChange]
+    [onChange]
   );
 
   const handleUpload = useCallback(
@@ -75,7 +72,9 @@ export function FontPickerPopover({
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        await fontProvider.upload(file);
+        const uploaded = await fontProvider.upload(file);
+        // Drop any cached miss from before this face existed.
+        fontLoader.invalidate(uploaded.family);
         // onChange subscriber will refresh the list
       } catch {
         // Upload failed — silently ignore; list stays unchanged

@@ -1,17 +1,19 @@
-import type { Object as FabricObject} from "fabric";
-import { loadSVGFromURL, Canvas, Group, util  } from "fabric";
+import { Group, loadSVGFromURL } from 'fabric';
 
-import { updateObjectShadow } from "./fabric"
-import { loadImageFromURL } from "./image-loader"
-import { Background } from '../../objects/Background';
-import { BackgroundImage } from '../../objects/BackgroundImage';
-import { StaticAudio } from '../../objects/StaticAudio';
-import { StaticImage } from '../../objects/StaticImage';
-import { StaticPath } from '../../objects/StaticPath';
-import { StaticText } from '../../objects/StaticText';
-import { StaticVector } from '../../objects/StaticVector';
-import { StaticVideo } from '../../objects/StaticVideo';
+import { updateObjectShadow } from './fabric';
+import { fontLoader } from './font-loader';
+import { loadImageFromURL } from './image-loader';
+import {
+  Background,
+  BackgroundImage,
+  StaticImage,
+  StaticPath,
+  StaticText,
+  StaticVector,
+} from '../../objects';
 import { LayerType } from '../common/constants';
+
+import type { Object as FabricObject } from 'fabric';
 
 import type {
   IBackground,
@@ -57,6 +59,8 @@ class ObjectImporter {
   }
 
   public async staticText(item: ILayer): Promise<StaticText> {
+    await fontLoader.ensure(item);
+
     return new Promise((resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item);
@@ -161,7 +165,7 @@ class ObjectImporter {
   }
 
   public async staticPath(item: ILayer): Promise<StaticPath> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item);
         const { path, fill } = item as IStaticPath;
