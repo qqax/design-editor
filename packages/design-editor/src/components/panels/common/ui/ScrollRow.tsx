@@ -70,7 +70,6 @@ export function ScrollRow<
             height: 22,
             borderRadius: 6,
             background: 'var(--de-color-surface, #fff)',
-            boxShadow: '-8px 0 14px 8px var(--de-color-surface, #fff)',
           }}
         >
           <ChevronRight

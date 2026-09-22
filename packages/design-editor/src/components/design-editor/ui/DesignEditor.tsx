@@ -87,9 +87,7 @@ export function DesignEditor({
           className={className}
           initialScene={initialScene}
           libraryPanel={libraryPanel}
-          onBack={onBack}
           templatesPanel={templatesPanel}
-          textDesignProvider={textDesignProvider}
           title={title}
         />
         <Toaster position="bottom-right" />

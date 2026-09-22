@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
 
@@ -25,11 +26,11 @@ export function ResourceCategoryRow({
   onSelect,
   onSeeMore,
 }: Props) {
-  const [items, setItems] = React.useState<DesignResource[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(false);
+  const [items, setItems] = useState<DesignResource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const fetchResources = React.useCallback(
+  const fetchResources = useCallback(
     async (signal: AbortSignal) =>
       provider.list({
         categoryId: category.id,
@@ -39,7 +40,7 @@ export function ResourceCategoryRow({
     [provider, category.id]
   );
 
-  const handleRetry = React.useCallback(() => {
+  const handleRetry = useCallback(() => {
     const controller = new AbortController();
 
     setLoading(true);
@@ -60,7 +61,7 @@ export function ResourceCategoryRow({
       });
   }, [fetchResources]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
 
     fetchResources(controller.signal)

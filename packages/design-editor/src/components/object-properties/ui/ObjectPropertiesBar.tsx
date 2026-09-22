@@ -49,7 +49,8 @@ export function ObjectPropertiesBar({
         alignItems: 'center',
         gap: 4,
         padding: '6px 10px',
-        background: 'color-mix(in srgb, var(--de-color-surface) 94%, transparent)',
+        background:
+          'color-mix(in srgb, var(--de-color-surface) 94%, transparent)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         border: '1px solid var(--de-color-border)',

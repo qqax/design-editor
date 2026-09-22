@@ -11,8 +11,7 @@ import {
 
 import { FontPickerPopover } from './FontPickerPopover';
 import { TextMoreContent } from './TextMoreContent';
-import { createDefaultFontProvider } from '../../../providers';
-import { UnifiedColorPicker } from '../../panels/color-picker';
+import { UnifiedColorPicker } from '../../panels';
 import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useTextControls } from '../model';
 
@@ -24,8 +23,6 @@ interface TextControlsProps {
   opacity: number;
   setOpacity: (o: number) => void;
 }
-
-const DEFAULT_FONT_PROVIDER = createDefaultFontProvider();
 
 export const TextControls = ({
   editor,
@@ -50,7 +47,6 @@ export const TextControls = ({
     <React.Fragment>
       {/* Font — show selection style font if editing */}
       <FontPickerPopover
-        fontProvider={DEFAULT_FONT_PROVIDER}
         onChange={handleFontChange}
         currentFamily={
           isEditingText && selStyle.fontFamily
@@ -115,7 +111,7 @@ export const TextControls = ({
                   : activeObj?.fontWeight) === 'bold'
                   ? 'normal'
                   : 'bold',
-            } as any)
+            })
           }
         >
           <Bold size={14} />
@@ -128,7 +124,7 @@ export const TextControls = ({
             editor?.objects.update({
               fontStyle:
                 activeObj?.fontStyle === 'italic' ? 'normal' : 'italic',
-            } as any)
+            })
           }
         >
           <Italic size={14} />

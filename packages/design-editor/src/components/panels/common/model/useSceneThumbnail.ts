@@ -1,8 +1,10 @@
 'use client';
 
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 
 import { useEditor } from '../../../../engine';
+
+import type { RefObject } from 'react';
 
 import type { IScene } from '../../../../engine';
 
@@ -14,14 +16,6 @@ interface UseSceneThumbnailResult {
   loading: boolean;
 }
 
-/**
- * Resolves a usable image src for a scene thumbnail. If `thumbnailUrl` is
- * provided, that wins. Otherwise, the scene is rendered via
- * `editor.renderer.toDataURL` once the element scrolls into view, and the
- * result is cached by id for the lifetime of the page.
- *
- * The third arg is for tests; in real usage we read the editor from context.
- */
 export function useSceneThumbnail(
   input: {
     id: string;
@@ -29,34 +23,35 @@ export function useSceneThumbnail(
     thumbnailUrl?: string;
     canvasBg?: string;
   },
-  ref: React.RefObject<HTMLElement | HTMLButtonElement | null>,
+  ref: RefObject<HTMLElement | HTMLButtonElement | null>,
   editorOverride?: {
     renderer?: { toDataURL: (scene: any, opts: any) => Promise<string> };
   }
 ): UseSceneThumbnailResult {
-  const hookEditor = useEditor() as any;
+  const hookEditor = useEditor();
   const editor = editorOverride ?? hookEditor;
 
-  const [src, setSrc] = React.useState<string | undefined>(() => {
-    if (input.thumbnailUrl) return input.thumbnailUrl;
-    return cache.get(input.id);
-  });
-  const [loading, setLoading] = React.useState<boolean>(
-    () => !src && !input.thumbnailUrl
-  );
+  const cached = cache.get(input.id);
+  const currentSrc = input.thumbnailUrl || cached;
 
-  React.useEffect(() => {
-    if (input.thumbnailUrl) {
-      setSrc(input.thumbnailUrl);
-      setLoading(false);
+  const [src, setSrc] = useState<string | undefined>(currentSrc);
+  const [loading, setLoading] = useState<boolean>(!currentSrc);
+
+  const [prevId, setPrevId] = useState(input.id);
+  const [prevThumbnailUrl, setPrevThumbnailUrl] = useState(input.thumbnailUrl);
+
+  if (input.id !== prevId || input.thumbnailUrl !== prevThumbnailUrl) {
+    setPrevId(input.id);
+    setPrevThumbnailUrl(input.thumbnailUrl);
+    setSrc(currentSrc);
+    setLoading(!currentSrc);
+  }
+
+  useEffect(() => {
+    if (input.thumbnailUrl || cache.has(input.id)) {
       return;
     }
-    const cached = cache.get(input.id);
-    if (cached) {
-      setSrc(cached);
-      setLoading(false);
-      return;
-    }
+
     if (!ref.current || !editor?.renderer?.toDataURL) return;
 
     let cancelled = false;
@@ -65,7 +60,6 @@ export function useSceneThumbnail(
       if (!visible) return;
       observer.disconnect();
 
-      // Deduplicate concurrent renders for the same id
       const existing = inFlight.get(input.id);
       if (existing) {
         setLoading(true);
@@ -82,12 +76,16 @@ export function useSceneThumbnail(
       }
 
       setLoading(true);
-      const promise = editor.renderer.toDataURL(input.scene, {
-        format: 'png',
+
+      const promise = editor?.renderer?.toDataURL(input.scene, {
+        format: 'image/webp',
         quality: 0.85,
         multiplier: 0.5,
         backgroundColor: input.canvasBg ?? '#ffffff',
       });
+
+      if (!promise) return;
+
       inFlight.set(input.id, promise);
       try {
         const dataUrl = await promise;
@@ -103,6 +101,7 @@ export function useSceneThumbnail(
       }
     });
     observer.observe(ref.current);
+
     return () => {
       cancelled = true;
       observer.disconnect();

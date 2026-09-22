@@ -32,12 +32,9 @@ export function Panel<
       {/* SEARCH */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-center rounded-lg border border-[var(--de-color-border)] bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] px-3 py-2 transition-colors focus-within:border-[var(--de-color-primary)]">
-          <Search
-            className="mr-2 text-[var(--de-color-text-muted)]"
-            size={14}
-          />
+          <Search className="mr-2 text-(--de-color-text-muted)" size={14} />
           <input
-            className="flex-1 border-none bg-transparent text-sm text-[var(--de-color-text)] outline-none"
+            className="flex-1 border-none bg-transparent text-sm text-(--de-color-text) outline-none"
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search shapes..."
             type="text"
@@ -56,9 +53,8 @@ export function Panel<
             title={categoryLabel}
           />
         ))}
-
         {totalLength === 0 && (
-          <div className="mt-8 text-center text-sm text-[var(--de-color-text-muted)]">
+          <div className="mt-8 text-center text-sm text-(--de-color-text-muted)">
             No shapes found for &#34;{search}&#34;
           </div>
         )}

@@ -103,17 +103,17 @@ export function Toolbar({
       <UnifiedColorPicker
         activeObjId={undefined}
         color={canvasBg}
-        label="BG"
+        label="Background"
         onChange={onBgChange}
-        tooltip="Outer workspace background"
+        tooltip="Canvas frame interior color"
         variant="tool-bar"
       />
       <UnifiedColorPicker
         activeObjId={undefined}
         color={workspaceBg}
-        label="Canvas"
+        label="Workspace"
         onChange={onWorkspaceBgChange}
-        tooltip="Canvas frame interior color"
+        tooltip="Outer workspace background"
         variant="tool-bar"
       />
 

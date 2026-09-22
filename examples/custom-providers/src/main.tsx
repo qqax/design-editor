@@ -1,14 +1,19 @@
 import { StrictMode } from 'react';
 
-import { DesignEditor, FontDescriptor } from '@qqax/design-editor';
+import { DesignEditor } from '@qqax/design-editor';
 import { createRoot } from 'react-dom/client';
 
-import type { FontProvider, TemplateProvider } from '@qqax/design-editor';
+import type {
+  FontDescriptor,
+  FontProvider,
+  ResourceProvider,
+} from '@qqax/design-editor';
 
+// eslint-disable-next-line import-x/order
 import '@qqax/design-editor/theme.css';
 
 // ── Demo template provider — serves a single custom template ───
-const myTemplateProvider: TemplateProvider = {
+const myTemplateProvider: ResourceProvider = {
   async categories() {
     return [{ id: 'custom-cat', name: 'Custom Templates', order: 1 }];
   },
@@ -35,13 +40,28 @@ const myTemplateProvider: TemplateProvider = {
 
 // ── Demo font provider — single custom font ─────────────────────────────────
 const myFontProvider: FontProvider = {
-  upload(file: File): Promise<FontDescriptor> {
-    return Promise.resolve( { family: 'Inter', category: 'sans-serif', weights: [400, 600, 700], source: 'custom' });
+  async upload(file: File): Promise<FontDescriptor> {
+    return Promise.resolve({
+      family: 'Inter',
+      category: 'sans-serif',
+      weights: [400, 600, 700],
+      source: 'custom',
+    });
   },
   async list() {
     return [
-      { family: 'Inter', category: 'sans-serif', weights: [400, 600, 700], source: 'custom' },
-      { family: 'JetBrains Mono', category: 'monospace', weights: [400], source: 'custom' },
+      {
+        family: 'Inter',
+        category: 'sans-serif',
+        weights: [400, 600, 700],
+        source: 'custom',
+      },
+      {
+        family: 'JetBrains Mono',
+        category: 'monospace',
+        weights: [400],
+        source: 'custom',
+      },
     ];
   },
   async load(family) {
@@ -50,7 +70,7 @@ const myFontProvider: FontProvider = {
     link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700&display=swap`;
     document.head.appendChild(link);
     await document.fonts.ready;
-  }
+  },
 };
 
 // ── Demo library panel — custom component to inject media ──────────────────────

@@ -7,10 +7,9 @@ This document outlines strict rules and best practices for any AI/LLM (e.g., Cla
 ---
 
 ## 1. Package Management & Lockfiles
-**Rule:** ALWAYS use `pnpm`. DO NOT use `npm`, `yarn`, or `bun`.
-- **Why:** This package is part of a larger `pnpm` monorepo. Using `npm install` locally within this package will break the root `pnpm-lock.yaml` lockfile and cause CI/CD failures (e.g., `ERR_PNPM_OUTDATED_LOCKFILE`).
+**Rule:** ALWAYS use `bun`. DO NOT use `npm`, `yarn`, or `pnpm`.
 - **Actionable:** 
-  - To install dependencies, use `pnpm add <pkg>`.
+  - To install dependencies, use `bun add <pkg>`.
   - Do not create a separate `package-lock.json` or `yarn.lock` inside this directory.
 
 ## 2. NPM Publishing & Permissions
@@ -18,7 +17,7 @@ This document outlines strict rules and best practices for any AI/LLM (e.g., Cla
 - **Why:** "E403 Forbidden" errors occur when attempting to publish without proper scope access to `@qqax`.
 - **Actionable:** 
   - Ensure the environment is authenticated (`npm whoami`) and confirm you have write access to the `@qqax` scope.
-  - Coordinate version bumps correctly (e.g., via `changesets` if used by the host repo) before attempting an `npm publish` or `pnpm publish`.
+  - Coordinate version bumps correctly (e.g., via `changesets` if used by the host repo) before attempting an `npm publish` or `bun publish`.
 
 ## 3. Asset Management & CDN Offloading
 **Rule:** Do NOT bundle large binary assets (images, fonts, heavy JSON templates) directly in the package source code.

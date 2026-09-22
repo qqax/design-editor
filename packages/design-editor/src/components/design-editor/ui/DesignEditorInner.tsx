@@ -30,25 +30,21 @@ import type { SelectOptions } from '../../primitives';
 const WORKSPACE_BG = 'var(--de-color-bg)';
 
 interface DesignEditorInnerProps {
-  onBack?: () => void;
   initialScene?: any;
   className?: string;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
   title?: React.ReactNode;
-  textDesignProvider: ResourceProvider;
   adSizes?: SelectOptions;
   panelsConfig?: PanelsConfigType;
 }
 
 export function DesignEditorInner({
-  onBack,
   initialScene,
   className,
   templatesPanel,
   libraryPanel,
   title,
-  textDesignProvider,
   adSizes,
   panelsConfig,
 }: DesignEditorInnerProps) {
@@ -57,7 +53,7 @@ export function DesignEditorInner({
   const zoomRatio = useZoomRatio<number>();
   const message = useToast();
   const { exportToLibrary, exporting } = useStudioExport();
-  const { backgroundRemovalProvider, sceneKey, templateProvider } =
+  const { backgroundRemovalProvider, sceneKey, onBack } =
     useEditorContext();
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
@@ -255,9 +251,7 @@ export function DesignEditorInner({
                 handleApplyTextDesign={handleApplyTextDesign}
                 libraryPanel={libraryPanel}
                 onClose={() => setActivePanel(null)}
-                templateProvider={templateProvider}
                 templatesPanel={templatesPanel}
-                textDesignProvider={textDesignProvider}
               />
             </React.Fragment>
           ) : (
@@ -271,9 +265,7 @@ export function DesignEditorInner({
                 handleApplyTextDesign={handleApplyTextDesign}
                 libraryPanel={libraryPanel}
                 onClose={() => setActivePanel(null)}
-                templateProvider={templateProvider}
                 templatesPanel={templatesPanel}
-                textDesignProvider={textDesignProvider}
               />
               <IconRail
                 activePanel={activePanel}

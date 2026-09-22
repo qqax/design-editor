@@ -4,18 +4,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronDown, Upload } from 'lucide-react';
 
+import { useEditorContext } from '../../EditorContext';
 import { Input, Popover } from '../../primitives';
 
-import type { FontDescriptor, FontProvider } from '../../../providers';
+import type { FontDescriptor } from '../../../providers';
 
 interface FontPickerPopoverProps {
-  fontProvider: FontProvider;
   currentFamily: string | undefined;
   onChange: (family: string) => void;
 }
 
 export function FontPickerPopover({
-  fontProvider,
   currentFamily,
   onChange,
 }: FontPickerPopoverProps) {
@@ -23,6 +22,8 @@ export function FontPickerPopover({
   const [fonts, setFonts] = useState<FontDescriptor[]>([]);
   const [search, setSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { fontProvider } = useEditorContext();
 
   // Subscribe to provider changes (e.g. upload)
   useEffect(() => {

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useEditorContext } from '../../EditorContext';
 import {
   getItemsFactory,
   Panel,
@@ -23,8 +24,6 @@ interface EditorSidebarProps {
   onClose: () => void;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
-  templateProvider: any;
-  textDesignProvider: ResourceProvider;
   handleApplyTemplate: (template: any) => void;
   addImageToCanvas: (src: string) => void;
   handleApplyTextDesign: (design: DesignResource) => void;
@@ -38,8 +37,6 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onClose,
   templatesPanel,
   libraryPanel,
-  templateProvider,
-  textDesignProvider,
   handleApplyTemplate,
   addImageToCanvas,
   handleApplyTextDesign,
@@ -47,6 +44,8 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   handleAddMedia,
   // setActivePanel,
 }) => {
+  const { textDesignProvider, templateProvider } = useEditorContext();
+
   if (!activePanel) return null;
 
   return (

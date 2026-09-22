@@ -253,23 +253,11 @@ export function ResourcePanel({
               style={{
                 padding: '12px 12px 0 12px',
                 display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 gap: 12,
               }}
             >
-              <button
-                onClick={handleBack}
-                type="button"
-                style={{
-                  all: 'unset',
-                  cursor: 'pointer',
-                  fontSize: 12,
-                  color: 'var(--de-color-primary)',
-                }}
-              >
-                ← Back
-              </button>
-
               <h3
                 style={{
                   margin: 0,
@@ -279,6 +267,19 @@ export function ResourcePanel({
               >
                 {activeCategory.name}
               </h3>
+              <button
+                onClick={handleBack}
+                type="button"
+                style={{
+                  all: 'unset',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'var(--de-color-primary)',
+                }}
+              >
+                ← Back
+              </button>
             </div>
 
             <ResourceDesignGrid
