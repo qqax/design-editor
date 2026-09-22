@@ -12,7 +12,7 @@ import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
 import { Zoom } from './Zoom';
-import { TOOL_BTN, UnifiedColorPicker } from '../../panels/color-picker';
+import { TOOL_BTN, UnifiedColorPicker } from '../../panels';
 import { HDivider, Tooltip } from '../../primitives';
 
 import type { CSSProperties } from 'react';
