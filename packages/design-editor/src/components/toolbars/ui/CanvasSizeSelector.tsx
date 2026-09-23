@@ -4,7 +4,7 @@ import { Button, Popover, Select } from '../../primitives';
 import { AD_SIZES, useCanvasSize } from '../model';
 
 import type { Editor } from '../../../engine';
-import type { SelectOptions } from '../../primitives';
+import type { SelectOption, SelectOptions } from '../../primitives';
 
 interface CanvasSizeSelectorProps {
   editor: Editor | null;
@@ -26,6 +26,21 @@ export const CanvasSizeSelector = ({
     handleSizeChange,
     handleApplyCustom,
   } = useCanvasSize(editor);
+
+  // A restored scene or template may use a size that is not one of the presets;
+  // surface it so the select reflects the canvas instead of falling back to a
+  // blank/incorrect entry.
+  const options = React.useMemo<SelectOptions>(() => {
+    const isFlat = (list: SelectOptions): list is SelectOption[] =>
+      list.length === 0 || 'value' in list[0];
+
+    if (!size || !isFlat(adSizes) || adSizes.some((o) => o.value === size)) {
+      return adSizes;
+    }
+    const [width, height] = size.split('x');
+    return [{ label: `${width}×${height} (Custom)`, value: size }, ...adSizes];
+  }, [adSizes, size]);
+
   return (
     <Popover
       onOpenChange={(open) => !open && setCustomOpen(false)}
@@ -99,7 +114,7 @@ export const CanvasSizeSelector = ({
       <Select
         className="studio-size-select flex-1 md:flex-none"
         onValueChange={handleSizeChange}
-        options={adSizes}
+        options={options}
         style={{ width: 'auto', minWidth: 160, maxWidth: 220 }}
         value={size}
       />

@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { useFrame } from '../../../engine';
 
 import type { Editor } from '../../../engine';
 
@@ -18,6 +20,24 @@ export function useCanvasSize(editor: Editor | null) {
   const [customOpen, setCustomOpen] = useState(false);
   const [customW, setCustomW] = useState(1920);
   const [customH, setCustomH] = useState(1080);
+
+  // The frame is resized by things outside this control — restoring an
+  // autosave, applying a template, importing a scene. Without this the select
+  // kept showing its hardcoded initial value while the canvas had a different
+  // size, and picking that same value back did nothing because the option was
+  // already "selected".
+  const frame = useFrame() as { width?: number; height?: number } | null;
+  const frameWidth = frame?.width;
+  const frameHeight = frame?.height;
+
+  useEffect(() => {
+    if (!frameWidth || !frameHeight) return;
+    const width = Math.round(frameWidth);
+    const height = Math.round(frameHeight);
+    setSize(`${width}x${height}`);
+    setCustomW(width);
+    setCustomH(height);
+  }, [frameWidth, frameHeight]);
 
   const applySize = useCallback(
     (w: number, h: number) => {

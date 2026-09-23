@@ -184,10 +184,24 @@ class Scene extends Base {
   };
 
   /**
+   * Monotonic token identifying the newest import. `importFromJSON` clears the
+   * canvas and then awaits (fonts, images), so two overlapping calls used to
+   * interleave their `canvas.add()` calls — leaving duplicated Background /
+   * layer objects and letting whichever import finished last win the frame size
+   * and background colour. Every import claims a generation and bails out as
+   * soon as a newer one has started.
+   */
+  private importGeneration = 0;
+
+  /**
    * Deserializes JSON data
    * @returns Json Template
    */
   public importFromJSON = async (template: IScene) => {
+    this.importGeneration += 1;
+    const generation = this.importGeneration;
+    const isStale = () => generation !== this.importGeneration;
+
     this.name = template.name;
     this.id = template.id;
     const frameParams = template.frame;
@@ -200,6 +214,7 @@ class Scene extends Base {
     const frame = this.editor.frame.frame as any;
 
     await fontLoader.ensure(template);
+    if (isStale()) return;
 
     const objectImporter = new ObjectImporter(this.editor);
     const updatedTemplateLayers = template.layers.map((layer) => {
@@ -212,7 +227,9 @@ class Scene extends Base {
       return layer;
     });
     for (const layer of updatedTemplateLayers as Required<ILayer[]>) {
+      // eslint-disable-next-line no-await-in-loop -- layers must be added in order
       const element = await objectImporter.import(layer, frame);
+      if (isStale()) return;
       if (element) {
         if (this.config.clipToFrame) {
           element.clipPath = frame;

@@ -53,8 +53,7 @@ export function DesignEditorInner({
   const zoomRatio = useZoomRatio<number>();
   const message = useToast();
   const { exportToLibrary, exporting } = useStudioExport();
-  const { backgroundRemovalProvider, sceneKey, onBack } =
-    useEditorContext();
+  const { backgroundRemovalProvider, sceneKey, onBack } = useEditorContext();
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
@@ -139,12 +138,20 @@ export function DesignEditorInner({
   useEffect(() => {
     if (!editor) return;
 
+    // The restore below is async (fonts + images). If this effect is torn down
+    // and re-run — or the user applies a template while it is still in flight —
+    // the late continuation must not write the *previous* scene's background
+    // colour onto the canvas, which left the select showing the new colour
+    // while the canvas still rendered the old one.
+    let cancelled = false;
+
     const saved = loadAutosave(sceneKey);
     const processScene = (sceneData: any, bgSrc: any) => {
       void editor.scene
         .importFromJSON(sceneData)
         .catch(() => {})
         .then(() => {
+          if (cancelled) return;
           if (bgSrc?.canvasBg) {
             try {
               (editor as any).frame?.setBackgroundColor?.(bgSrc.canvasBg);
@@ -153,6 +160,7 @@ export function DesignEditorInner({
             }
           }
           setTimeout(() => {
+            if (cancelled) return;
             editor.history.reset();
             editor.history.initialize();
             setHasUnsavedChanges(false);
@@ -174,7 +182,10 @@ export function DesignEditorInner({
 
     const handleChange = () => setHasUnsavedChanges(true);
     editor.on('history:changed', handleChange);
-    return () => editor.off('history:changed', handleChange);
+    return () => {
+      cancelled = true;
+      editor.off('history:changed', handleChange);
+    };
   }, [editor, initialScene, setHasUnsavedChanges, sceneKey]);
 
   const zoomPct = Math.round(zoomRatio * 100);
