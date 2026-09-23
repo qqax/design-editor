@@ -4,6 +4,12 @@ import groupBy from 'lodash/groupBy';
 export class StaticVector extends Group {
   static type = 'StaticVector';
 
+  // eslint-disable-next-line class-methods-use-this -- type is a fixed constant for this class
+  get type() {
+    return 'StaticVector';
+  }
+
+  // eslint-disable-next-line class-methods-use-this -- setter intentionally ignores value; type is immutable
   set type(_value: string) {
     // fixed value — intentional no-op
   }
