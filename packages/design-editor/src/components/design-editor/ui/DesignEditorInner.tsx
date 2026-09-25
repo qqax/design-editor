@@ -24,7 +24,6 @@ import type { FabricImage } from 'fabric';
 import type { SettingsType } from '../../../engine';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
-import type { ResourceProvider } from '../../panels/common/provider';
 import type { SelectOptions } from '../../primitives';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';

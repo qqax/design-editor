@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import {Point,} from 'fabric';
+import { Point } from 'fabric';
 
 import Base from './Base';
 

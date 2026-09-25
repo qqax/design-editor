@@ -18,9 +18,27 @@ import type {
 } from '../common/interfaces';
 
 class Frame extends Base {
+  // Simple event emitter map
+  private listeners = new Map<string, Set<() => void>>();
+
   constructor(props: ControllerOptions) {
     super(props);
     this.initialize();
+  }
+
+  public on(event: string, callback: () => void) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)?.add(callback);
+  }
+
+  public off(event: string, callback: () => void) {
+    this.listeners.get(event)?.delete(callback);
+  }
+
+  private emit(event: string) {
+    this.listeners.get(event)?.forEach((cb) => cb());
   }
 
   initialize() {
@@ -50,8 +68,6 @@ class Frame extends Base {
       height: defaultFrameOptions.width,
       width: defaultFrameOptions.height,
     });
-
-    console.trace('[EDITOR DEBUG] Frame.resize -> zoomToFit');
 
     setTimeout(() => {
       this.editor.zoom.zoomToFit();
@@ -84,19 +100,6 @@ class Frame extends Base {
   public resize({ height, width }: Dimension) {
     const { frame, background } = this;
 
-    console.log('[EDITOR DEBUG] FRAME.RESIZE BEFORE', {
-      requested: {
-        width,
-        height,
-      },
-      frame: {
-        left: frame.left,
-        top: frame.top,
-        width: frame.width,
-        height: frame.height,
-      },
-    });
-
     this.state.setFrame({
       height,
       width,
@@ -120,22 +123,8 @@ class Frame extends Base {
       background.setCoords();
     }
 
-    console.log('[EDITOR DEBUG] FRAME.RESIZE AFTER', {
-      frame: {
-        left: frame.left,
-        top: frame.top,
-        width: frame.width,
-        height: frame.height,
-      },
-      background: background
-        ? {
-            left: background.left,
-            top: background.top,
-            width: background.width,
-            height: background.height,
-          }
-        : null,
-    });
+    // Trigger the modified event
+    this.emit('modified');
   }
 
   public setHoverCursor = (cursor: string) => {
@@ -181,6 +170,7 @@ class Frame extends Base {
 
     this.canvas.requestRenderAll();
     this.editor.history.save();
+    this.emit('modified');
   };
 
   public setBackgroundGradient = ({ angle, colors }: GradientOptions) => {
@@ -216,6 +206,7 @@ class Frame extends Base {
 
     this.canvas.requestRenderAll();
     this.editor.history.save();
+    this.emit('modified');
   };
 
   public getBoundingClientRect() {

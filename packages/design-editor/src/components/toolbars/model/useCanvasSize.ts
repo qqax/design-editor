@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useFrame } from '../../../engine';
 
@@ -16,28 +16,19 @@ export const AD_SIZES = [
 ];
 
 export function useCanvasSize(editor: Editor | null) {
-  const [size, setSize] = useState('1920x1080');
   const [customOpen, setCustomOpen] = useState(false);
-  const [customW, setCustomW] = useState(1920);
-  const [customH, setCustomH] = useState(1080);
 
-  // The frame is resized by things outside this control — restoring an
-  // autosave, applying a template, importing a scene. Without this the select
-  // kept showing its hardcoded initial value while the canvas had a different
-  // size, and picking that same value back did nothing because the option was
-  // already "selected".
+  const [customW, setCustomW] = useState<number | null>(null);
+  const [customH, setCustomH] = useState<number | null>(null);
+
   const frame = useFrame() as { width?: number; height?: number } | null;
-  const frameWidth = frame?.width;
-  const frameHeight = frame?.height;
+  const frameWidth = frame?.width ? Math.round(frame?.width) : 1920;
+  const frameHeight = frame?.height ? Math.round(frame?.height) : 1080;
 
-  useEffect(() => {
-    if (!frameWidth || !frameHeight) return;
-    const width = Math.round(frameWidth);
-    const height = Math.round(frameHeight);
-    setSize(`${width}x${height}`);
-    setCustomW(width);
-    setCustomH(height);
-  }, [frameWidth, frameHeight]);
+  const size = `${frameWidth}x${frameHeight}`;
+
+  const currentW = customOpen ? (customW ?? frameWidth) : frameWidth;
+  const currentH = customOpen ? (customH ?? frameHeight) : frameHeight;
 
   const applySize = useCallback(
     (w: number, h: number) => {
@@ -50,32 +41,32 @@ export function useCanvasSize(editor: Editor | null) {
   const handleSizeChange = useCallback(
     (value: string) => {
       if (value === 'custom') {
+        setCustomW(frameWidth);
+        setCustomH(frameHeight);
         setCustomOpen(true);
         return;
       }
       setCustomOpen(false);
-      setSize(value);
       const [w, h] = value.split('x').map(Number);
       applySize(w, h);
     },
-    [applySize]
+    [applySize, frameWidth, frameHeight]
   );
 
   const handleApplyCustom = useCallback(() => {
-    const w = Math.max(100, Math.min(8000, customW));
-    const h = Math.max(100, Math.min(8000, customH));
+    const w = Math.max(100, Math.min(8000, customW ?? frameWidth));
+    const h = Math.max(100, Math.min(8000, customH ?? frameHeight));
     setCustomOpen(false);
-    setSize(`${w}×${h}`);
     applySize(w, h);
-  }, [customW, customH, applySize]);
+  }, [customW, customH, frameWidth, frameHeight, applySize]);
 
   return {
     size,
     customOpen,
     setCustomOpen,
-    customW,
+    customW: currentW,
     setCustomW,
-    customH,
+    customH: currentH,
     setCustomH,
     handleSizeChange,
     handleApplyCustom,

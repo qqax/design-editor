@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import type { Editor } from '../engine';
+
 export const AUTOSAVE_KEY_PREFIX = 'design_autosave';
 export const getAutosaveKey = (sceneKey?: string) =>
   sceneKey ? `${AUTOSAVE_KEY_PREFIX}_${sceneKey}` : AUTOSAVE_KEY_PREFIX;
 
 export function useAutoSave(
-  editor: any,
+  editor: Editor | null,
   canvasBg: string,
   workspaceBg: string,
   sceneKey?: string
@@ -15,6 +17,9 @@ export function useAutoSave(
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const key = getAutosaveKey(sceneKey);
+
+  // Флаг для пропуска первоначального рендера, чтобы не затирать автосохранение при загрузке страницы
+  const isFirstRender = useRef(true);
 
   // Setup beforeunload to prevent accidental exit
   useEffect(() => {
@@ -28,46 +33,14 @@ export function useAutoSave(
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Track fabric.js changes
-  useEffect(() => {
-    if (!editor) return;
-    const canvas = editor.canvas?.canvas;
-    if (!canvas) return;
-    const schedule = () => {
-      setHasUnsavedChanges(true);
-      clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        try {
-          const payload = {
-            scene: editor.scene.exportToJSON(),
-            canvasBg,
-            workspaceBg,
-          };
-          localStorage.setItem(key, JSON.stringify(payload));
-        } catch {
-          /* empty */
-        }
-      }, 1500);
-    };
-    canvas.on('object:modified', schedule);
-    canvas.on('object:added', schedule);
-    canvas.on('object:removed', schedule);
-    return () => {
-      canvas.off('object:modified', schedule);
-      canvas.off('object:added', schedule);
-      canvas.off('object:removed', schedule);
-      clearTimeout(timerRef.current);
-    };
-  }, [editor, canvasBg, workspaceBg, key]);
-
-  // Track background changes explicitly
-  useEffect(() => {
-    if (!editor) return;
-
+  // Единая функция для планирования автосохранения
+  const scheduleSave = useRef<() => void>();
+  scheduleSave.current = () => {
+    setHasUnsavedChanges(true);
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
+      if (!editor) return;
       try {
-        setHasUnsavedChanges(true);
         const payload = {
           scene: editor.scene.exportToJSON(),
           canvasBg,
@@ -78,9 +51,55 @@ export function useAutoSave(
         /* empty */
       }
     }, 1500);
+  };
 
+  // 1. Отслеживание изменений объектов внутри Fabric.js
+  useEffect(() => {
+    if (!editor) return;
+
+    const canvas = editor.canvas?.canvas;
+    if (!canvas) return;
+
+    const triggerSave = () => scheduleSave.current?.();
+
+    canvas.on('object:modified', triggerSave);
+    canvas.on('object:added', triggerSave);
+    canvas.on('object:removed', triggerSave);
+
+    return () => {
+      canvas.off('object:modified', triggerSave);
+      canvas.off('object:added', triggerSave);
+      canvas.off('object:removed', triggerSave);
+    };
+  }, [editor]);
+
+  // 2. Отслеживание внешних событий движка (Изменение фрейма/истории)
+  useEffect(() => {
+    if (!editor) return;
+
+    const triggerSave = () => scheduleSave.current?.();
+
+    editor.frame?.on?.('modified', triggerSave);
+    editor.on?.('frame:resize', triggerSave); // Проверьте точное название события изменения фрейма в вашем движке!
+
+    return () => {
+      editor.frame?.off?.('modified', triggerSave);
+      editor.on?.('frame:resize', triggerSave);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    scheduleSave.current?.();
+  }, [canvasBg, workspaceBg]);
+
+  useEffect(() => {
     return () => clearTimeout(timerRef.current);
-  }, [canvasBg, workspaceBg, editor, key]);
+  }, []);
 
   return { hasUnsavedChanges, setHasUnsavedChanges };
 }

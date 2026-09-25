@@ -1,11 +1,8 @@
-// @ts-ignore
-import { Point } from 'fabric';
-
 import type {
   Canvas as FabricCanvasClass,
-  TPointerEventInfo,
   FabricObject,
-  SerializedShadowOptions
+  SerializedShadowOptions,
+  TPointerEventInfo,
 } from 'fabric';
 
 import type { EditorConfig } from '../../types';
@@ -15,7 +12,7 @@ export type Direction = 'top' | 'left';
 export type Size = 'width' | 'height';
 export type ScaleType = 'fit' | 'fill';
 
-export interface FabricWheelEvent extends TPointerEventInfo {}
+export type FabricWheelEvent = TPointerEventInfo;
 
 export interface Dimension {
   width: number;
@@ -39,7 +36,7 @@ export interface FabricCanvasOption {
 }
 
 export type FabricCanvas<T extends FabricCanvasClass = FabricCanvasClass> = T &
-    FabricCanvasOption;
+  FabricCanvasOption;
 
 export interface Template {
   id: string;
@@ -70,12 +67,20 @@ export interface EditorState {
   activeObject: FabricObject | null;
   objects: FabricObject[];
   zoomRatio: number;
-  contextMenuRequest: { clientX: number; clientY: number; target?: FabricObject } | null;
+  contextMenuRequest: {
+    clientX: number;
+    clientY: number;
+    target?: FabricObject;
+  } | null;
   editor: Editor | null;
-  setFrame: (o: FabricObject | { width: number; height: number } | null) => void;
+  setFrame: (
+    o: FabricObject | { width: number; height: number } | null
+  ) => void;
   setActiveObject: (o: FabricObject | null) => void;
   setObjects: (o: FabricObject[]) => void;
   setZoomRatio: (ratio: number | ((prev: number) => number)) => void;
-  setContextMenuRequest: (request: { clientX: number; clientY: number; target?: FabricObject } | null) => void;
+  setContextMenuRequest: (
+    request: { clientX: number; clientY: number; target?: FabricObject } | null
+  ) => void;
   setEditor: (editor: Editor | null) => void;
 }
