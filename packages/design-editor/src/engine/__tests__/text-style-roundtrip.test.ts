@@ -18,6 +18,10 @@ const frame = {
   originY: 'top',
 } as unknown as Required<ILayer>;
 
+const editor = {
+  canvas: { canvas: { getObjects: () => [] } },
+} as unknown as Editor;
+
 const layer = (overrides: Partial<IStaticText> = {}) =>
   ({
     id: 'text-1',
@@ -50,7 +54,7 @@ describe('text style round trip', () => {
   });
 
   it('imports fontWeight and fontStyle onto the canvas object', async () => {
-    const text = await new ObjectImporter({} as Editor).staticText(
+    const text = await new ObjectImporter(editor).staticText(
       layer(),
       frame,
       false
@@ -68,7 +72,7 @@ describe('text style round trip', () => {
   });
 
   it('keeps defaults when the layer has no weight or style', async () => {
-    const text = await new ObjectImporter({} as Editor).staticText(
+    const text = await new ObjectImporter(editor).staticText(
       layer({ fontWeight: undefined, fontStyle: undefined }),
       frame,
       false

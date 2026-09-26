@@ -4,6 +4,7 @@ import { updateObjectBounds, updateObjectShadow } from './fabric';
 import { fontLoader } from './font-loader';
 import { generateId } from './id';
 import { loadImageFromURL } from './image-loader';
+import { createLayerName } from './layer-name';
 import { createVideoElement } from './video-loader';
 import {
   Background,
@@ -40,6 +41,24 @@ import type { Editor } from '../editor';
 
 class ObjectImporter {
   constructor(public editor: Editor) {}
+
+  private takenNames: Set<string> | null = null;
+
+  private uniqueName(type: string, name: string | undefined): string {
+    if (!this.takenNames) {
+      const collect = (objects: FabricObject[]): string[] =>
+        objects.flatMap((object) => [
+          ...(typeof object.name === 'string' ? [object.name] : []),
+          ...(object instanceof Group ? collect(object.getObjects()) : []),
+        ]);
+      this.takenNames = new Set(
+        collect(this.editor.canvas.canvas.getObjects())
+      );
+    }
+    const unique = createLayerName(type, name, this.takenNames);
+    this.takenNames.add(unique);
+    return unique;
+  }
 
   async import(
     item: ILayer,
@@ -326,7 +345,6 @@ class ObjectImporter {
     return element;
   }
 
-  // eslint-disable-next-line class-methods-use-this -- pure option-mapping helper shared by every import method
   public getBaseOptions(
     item: ILayer,
     options: Required<ILayer>,
@@ -365,7 +383,7 @@ class ObjectImporter {
 
       if (options.originY === 'center')
         frameTop -= (options.height * (options.scaleY || 1)) / 2;
-      else if (options.originY === 'right')
+      else if (options.originY === 'bottom')
         frameTop -= options.height * (options.scaleY || 1);
     }
 
@@ -373,7 +391,7 @@ class ObjectImporter {
     const { fill } = metadata as { fill?: string };
     return {
       id: id || generateId(),
-      name: name || type,
+      name: this.uniqueName(type, name),
       angle: angle || 0,
       top: inGroup ? top : frameTop + top,
       left: inGroup ? left : frameLeft + left,
@@ -384,7 +402,7 @@ class ObjectImporter {
       scaleX: scaleX || 1,
       scaleY: scaleY || 1,
       fill: fill || '#000000',
-      opacity: opacity || 1,
+      opacity: opacity ?? 1,
       flipX: flipX || false,
       flipY: flipY || false,
       skewX: skewX || 0,
