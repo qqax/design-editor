@@ -17,7 +17,7 @@ import { HDivider, Tooltip } from '../../primitives';
 
 import type { CSSProperties } from 'react';
 
-import type { SettingsType } from '../../../engine';
+import type { CanvasBackground, SettingsType } from '../../../engine';
 import type { SelectOptions } from '../../primitives';
 
 interface Props {
@@ -30,8 +30,8 @@ interface Props {
   onBack?: () => void;
   settings: SettingsType;
   onSettings: (patch: Partial<SettingsType>) => void;
-  canvasBg: string;
-  onBgChange: (color: string) => void;
+  canvasBg: CanvasBackground;
+  onBgChange: (background: CanvasBackground) => void;
   workspaceBg: string;
   onWorkspaceBgChange: (color: string) => void;
   title?: React.ReactNode;
@@ -102,11 +102,17 @@ export function Toolbar({
       {/* ── BG + Canvas color pickers ────────────────────────────────────── */}
       <UnifiedColorPicker
         activeObjId={undefined}
-        color={canvasBg}
+        gradient={typeof canvasBg === 'string' ? null : canvasBg}
         label="Background"
         onChange={onBgChange}
+        onGradientChange={onBgChange}
         tooltip="Canvas frame interior color"
         variant="tool-bar"
+        color={
+          typeof canvasBg === 'string'
+            ? canvasBg
+            : (canvasBg.stops[0]?.color ?? '#ffffff')
+        }
       />
       <UnifiedColorPicker
         activeObjId={undefined}

@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { CanvasContextBridge } from './CanvasContextBridge';
 
-import type { EditorConfig } from '../../../engine';
+import type { CanvasBackground, EditorConfig } from '../../../engine';
 
 const WORKSPACE_BG = 'var(--de-color-bg)';
 
@@ -20,7 +20,7 @@ export const CanvasArea = memo(
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
     onDrop: (e: React.DragEvent) => void;
-    canvasBg: string;
+    canvasBg: CanvasBackground;
     workspaceBg?: string;
     settings: Partial<EditorConfig>;
   }) => {

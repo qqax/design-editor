@@ -58,6 +58,21 @@ export interface GradientOptions {
   colors: string[];
 }
 
+export interface GradientStop {
+  /** 0..1 */
+  offset: number;
+  color: string;
+}
+
+export interface GradientFill {
+  type: 'linear' | 'radial';
+  /** Degrees, CSS convention; ignored for radial */
+  angle: number;
+  stops: GradientStop[];
+}
+
+export type CanvasBackground = string | GradientFill;
+
 export interface ShadowOptions extends Partial<SerializedShadowOptions> {
   enabled: boolean;
 }

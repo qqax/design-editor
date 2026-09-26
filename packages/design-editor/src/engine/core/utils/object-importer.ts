@@ -2,6 +2,7 @@ import { Group, loadSVGFromURL } from 'fabric';
 
 import { updateObjectBounds, updateObjectShadow } from './fabric';
 import { fontLoader } from './font-loader';
+import { reviveFill } from './gradient';
 import { generateId } from './id';
 import { loadImageFromURL } from './image-loader';
 import { createLayerName } from './layer-name';
@@ -308,7 +309,7 @@ class ObjectImporter {
     inGroup: boolean
   ): Promise<Background> {
     const baseOptions = this.getBaseOptions(item, options, inGroup);
-    const { fill } = item as IBackground;
+    const fill = reviveFill((item as IBackground).fill);
     return new Background({
       ...baseOptions,
       fill,

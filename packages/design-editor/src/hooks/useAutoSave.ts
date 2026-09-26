@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import type { Editor } from '../engine';
+import type { CanvasBackground, Editor } from '../engine';
 
 export const AUTOSAVE_KEY_PREFIX = 'design_autosave';
 export const getAutosaveKey = (sceneKey?: string) =>
@@ -50,7 +50,7 @@ export function restoreViewport(editor: Editor, viewport: AutosaveViewport) {
 
 export function useAutoSave(
   editor: Editor | null,
-  canvasBg: string,
+  canvasBg: CanvasBackground,
   workspaceBg: string,
   sceneKey?: string
 ) {

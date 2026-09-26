@@ -43,7 +43,14 @@ export class ObjectsEffects {
 
   public setGradient = ({ angle, colors }: GradientOptions) => {
     const changed = this.forActiveObject((object) => {
-      setObjectGradient(object, angle, colors);
+      setObjectGradient(object, {
+        type: 'linear',
+        angle,
+        stops: colors.map((color, index) => ({
+          color,
+          offset: colors.length > 1 ? index / (colors.length - 1) : 0,
+        })),
+      });
     });
 
     if (!changed) {

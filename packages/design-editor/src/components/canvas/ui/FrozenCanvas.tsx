@@ -4,7 +4,7 @@ import { Editor } from '../../../engine';
 import { applyEditorSettings } from '../lib';
 import { CANVAS_ID } from '../model';
 
-import type { EditorConfig } from '../../../engine';
+import type { CanvasBackground, EditorConfig } from '../../../engine';
 
 export const FrozenCanvas = memo(
   ({
@@ -14,7 +14,7 @@ export const FrozenCanvas = memo(
   }: {
     config: Partial<EditorConfig>;
     contextRef: React.RefObject<any>;
-    canvasBg: string;
+    canvasBg: CanvasBackground;
   }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<InstanceType<typeof Editor> | null>(null);
@@ -46,7 +46,7 @@ export const FrozenCanvas = memo(
 
         try {
           if (canvasBg && canvasBg !== '#ffffff') {
-            editor.frame?.setBackgroundColor?.(canvasBg);
+            editor.frame.setBackground(canvasBg);
           }
         } catch {
           /* ignore */
@@ -100,7 +100,7 @@ export const FrozenCanvas = memo(
     useEffect(() => {
       if (editorRef.current && canvasBg) {
         try {
-          editorRef.current.frame?.setBackgroundColor?.(canvasBg);
+          editorRef.current.frame.setBackground(canvasBg);
           editorRef.current.canvas.requestRenderAll();
         } catch {
           /* ignore */

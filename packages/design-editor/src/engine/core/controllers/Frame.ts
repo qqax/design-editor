@@ -12,14 +12,17 @@ import type { FabricObject } from 'fabric';
 
 import type { ILayer } from '../../types';
 import type {
+  CanvasBackground,
   ControllerOptions,
   Dimension,
-  GradientOptions,
+  GradientFill,
 } from '../common/interfaces';
 
 class Frame extends Base {
   // Simple event emitter map
   private listeners = new Map<string, Set<() => void>>();
+
+  private gradient: GradientFill | null = null;
 
   constructor(props: ControllerOptions) {
     super(props);
@@ -94,7 +97,9 @@ class Frame extends Base {
   }
 
   get options(): Required<ILayer> {
-    return this.frame.toObject(this.config.propertiesToInclude);
+    return this.frame.toObject(
+      this.config.propertiesToInclude
+    ) as Required<ILayer>;
   }
 
   public resize({ height, width }: Dimension) {
@@ -121,6 +126,10 @@ class Frame extends Base {
 
       (this.canvas as any).centerObject(background);
       background.setCoords();
+
+      if (this.gradient) {
+        setObjectGradient(background, this.gradient);
+      }
     }
 
     // Trigger the modified event
@@ -136,6 +145,7 @@ class Frame extends Base {
   };
 
   public setBackgroundColor = (color: string) => {
+    this.gradient = null;
     let { background } = this;
 
     if (!background) {
@@ -173,7 +183,16 @@ class Frame extends Base {
     this.emit('modified');
   };
 
-  public setBackgroundGradient = ({ angle, colors }: GradientOptions) => {
+  public setBackground = (background: CanvasBackground) => {
+    if (typeof background === 'string') {
+      this.setBackgroundColor(background);
+    } else {
+      this.setBackgroundGradient(background);
+    }
+  };
+
+  public setBackgroundGradient = (gradient: GradientFill) => {
+    this.gradient = gradient;
     let { background } = this;
 
     if (!background) {
@@ -200,7 +219,7 @@ class Frame extends Base {
       this.canvas.insertAt(1, background);
     }
 
-    setObjectGradient(background, angle, colors);
+    setObjectGradient(background, gradient);
 
     background.set('dirty', true);
 

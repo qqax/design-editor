@@ -22,7 +22,7 @@ import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 
 import type { FabricImage } from 'fabric';
 
-import type { SettingsType } from '../../../engine';
+import type { CanvasBackground, SettingsType } from '../../../engine';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { SelectOptions } from '../../primitives';
@@ -57,10 +57,10 @@ export function DesignEditorInner({
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
-  const [canvasBg, setCanvasBg] = useState<string>(
+  const [canvasBg, setCanvasBg] = useState<CanvasBackground>(
     () =>
-      (initialScene?.canvasBg ||
-        getStorageSafe<string>('studio_canvasBg', '#ffffff')) as string
+      (initialScene?.canvasBg as CanvasBackground | undefined) ||
+      getStorageSafe<CanvasBackground>('studio_canvasBg', '#ffffff')
   );
 
   const [workspaceBg, setWorkspaceBg] = useState<string>(
@@ -128,7 +128,7 @@ export function DesignEditorInner({
   useEffect(() => {
     if (editor && canvasBg) {
       try {
-        (editor as any).frame?.setBackgroundColor?.(canvasBg);
+        editor.frame.setBackground(canvasBg);
       } catch {
         // console.error(e);
       }
@@ -154,7 +154,7 @@ export function DesignEditorInner({
           if (cancelled) return;
           if (bgSrc?.canvasBg) {
             try {
-              (editor as any).frame?.setBackgroundColor?.(bgSrc.canvasBg);
+              editor.frame.setBackground(bgSrc.canvasBg as CanvasBackground);
             } catch {
               /* empty */
             }

@@ -30,6 +30,7 @@ export {
 
 // interfaces — omit Dimension (comes from ./types)
 export type {
+  CanvasBackground,
   CanvasOptions,
   ControllerOptions,
   Direction,
@@ -37,7 +38,9 @@ export type {
   FabricCanvas,
   FabricCanvasOption,
   FabricWheelEvent,
+  GradientFill,
   GradientOptions,
+  GradientStop,
   ScaleType,
   ShadowOptions,
   Size,
@@ -72,6 +75,7 @@ export * from './core/parser';
 
 // utils
 export * from './core/utils/font-loader';
+export { gradientToCss, isGradientFill } from './core/utils/gradient';
 export * from './core/utils/image-loader';
 export * from './core/utils/object-exporter';
 export * from './core/utils/object-importer';

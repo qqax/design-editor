@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 
 import { ColorPickerPanel } from './ColorPickerPanel';
+import { GradientEditor } from './GradientEditor';
+import { gradientToCss } from '../../../../engine';
 import { Popover, Tooltip } from '../../../primitives';
 import { SWATCHES, TOOL_BTN } from '../model';
+
+import type { GradientFill } from '../../../../engine';
 
 interface UnifiedColorPickerProps {
   color: string;
@@ -12,7 +16,18 @@ interface UnifiedColorPickerProps {
   activeObjId?: string;
   label?: string;
   checkerboard?: boolean;
+  /** Enables the Linear/Radial modes */
+  onGradientChange?: (gradient: GradientFill) => void;
+  gradient?: GradientFill | null;
 }
+
+type FillMode = 'solid' | GradientFill['type'];
+
+const MODES: { value: FillMode; label: string }[] = [
+  { value: 'solid', label: 'Solid' },
+  { value: 'linear', label: 'Linear' },
+  { value: 'radial', label: 'Radial' },
+];
 
 export function UnifiedColorPicker({
   color,
@@ -22,6 +37,8 @@ export function UnifiedColorPicker({
   activeObjId,
   label,
   checkerboard,
+  onGradientChange,
+  gradient = null,
 }: UnifiedColorPickerProps) {
   const [open, setOpen] = useState(false);
   const [prevActiveObjId, setPrevActiveObjId] = useState(activeObjId);
@@ -33,8 +50,80 @@ export function UnifiedColorPicker({
 
   const placement = variant === 'property-bar' ? 'top' : 'bottom';
 
-  const content = (
+  const mode: FillMode = gradient ? gradient.type : 'solid';
+  const swatch = gradient ? gradientToCss(gradient) : color;
+
+  const selectMode = (next: FillMode) => {
+    if (next === mode) return;
+    if (next === 'solid') {
+      onChange(gradient?.stops[0]?.color ?? color);
+    } else {
+      onGradientChange?.(
+        gradient
+          ? { ...gradient, type: next }
+          : {
+              type: next,
+              angle: 90,
+              stops: [
+                { offset: 0, color },
+                {
+                  offset: 1,
+                  color:
+                    color.toLowerCase() === '#ffffff' ? '#000000' : '#ffffff',
+                },
+              ],
+            }
+      );
+    }
+  };
+
+  const panel = (
     <ColorPickerPanel color={color} onChange={onChange} swatches={SWATCHES} />
+  );
+
+  const content = onGradientChange ? (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div role="tablist" style={{ display: 'flex', gap: 4 }}>
+        {MODES.map((option) => (
+          <button
+            key={option.value}
+            aria-selected={mode === option.value}
+            onClick={() => selectMode(option.value)}
+            role="tab"
+            type="button"
+            style={{
+              flex: 1,
+              height: 28,
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border:
+                mode === option.value
+                  ? '1.5px solid var(--de-color-primary)'
+                  : '1px solid var(--de-color-border)',
+              background:
+                mode === option.value
+                  ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
+                  : 'var(--de-color-bg)',
+              color:
+                mode === option.value
+                  ? 'var(--de-color-primary)'
+                  : 'var(--de-color-text-muted)',
+            }}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+      {gradient ? (
+        <GradientEditor gradient={gradient} onChange={onGradientChange} />
+      ) : (
+        panel
+      )}
+    </div>
+  ) : (
+    panel
   );
 
   return (
@@ -90,7 +179,7 @@ export function UnifiedColorPicker({
                   height: '100%',
                   borderRadius: 5,
                   border: '1px solid rgba(0,0,0,0.12)',
-                  background: color,
+                  background: swatch,
                   boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
                 }}
               />
@@ -119,7 +208,7 @@ export function UnifiedColorPicker({
                   border: '1.5px solid rgba(0,0,0,0.15)',
                   background: checkerboard
                     ? `linear-gradient(${color}, ${color}), repeating-conic-gradient(#bbb 0% 25%, #fff 0% 50%) 0 0 / 8px 8px`
-                    : color,
+                    : swatch,
                   flexShrink: 0,
                   boxShadow: '0 1px 5px rgba(0,0,0,0.22)',
                   overflow: 'hidden',

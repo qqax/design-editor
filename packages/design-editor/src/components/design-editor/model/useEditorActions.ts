@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
 
+import type { CanvasBackground } from '../../../engine';
 import type { DesignResource } from '../../panels/common/provider';
 
 export function useEditorActions(
@@ -12,7 +13,7 @@ export function useEditorActions(
   backgroundRemovalProvider: any,
   exportToLibrary: any,
   message: any,
-  setCanvasBg: (bg: string) => void,
+  setCanvasBg: (bg: CanvasBackground) => void,
   setWorkspaceBg: (bg: string) => void,
   setHasUnsavedChanges: (val: boolean) => void
 ) {
@@ -132,7 +133,7 @@ export function useEditorActions(
           if (template.canvasBg) {
             setCanvasBg(template.canvasBg);
             try {
-              editor.frame?.setBackgroundColor?.(template.canvasBg);
+              editor.frame.setBackground(template.canvasBg);
             } catch {
               /* empty */
             }
