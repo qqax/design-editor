@@ -15,6 +15,7 @@ interface TextMoreContentProps {
   setLineHeight: (val: number) => void;
   setTextTransform: (val: TextTransform) => void;
   activeObj: any;
+  multiple: boolean;
   originalTextRef: React.MutableRefObject<string | undefined>;
 }
 
@@ -29,6 +30,7 @@ export const TextMoreContent = ({
   setLineHeight,
   setTextTransform,
   activeObj,
+  multiple,
   originalTextRef
 }: TextMoreContentProps) => {
   const handleCharSpacingChange = useCallback(
@@ -183,59 +185,61 @@ export const TextMoreContent = ({
           }}
         />
       </div>
-      {/* Text Transform / Case */}
-      <div>
-        <span
-          style={{
-            fontSize: 12,
-            color: 'var(--de-color-text-muted)',
-            display: 'block',
-            marginBottom: 6,
-          }}
-        >
-          Case
-        </span>
-        <div style={{ display: 'flex', gap: 4 }}>
-          {(
-            [
-              { value: 'none', label: 'Aa', title: 'Normal' },
-              { value: 'upper', label: 'AA', title: 'Uppercase' },
-              { value: 'lower', label: 'aa', title: 'Lowercase' },
-              { value: 'title', label: 'Tt', title: 'Title Case' },
-            ] as { value: TextTransform; label: string; title: string }[]
-          ).map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => handleTextTransformChange(opt.value)}
-              title={opt.title}
-              style={{
-                flex: 1,
-                height: 30,
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: 'pointer',
-                background:
-                  textTransform === opt.value
-                    ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
-                    : 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
-                border:
-                  textTransform === opt.value
-                    ? '1.5px solid var(--de-color-primary)'
-                    : '1px solid var(--de-color-border)',
-                color:
-                  textTransform === opt.value
-                    ? 'var(--de-color-primary)'
-                    : 'var(--de-color-text-muted)',
-                borderRadius: 6,
-                outline: 'none',
-                transition: 'all 0.15s',
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
+      {/* Text Transform / Case — rewrites `text`, so single text only */}
+      {!multiple && (
+        <div>
+          <span
+            style={{
+              fontSize: 12,
+              color: 'var(--de-color-text-muted)',
+              display: 'block',
+              marginBottom: 6,
+            }}
+          >
+            Case
+          </span>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {(
+              [
+                { value: 'none', label: 'Aa', title: 'Normal' },
+                { value: 'upper', label: 'AA', title: 'Uppercase' },
+                { value: 'lower', label: 'aa', title: 'Lowercase' },
+                { value: 'title', label: 'Tt', title: 'Title Case' },
+              ] as { value: TextTransform; label: string; title: string }[]
+            ).map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handleTextTransformChange(opt.value)}
+                title={opt.title}
+                style={{
+                  flex: 1,
+                  height: 30,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  background:
+                    textTransform === opt.value
+                      ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
+                      : 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
+                  border:
+                    textTransform === opt.value
+                      ? '1.5px solid var(--de-color-primary)'
+                      : '1px solid var(--de-color-border)',
+                  color:
+                    textTransform === opt.value
+                      ? 'var(--de-color-primary)'
+                      : 'var(--de-color-text-muted)',
+                  borderRadius: 6,
+                  outline: 'none',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       {/* Opacity (also available here for convenience) */}
       <Opacity opacity={opacity} setOpacity={setOpacity} editor={editor} />
     </div>

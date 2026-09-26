@@ -196,9 +196,10 @@ export class ObjectsManager {
     property: string,
     value: unknown,
   ) => {
+    // Fabric 7 reports the type in lower case
     if (
-      object.type !==
-      LayerType.ACTIVE_SELECTION ||
+      object.type.toLowerCase() !==
+      LayerType.ACTIVE_SELECTION.toLowerCase() ||
       !(object as any)._objects
     ) {
       return false;
@@ -223,6 +224,8 @@ export class ObjectsManager {
 
       child.setCoords();
     });
+
+    (object as any).triggerLayout();
 
     return true;
   };

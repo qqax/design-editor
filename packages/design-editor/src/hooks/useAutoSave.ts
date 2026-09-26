@@ -128,9 +128,11 @@ export function useAutoSave(
     const triggerSave = () => scheduleSave.current?.();
 
     editor.frame?.on?.('modified', triggerSave);
+    editor.on('history:changed', triggerSave);
 
     return () => {
       editor.frame?.off?.('modified', triggerSave);
+      editor.off('history:changed', triggerSave);
     };
   }, [editor]);
 

@@ -166,10 +166,8 @@ class Events extends Base {
   }
 
   onBackgroundSelected = () => {
-    const objects = this.canvas.getObjects();
-    const frame = objects[0];
-    this.canvas.setActiveObject(objects[0]);
-    this.state.setActiveObject(frame);
+    this.canvas.discardActiveObject();
+    this.state.setActiveObject(null);
     this.canvas.requestRenderAll();
   };
 

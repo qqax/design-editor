@@ -28,16 +28,16 @@ export function ObjectPropertiesBar({
 }: Props) {
   const {
     posStyle,
+    kind,
+    target,
+    multiple,
     label,
-    isImage,
-    isText,
-    isShape,
     opacity,
     setOpacity,
     onDragStart,
   } = useObjectPropertiesBar({ activeObj });
 
-  if (!activeObj || !editor) return null;
+  if (!activeObj || !editor || !kind) return null;
 
   return (
     <div
@@ -96,7 +96,7 @@ export function ObjectPropertiesBar({
       <PDivider />
 
       {/* Opacity — compact inline (only visible for non-text/image since they have it in More) */}
-      {!isText && !isImage && (
+      {kind !== 'text' && kind !== 'image' && (
         <OpacityRange
           editor={editor}
           opacity={opacity}
@@ -105,7 +105,7 @@ export function ObjectPropertiesBar({
       )}
 
       {/* ── Image controls (compact primary row) ─────────────────────────── */}
-      {isImage ? (
+      {kind === 'image' ? (
         <ImageControls
           activeObj={activeObj}
           editor={editor}
@@ -117,17 +117,18 @@ export function ObjectPropertiesBar({
       ) : null}
 
       {/* ── Text controls (compact primary row) ────────────────────────────── */}
-      {isText ? (
+      {kind === 'text' ? (
         <TextControls
-          activeObj={activeObj}
+          activeObj={target}
           editor={editor}
+          multiple={multiple}
           opacity={opacity}
           setOpacity={setOpacity}
         />
       ) : null}
 
       {/* ── Shape controls ─────────────────────────── */}
-      {isShape || (!isImage && !isText) ? (
+      {kind === 'shape' ? (
         <ShapeControls activeObj={activeObj} editor={editor} />
       ) : null}
 

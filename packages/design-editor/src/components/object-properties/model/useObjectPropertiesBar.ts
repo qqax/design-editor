@@ -4,18 +4,57 @@ interface UseObjectPropertiesBarOptions {
   activeObj: any;
 }
 
+export type ObjectKind =
+  'text' | 'image' | 'shape' | 'group' | 'selection' | 'object';
+
+const TEXT_TYPES = ['StaticText', 'DynamicText'];
+const IMAGE_TYPES = ['StaticImage', 'BackgroundImage'];
+const SHAPE_TYPES = ['StaticPath', 'StaticVector'];
+const PAGE_TYPES = ['Frame', 'Background'];
+
+// Fabric 7 reports these types in lower case
+const isActiveSelection = (obj: any) =>
+  (obj?.type as string | undefined)?.toLowerCase() === 'activeselection';
+
+const getObjectKind = (obj: any): ObjectKind | null => {
+  const type = obj?.type as string | undefined;
+  if (!type || PAGE_TYPES.includes(type)) return null;
+  if (TEXT_TYPES.includes(type)) return 'text';
+  if (IMAGE_TYPES.includes(type)) return 'image';
+  if (SHAPE_TYPES.includes(type)) return 'shape';
+  if (isActiveSelection(obj)) {
+    const selected: any[] = obj.getObjects();
+    return selected.every((o) => TEXT_TYPES.includes(o.type))
+      ? 'text'
+      : 'selection';
+  }
+  if (type.toLowerCase() === 'group') return 'group';
+  return 'object';
+};
+
+const LABELS: Record<ObjectKind, string> = {
+  text: 'Text',
+  image: 'Image',
+  shape: 'Shape',
+  group: 'Group',
+  selection: 'Selection',
+  object: 'Object',
+};
+
 export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOptions) => {
-  const type = activeObj?.type as string | undefined;
-  const isImage = type === 'StaticImage' || type === 'BackgroundImage';
-  const isText = type === 'StaticText' || type === 'DynamicText';
-  const isShape = type === 'StaticPath' || type === 'StaticVector';
+  const kind = getObjectKind(activeObj);
+  const selected: any[] = isActiveSelection(activeObj)
+    ? activeObj.getObjects()
+    : [];
+  const multiple = selected.length > 1;
+  const target = kind === 'text' && multiple ? selected[0] : activeObj;
 
   const [opacity, setOpacity] = useState(() =>
-    Math.round((activeObj?.opacity ?? 1) * 100),
+    Math.round((target?.opacity ?? 1) * 100),
   );
   useEffect(() => {
-    setOpacity(Math.round((activeObj?.opacity ?? 1) * 100));
-  }, [activeObj?.id]);
+    setOpacity(Math.round((target?.opacity ?? 1) * 100));
+  }, [target]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -63,13 +102,9 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
     window.addEventListener('mouseup', onUp);
   }, []);
 
-  const label = isImage
-    ? 'Image'
-    : isText
-      ? 'Text'
-      : isShape
-        ? 'Shape'
-        : 'Object';
+  const label = kind
+    ? `${LABELS[kind]}${multiple ? ` ×${selected.length}` : ''}`
+    : '';
 
   const posStyle: React.CSSProperties = isMobile
     ? {
@@ -97,10 +132,10 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
 
   return {
     posStyle,
+    kind,
+    target,
+    multiple,
     label,
-    isImage,
-    isText,
-    isShape,
     opacity,
     setOpacity,
     onDragStart,

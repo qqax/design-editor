@@ -112,6 +112,7 @@ export const useTextControls = ({ activeObj, editor }: UseTextControlsOptions) =
     charSpacing,
     setCharSpacing,
     lineHeight,
+    setLineHeight,
     textTransform,
     setTextTransform,
     handleFontChange,

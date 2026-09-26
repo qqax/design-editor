@@ -20,6 +20,7 @@ import type { Editor } from '../../../engine';
 interface TextControlsProps {
   editor: Editor | null;
   activeObj: any;
+  multiple?: boolean;
   opacity: number;
   setOpacity: (o: number) => void;
 }
@@ -27,6 +28,7 @@ interface TextControlsProps {
 export const TextControls = ({
   editor,
   activeObj,
+  multiple = false,
   opacity,
   setOpacity,
 }: TextControlsProps) => {
@@ -37,6 +39,7 @@ export const TextControls = ({
     charSpacing,
     setCharSpacing,
     lineHeight,
+    setLineHeight,
     textTransform,
     setTextTransform,
     handleFontChange,
@@ -165,10 +168,11 @@ export const TextControls = ({
             charSpacing={charSpacing}
             editor={editor}
             lineHeight={lineHeight}
+            multiple={multiple}
             opacity={opacity}
             originalTextRef={originalTextRef}
             setCharSpacing={setCharSpacing}
-            setLineHeight={setOpacity}
+            setLineHeight={setLineHeight}
             setOpacity={setOpacity}
             setTextTransform={setTextTransform}
             textTransform={textTransform}

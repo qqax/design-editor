@@ -203,21 +203,37 @@ class Personalization extends Base {
         selection.padding = 10;
       }
     });
-    this.canvas.on('mouse:over', (event) => {
-      const { target } = event;
-      const activeObjects = this.canvas.getActiveObject();
+    let hovered: FabricObject | null = null;
+    const setHovered = (object: FabricObject | null) => {
+      if (hovered === object) return;
+      hovered = object;
+      this.canvas.requestRenderAll();
+    };
+    this.canvas.on('mouse:over', ({ target }) => {
       if (
         target &&
-        activeObjects !== target &&
         target.type !== 'Background' &&
         target.type !== 'BackgroundImage'
       ) {
-        const bound = target.getBoundingRect();
-        const ctx = this.canvas.getContext();
-        ctx.strokeStyle = '#3782F7';
-        ctx.lineWidth = 2.25;
-        ctx.strokeRect(bound.left, bound.top, bound.width, bound.height);
+        setHovered(target);
       }
+    });
+    this.canvas.on('mouse:out', ({ target }) => {
+      if (target === hovered) setHovered(null);
+    });
+    this.canvas.on('object:removed', ({ target }) => {
+      if (target === hovered) setHovered(null);
+    });
+    this.canvas.on('after:render', ({ ctx }) => {
+      // after:render also fires for the top canvas (renderTop)
+      if (!hovered || ctx !== this.canvas.getContext()) return;
+      if (
+        hovered === this.canvas.getActiveObject() ||
+        this.canvas.getActiveObjects().includes(hovered)
+      ) {
+        return;
+      }
+      hovered._renderControls(ctx, { hasControls: false });
     });
   }
 }
