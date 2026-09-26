@@ -6,6 +6,7 @@ import { useActiveObject, useEditor, useZoomRatio } from '../../../engine';
 import {
   clearAutosave,
   loadAutosave,
+  restoreViewport,
   useAutoSave,
 } from '../../../hooks/useAutoSave';
 import { useStudioExport } from '../../../hooks/useStudioExport';
@@ -158,8 +159,11 @@ export function DesignEditorInner({
               /* empty */
             }
           }
+          // Restored after importFromJSON's own zoomToFit and the frame's
+          // initial one (also on a 50ms timer), so neither overrides it.
           setTimeout(() => {
             if (cancelled) return;
+            if (bgSrc?.viewport) restoreViewport(editor, bgSrc.viewport);
             editor.history.reset();
             editor.history.initialize();
             setHasUnsavedChanges(false);
