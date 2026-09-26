@@ -159,8 +159,7 @@ export function DesignEditorInner({
               /* empty */
             }
           }
-          // Restored after importFromJSON's own zoomToFit and the frame's
-          // initial one (also on a 50ms timer), so neither overrides it.
+          // After the zoomToFit calls in importFromJSON and Frame.initialize
           setTimeout(() => {
             if (cancelled) return;
             if (bgSrc?.viewport) restoreViewport(editor, bgSrc.viewport);

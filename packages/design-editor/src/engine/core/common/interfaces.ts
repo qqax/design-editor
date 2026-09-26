@@ -42,12 +42,12 @@ export interface Template {
   id: string;
   name: string;
   preview: string;
-  background: FabricObject | SerializedShadowOptions | string | null; // Фон может быть объектом, цветом или градиентом
+  background: FabricObject | SerializedShadowOptions | string | null;
   frame: {
     width: number;
     height: number;
   };
-  objects: Record<string, unknown>[]; // Сериализованные объекты Fabric обычно хранятся как JSON-объекты
+  objects: Record<string, unknown>[];
   metadata: {
     animated: boolean;
   };

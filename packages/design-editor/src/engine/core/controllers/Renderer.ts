@@ -81,7 +81,6 @@ class Renderer {
 
     const objectImporter = new ObjectImporter();
 
-    // РЕШЕНИЕ: Параллельный импорт всех слоев без использования циклов и await в цикле
     const importPromises = template.layers.map(async (layer) =>
       objectImporter
         .import(layer, params)

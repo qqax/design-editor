@@ -8,12 +8,7 @@ export const AUTOSAVE_KEY_PREFIX = 'design_autosave';
 export const getAutosaveKey = (sceneKey?: string) =>
   sceneKey ? `${AUTOSAVE_KEY_PREFIX}_${sceneKey}` : AUTOSAVE_KEY_PREFIX;
 
-/**
- * Масштаб и положение рабочей области. Положение хранится как точка сцены в
- * центре холста относительно центра фрейма, а не как сырой viewportTransform:
- * при импорте фрейм заново центрируется, а размер окна после перезагрузки
- * может быть другим.
- */
+/** x, y: scene point at the canvas centre, relative to the frame centre */
 export interface AutosaveViewport {
   zoom: number;
   x: number;
@@ -63,7 +58,6 @@ export function useAutoSave(
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const key = getAutosaveKey(sceneKey);
 
-  // Флаг для пропуска первоначального рендера, чтобы не затирать автосохранение при загрузке страницы
   const isFirstRender = useRef(true);
 
   // Setup beforeunload to prevent accidental exit
@@ -78,7 +72,6 @@ export function useAutoSave(
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Единая функция для планирования автосохранения
   const scheduleSave = useRef<() => void>(undefined);
   useEffect(() => {
     scheduleSave.current = () => {
@@ -101,7 +94,6 @@ export function useAutoSave(
     };
   });
 
-  // 1. Отслеживание изменений объектов внутри Fabric.js
   useEffect(() => {
     if (!editor) return;
 
@@ -121,7 +113,6 @@ export function useAutoSave(
     };
   }, [editor]);
 
-  // 2. Изменения фрейма: размер и фон
   useEffect(() => {
     if (!editor) return;
 
@@ -136,10 +127,6 @@ export function useAutoSave(
     };
   }, [editor]);
 
-  // 3. Масштаб и панорамирование — не правка документа и не должны помечать
-  // изменения несохранёнными, поэтому отдельного сохранения на них нет:
-  // текущий вид дописывается в существующее автосохранение при уходе со
-  // страницы, в том числе при hard reload.
   useEffect(() => {
     if (!editor) return;
 
