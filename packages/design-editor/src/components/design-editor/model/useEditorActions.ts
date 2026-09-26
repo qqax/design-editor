@@ -1,18 +1,48 @@
 import { useCallback, useState } from 'react';
 
+import { StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
+import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
 
-import type { CanvasBackground } from '../../../engine';
+import type { FabricObject } from 'fabric';
+
+import type { CanvasBackground, Editor, IScene } from '../../../engine';
+import type { BackgroundRemovalProvider } from '../../../providers';
 import type { DesignResource } from '../../panels/common/provider';
+import type { toastApi } from '../../primitives/Toast';
+
+const blobToDataUrl = async (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error('Failed to read image'));
+    reader.readAsDataURL(blob);
+  });
+
+const toScreenRect = (editor: Editor, object: FabricObject) => {
+  const { left, top, width, height } = object.getBoundingRect();
+  const [zoomX, , , zoomY, panX, panY] = editor.canvas.canvas.viewportTransform;
+  return {
+    left: left * zoomX + panX,
+    top: top * zoomY + panY,
+    width: width * zoomX,
+    height: height * zoomY,
+  };
+};
 
 export function useEditorActions(
-  editor: any,
-  activeObj: any,
+  editor: Editor | null,
+  activeObj: FabricObject | null,
   sceneKey: string | undefined,
-  backgroundRemovalProvider: any,
-  exportToLibrary: any,
-  message: any,
+  backgroundRemovalProvider: BackgroundRemovalProvider,
+  exportToLibrary: (
+    blob: Blob,
+    filename: string,
+    scene: IScene
+  ) => Promise<boolean>,
+  message: typeof toastApi,
   setCanvasBg: (bg: CanvasBackground) => void,
   setWorkspaceBg: (bg: string) => void,
   setHasUnsavedChanges: (val: boolean) => void
@@ -108,23 +138,31 @@ export function useEditorActions(
           ? textLayers
           : design.scene.layers;
 
-      layersToAdd.forEach((layer) => {
-        editor.objects.add({
-          ...layer,
-          id: generateId(),
-          left: ((layer.left as number) ?? 0) + dx,
-          top: ((layer.top as number) ?? 0) + dy,
-          skipCentering: true,
+      void layersToAdd
+        .reduce<Promise<unknown>>(
+          async (previous, layer) =>
+            previous.then(async () =>
+              editor.objects.add({
+                ...layer,
+                id: generateId(),
+                left: ((layer.left as number) ?? 0) + dx,
+                top: ((layer.top as number) ?? 0) + dy,
+                skipCentering: true,
+              })
+            ),
+          Promise.resolve()
+        )
+        .catch(() => {
+          message.error('Failed to add text design');
         });
-      });
     },
-    [editor]
+    [editor, message]
   );
 
   const handleApplyTemplate = useCallback(
     (template: DesignResource) => {
       if (!editor) return;
-      editor.scene
+      void editor.scene
         .importFromJSON(template.scene)
         .catch(() => {
           message.error('Failed to apply template');
@@ -157,31 +195,36 @@ export function useEditorActions(
   );
 
   const handleRemoveBg = useCallback(async () => {
-    const src = activeObj?.getSrc ? activeObj.getSrc() : activeObj?.src;
-    if (!editor || activeObj?.type !== 'StaticImage' || !src) return;
+    if (!editor || !(activeObj instanceof StaticImage)) return;
+    const image = activeObj;
+    const src = image.getSrc();
+    if (!src) return;
 
-    setShimmerRect({
-      top: activeObj.top ?? 0,
-      left: activeObj.left ?? 0,
-      width: (activeObj.width ?? 100) * (activeObj.scaleX ?? 1),
-      height: (activeObj.height ?? 100) * (activeObj.scaleY ?? 1),
-    });
+    setShimmerRect(toScreenRect(editor, image));
     setRemovingBg(true);
     message.info('Removing background...');
     try {
       const blob = await backgroundRemovalProvider.remove(src);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        await activeObj.setSrc(reader.result);
-        editor.canvas.requestRenderAll();
-        editor.history.save();
-        setRemovingBg(false);
-        setShimmerRect(null);
-      };
-      reader.readAsDataURL(blob);
-      message.success('Background removed successfully!');
-    } catch (err: any) {
-      message.error(`Failed: ${err.message || 'Unknown error'}`);
+      const dataUrl = await blobToDataUrl(blob);
+      const originalSize = image.getOriginalSize();
+      const { width, height, cropX, cropY, scaleX, scaleY } = image;
+      await image.setSrc(dataUrl);
+      image.set(
+        rescaleImageGeometry(
+          { width, height, cropX, cropY, scaleX, scaleY },
+          originalSize,
+          image.getOriginalSize()
+        )
+      );
+      image.setCoords();
+      editor.canvas.requestRenderAll();
+      editor.history.save();
+      message.success('Background removed');
+    } catch (err) {
+      message.error(
+        `Failed to remove background: ${err instanceof Error ? err.message : 'unknown error'}`
+      );
+    } finally {
       setRemovingBg(false);
       setShimmerRect(null);
     }
