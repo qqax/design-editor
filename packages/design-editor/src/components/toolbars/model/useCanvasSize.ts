@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { useFrame } from '../../../engine';
+import { defaultFrameOptions, useFrame } from '../../../engine';
 
 import type { Editor } from '../../../engine';
 
@@ -22,8 +22,12 @@ export function useCanvasSize(editor: Editor | null) {
   const [customH, setCustomH] = useState<number | null>(null);
 
   const frame = useFrame() as { width?: number; height?: number } | null;
-  const frameWidth = frame?.width ? Math.round(frame?.width) : 1920;
-  const frameHeight = frame?.height ? Math.round(frame?.height) : 1080;
+  const frameWidth = frame?.width
+    ? Math.round(frame.width)
+    : defaultFrameOptions.width;
+  const frameHeight = frame?.height
+    ? Math.round(frame.height)
+    : defaultFrameOptions.height;
 
   const size = `${frameWidth}x${frameHeight}`;
 
@@ -34,6 +38,7 @@ export function useCanvasSize(editor: Editor | null) {
     (w: number, h: number) => {
       if (!editor) return;
       editor.frame.resize({ width: w, height: h });
+      editor.zoom.zoomToFit();
     },
     [editor]
   );

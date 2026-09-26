@@ -49,8 +49,8 @@ export const defaultEditorConfig: EditorConfig = {
 };
 
 export const defaultFrameOptions = {
-  width: 1200,
-  height: 1200,
+  width: 1920,
+  height: 1080,
   id: 'frame',
   name: 'Initial Frame',
   fill: '#ffffff',
@@ -58,8 +58,8 @@ export const defaultFrameOptions = {
 };
 
 export const defaultBackgroundOptions = {
-  width: 1200,
-  height: 1200,
+  width: 1920,
+  height: 1080,
   fill: '#ffffff',
   id: 'background',
   name: 'Initial Frame',

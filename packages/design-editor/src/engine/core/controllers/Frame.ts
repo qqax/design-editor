@@ -65,8 +65,8 @@ class Frame extends Base {
     background.setCoords();
 
     this.state.setFrame({
-      height: defaultFrameOptions.width,
-      width: defaultFrameOptions.height,
+      width: defaultFrameOptions.width,
+      height: defaultFrameOptions.height,
     });
 
     setTimeout(() => {
