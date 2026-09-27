@@ -2,9 +2,12 @@
 
 import { createContext, useContext } from 'react';
 
+import type { ExportFormat, IScene } from '../engine';
 import type {
   BackgroundRemovalProvider,
   FontProvider,
+  GalleryProvider,
+  GalleryWidget,
   PersistenceProvider,
 } from '../providers';
 import type { ResourceProvider } from './panels/common/provider';
@@ -13,14 +16,17 @@ export interface EditorContextValue {
   fontProvider: FontProvider;
   backgroundRemovalProvider: BackgroundRemovalProvider;
   persistenceProvider: PersistenceProvider;
+  galleryProvider: GalleryProvider;
+  galleryWidget?: GalleryWidget;
   templateProvider: ResourceProvider;
   textDesignProvider: ResourceProvider;
   sceneKey?: string;
   onExport?: (
     blob: Blob,
-    format: 'png' | 'jpg' | 'svg',
-    scene: any
+    format: ExportFormat,
+    scene: IScene
   ) => void | Promise<void>;
+  exportFormats: readonly ExportFormat[];
   onBack?: () => void;
 }
 

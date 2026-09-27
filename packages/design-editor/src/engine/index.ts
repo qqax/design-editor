@@ -30,6 +30,7 @@ export {
 
 // interfaces — omit Dimension (comes from ./types)
 export type {
+  CanvasBackground,
   CanvasOptions,
   ControllerOptions,
   Direction,
@@ -37,7 +38,9 @@ export type {
   FabricCanvas,
   FabricCanvasOption,
   FabricWheelEvent,
+  GradientFill,
   GradientOptions,
+  GradientStop,
   ScaleType,
   ShadowOptions,
   Size,
@@ -70,9 +73,32 @@ export * from './core/controllers/Renderer';
 // parser
 export * from './core/parser';
 
+// export
+export * from './core/export';
+
 // utils
+export * from './core/utils/font-loader';
+export { gradientToCss, isGradientFill } from './core/utils/gradient';
+export {
+  NO_OFFSETS,
+  OFFSET_GUIDE_PREFIX,
+  offsetGuides,
+  snapOffset,
+} from './core/utils/guides';
+export type {
+  Guide,
+  GuideAxis,
+  GuideRect,
+  PageOffsets,
+} from './core/utils/guides';
 export * from './core/utils/image-loader';
 export * from './core/utils/object-exporter';
 export * from './core/utils/object-importer';
 export * from './core/utils/text';
+export {
+  createLayerName,
+  DEFAULT_LAYER_LABELS,
+  resolveLayerLabels,
+} from './core/utils/layer-name';
+export type { LayerLabels } from './core/utils/layer-name';
 export * from './core/utils/get-selection-type';

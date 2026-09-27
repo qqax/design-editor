@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useMessages } from '../../../../messages';
 import { useSceneThumbnail } from '../model';
 
 import type { DesignResource } from '../provider';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ResourceThumbnail({ resource, onClick }: Props) {
+  const m = useMessages();
   const ref = React.useRef<HTMLButtonElement>(null);
   const { src, loading } = useSceneThumbnail(
     {
@@ -31,44 +33,19 @@ export function ResourceThumbnail({ resource, onClick }: Props) {
   return (
     <button
       ref={ref}
+      className="de-resource-thumb"
       onClick={() => onClick(resource)}
+      style={{ aspectRatio }}
       title={resource.name}
       type="button"
-      style={{
-        display: 'block',
-        width: '100%',
-        height: '100%',
-        aspectRatio,
-        border: '1px solid var(--de-color-border)',
-        borderRadius: 6,
-        overflow: 'hidden',
-        padding: 0,
-        background: 'var(--de-color-surface)',
-        cursor: 'pointer',
-      }}
     >
       {src ? (
-        <img
-          alt={resource.name}
-          src={src}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-          }}
-        />
+        <img alt={resource.name} src={src} />
       ) : (
         <div
-          aria-label={loading ? 'Loading thumbnail' : 'No preview available'}
-          style={{
-            width: '100%',
-            height: '100%',
-            background:
-              'linear-gradient(90deg, var(--de-color-surface) 0%, var(--de-color-bg) 50%, var(--de-color-surface) 100%)',
-            backgroundSize: '200% 100%',
-            animation: loading ? 'shimmer 1.5s infinite' : 'none',
-          }}
+          aria-label={loading ? m.panel.loadingThumbnail : m.panel.noPreview}
+          className="de-resource-placeholder"
+          data-loading={loading}
         />
       )}
     </button>

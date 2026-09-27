@@ -1,8 +1,8 @@
-import { classRegistry, Object as FabricObject } from 'fabric';
+import { classRegistry, FabricObject } from 'fabric';
 
 import type { FabricObjectProps } from 'fabric';
 
-export interface StaticAudioOptions extends FabricObjectProps {
+export interface StaticAudioOptions extends Partial<FabricObjectProps> {
   id: string;
   name: string;
   src: string;

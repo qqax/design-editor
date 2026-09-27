@@ -1,10 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Control, controlsUtils, Object as FabricObject, Textbox,} from 'fabric';
+import { Control, controlsUtils, FabricObject, Textbox } from 'fabric';
 
 import Base from './Base';
-import {drawCircleIcon} from '../utils/drawer';
+import { drawCircleIcon } from '../utils/drawer';
 
-import type {ControllerOptions} from '../common/interfaces';
+import type { ControllerOptions } from '../common/interfaces';
 
 class Personalization extends Base {
   constructor(props: ControllerOptions) {
@@ -21,7 +22,7 @@ class Personalization extends Base {
     // Disable context menu
     const upperCanvas = document.getElementsByClassName('upper-canvas')[0];
     if (upperCanvas) {
-      upperCanvas.addEventListener('contextmenu', function (e) {
+      upperCanvas.addEventListener('contextmenu', (e) => {
         e.preventDefault();
       });
     }
@@ -189,7 +190,7 @@ class Personalization extends Base {
     this.canvas.selectionColor = 'rgba(55, 130, 247, 0.15)';
     this.canvas.selectionBorderColor = '#3782F7';
     this.canvas.selectionLineWidth = 1.5;
-    this.canvas.on('selection:created', (ev) => {
+    this.canvas.on('selection:created', () => {
       const objects = this.canvas.getActiveObjects();
       const selection = this.canvas.getActiveObject();
       if (objects.length > 1) {
@@ -202,21 +203,37 @@ class Personalization extends Base {
         selection.padding = 10;
       }
     });
-    this.canvas.on('mouse:over', (event) => {
-      const { target } = event;
-      const activeObjects = this.canvas.getActiveObject();
+    let hovered: FabricObject | null = null;
+    const setHovered = (object: FabricObject | null) => {
+      if (hovered === object) return;
+      hovered = object;
+      this.canvas.requestRenderAll();
+    };
+    this.canvas.on('mouse:over', ({ target }) => {
       if (
         target &&
-        activeObjects !== target &&
         target.type !== 'Background' &&
         target.type !== 'BackgroundImage'
       ) {
-        const bound = target.getBoundingRect();
-        const ctx = this.canvas.getContext();
-        ctx.strokeStyle = '#3782F7';
-        ctx.lineWidth = 2.25;
-        ctx.strokeRect(bound.left, bound.top, bound.width, bound.height);
+        setHovered(target);
       }
+    });
+    this.canvas.on('mouse:out', ({ target }) => {
+      if (target === hovered) setHovered(null);
+    });
+    this.canvas.on('object:removed', ({ target }) => {
+      if (target === hovered) setHovered(null);
+    });
+    this.canvas.on('after:render', ({ ctx }) => {
+      // after:render also fires for the top canvas (renderTop)
+      if (!hovered || ctx !== this.canvas.getContext()) return;
+      if (
+        hovered === this.canvas.getActiveObject() ||
+        this.canvas.getActiveObjects().includes(hovered)
+      ) {
+        return;
+      }
+      hovered._renderControls(ctx, { hasControls: false });
     });
   }
 }

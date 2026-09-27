@@ -1,21 +1,61 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { ActiveSelection, Textbox } from 'fabric';
+
+import { useMessages } from '../../../messages';
+
+import type { FabricObject } from 'fabric';
+
 interface UseObjectPropertiesBarOptions {
-  activeObj: any;
+  activeObj: FabricObject | null;
 }
 
-export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOptions) => {
-  const type = activeObj?.type as string | undefined;
-  const isImage = type === 'StaticImage' || type === 'BackgroundImage';
-  const isText = type === 'StaticText' || type === 'DynamicText';
-  const isShape = type === 'StaticPath' || type === 'StaticVector';
+export type ObjectKind =
+  'text' | 'image' | 'shape' | 'group' | 'selection' | 'object';
+
+const TEXT_TYPES = ['StaticText', 'DynamicText'];
+const IMAGE_TYPES = ['StaticImage', 'BackgroundImage'];
+const SHAPE_TYPES = ['StaticPath', 'StaticVector'];
+const PAGE_TYPES = ['Frame', 'Background'];
+
+const isActiveSelection = (
+  obj: FabricObject | null | undefined
+): obj is ActiveSelection => obj instanceof ActiveSelection;
+
+const getObjectKind = (obj: FabricObject | null): ObjectKind | null => {
+  const type = obj?.type;
+  if (!type || PAGE_TYPES.includes(type)) return null;
+  if (TEXT_TYPES.includes(type)) return 'text';
+  if (IMAGE_TYPES.includes(type)) return 'image';
+  if (SHAPE_TYPES.includes(type)) return 'shape';
+  if (isActiveSelection(obj)) {
+    return obj.getObjects().every((o) => TEXT_TYPES.includes(o.type))
+      ? 'text'
+      : 'selection';
+  }
+  if (type.toLowerCase() === 'group') return 'group';
+  return 'object';
+};
+
+export const useObjectPropertiesBar = ({
+  activeObj,
+}: UseObjectPropertiesBarOptions) => {
+  const m = useMessages();
+  const kind = getObjectKind(activeObj);
+  const selected = isActiveSelection(activeObj) ? activeObj.getObjects() : [];
+  const multiple = selected.length > 1;
+  const target = kind === 'text' && multiple ? selected[0] : activeObj;
+  /** The text whose styles the text controls show */
+  const textTarget = target instanceof Textbox ? target : null;
 
   const [opacity, setOpacity] = useState(() =>
-    Math.round((activeObj?.opacity ?? 1) * 100),
+    Math.round((target?.opacity ?? 1) * 100)
   );
-  useEffect(() => {
-    setOpacity(Math.round((activeObj?.opacity ?? 1) * 100));
-  }, [activeObj?.id]);
+  const [prevTarget, setPrevTarget] = useState(target);
+  if (target !== prevTarget) {
+    setPrevTarget(target);
+    setOpacity(Math.round((target?.opacity ?? 1) * 100));
+  }
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -39,8 +79,9 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
       (e.target as HTMLElement).tagName === 'SELECT'
     )
       return;
+    const bar = e.currentTarget.parentElement;
+    if (!bar) return;
     e.preventDefault();
-    const bar = (e.currentTarget as HTMLDivElement).parentElement!;
     const rect = bar.getBoundingClientRect();
     dragRef.current = {
       startX: e.clientX,
@@ -63,46 +104,44 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
     window.addEventListener('mouseup', onUp);
   }, []);
 
-  const label = isImage
-    ? 'Image'
-    : isText
-      ? 'Text'
-      : isShape
-        ? 'Shape'
-        : 'Object';
+  const kindLabel = kind ? m.properties.kinds[kind] : '';
+  const label = multiple
+    ? m.properties.count(kindLabel, selected.length)
+    : kindLabel;
 
   const posStyle: React.CSSProperties = isMobile
     ? {
-      position: 'absolute',
-      bottom: 12,
-      left: 12,
-      right: 12,
-      transform: 'none',
-      width: 'auto',
-    }
+        position: 'absolute',
+        bottom: 12,
+        left: 12,
+        right: 12,
+        transform: 'none',
+        width: 'auto',
+      }
     : pos
       ? {
-        position: 'absolute',
-        left: pos.x,
-        top: pos.y,
-        transform: 'none',
-        bottom: 'auto',
-      }
+          position: 'absolute',
+          left: pos.x,
+          top: pos.y,
+          transform: 'none',
+          bottom: 'auto',
+        }
       : {
-        position: 'absolute',
-        bottom: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-      };
+          position: 'absolute',
+          bottom: 20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+        };
 
   return {
     posStyle,
+    kind,
+    target,
+    textTarget,
+    multiple,
     label,
-    isImage,
-    isText,
-    isShape,
     opacity,
     setOpacity,
     onDragStart,
-  }
+  };
 };

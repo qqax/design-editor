@@ -1,17 +1,22 @@
 import React, { useMemo } from 'react';
 
-import { Toaster } from 'sonner';
-
 import { DesignEditorInner } from './DesignEditorInner';
+import { EXPORT_FORMATS } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
+import { en, mergeMessages, MessagesProvider } from '../../../messages';
 import {
   createDefaultFontProvider,
   createImglyBackgroundRemoval,
-  createLocalStoragePersistence,
+  createIndexedDBPersistence,
 } from '../../../providers';
 import { EditorContextProvider } from '../../EditorContext';
-import { DEFAULT_PANELS_CONFIG } from '../../icon-reail/model';
+import {
+  DEFAULT_GALLERY_PROVIDER,
+  DEFAULT_PANELS_CONFIG,
+} from '../../icon-reail/model';
 
+import type { ExportFormat } from '../../../engine';
+import type { PanelsConfigType } from '../../panels';
 import type { DesignEditorProps } from '../model';
 
 /**
@@ -36,10 +41,11 @@ export function DesignEditor({
   sceneKey,
   onBack,
   onExport,
+  exportFormats,
 
-  fontProvider = createDefaultFontProvider(),
+  fontProvider: fontProviderProp,
   backgroundRemovalProvider,
-  persistenceProvider = createLocalStoragePersistence(),
+  persistenceProvider,
 
   title,
 
@@ -47,14 +53,54 @@ export function DesignEditor({
   adSizes,
 
   className,
+  theme = 'dark',
+  appearance,
+  messages: messagesProp,
 }: DesignEditorProps) {
-  const resolvedBackgroundRemovalProvider =
-    backgroundRemovalProvider ?? createImglyBackgroundRemoval();
-  const innerConfig = { ...DEFAULT_PANELS_CONFIG, ...panelsConfig };
+  const fontProvider = useMemo(
+    () => fontProviderProp ?? createDefaultFontProvider(),
+    [fontProviderProp]
+  );
+  const resolvedBackgroundRemovalProvider = useMemo(
+    () => backgroundRemovalProvider ?? createImglyBackgroundRemoval(),
+    [backgroundRemovalProvider]
+  );
+  const messages = useMemo(
+    () => mergeMessages(en, messagesProp),
+    [messagesProp]
+  );
+  const innerConfig: PanelsConfigType = {
+    templates: {
+      ...DEFAULT_PANELS_CONFIG.templates,
+      ...panelsConfig?.templates,
+    },
+    text: { ...DEFAULT_PANELS_CONFIG.text, ...panelsConfig?.text },
+    shapes: { ...DEFAULT_PANELS_CONFIG.shapes, ...panelsConfig?.shapes },
+    stickers: { ...DEFAULT_PANELS_CONFIG.stickers, ...panelsConfig?.stickers },
+    upload: { ...DEFAULT_PANELS_CONFIG.upload, ...panelsConfig?.upload },
+  };
   const templateProvider = innerConfig.templates.provider;
   const textDesignProvider = innerConfig.text.provider;
   const templatesPanel = innerConfig.templates.renderProp;
   const libraryPanel = innerConfig.upload.renderProp;
+  const galleryProvider =
+    innerConfig.upload.provider ?? DEFAULT_GALLERY_PROVIDER;
+  const galleryWidget = innerConfig.upload.widget;
+
+  // Keyed by content: a new array with the same formats keeps the context.
+  const formatsKey = exportFormats?.join(',') ?? '';
+  const formats = useMemo(
+    () =>
+      formatsKey
+        ? [...new Set(formatsKey.split(',') as ExportFormat[])]
+        : (Object.keys(EXPORT_FORMATS) as ExportFormat[]),
+    [formatsKey]
+  );
+
+  const persistence = useMemo(
+    () => persistenceProvider ?? createIndexedDBPersistence(),
+    [persistenceProvider]
+  );
 
   const ctx = useMemo(
     () => ({
@@ -62,9 +108,12 @@ export function DesignEditor({
       textDesignProvider,
       fontProvider,
       backgroundRemovalProvider: resolvedBackgroundRemovalProvider,
-      persistenceProvider,
+      persistenceProvider: persistence,
+      galleryProvider,
+      galleryWidget,
       sceneKey,
       onExport,
+      exportFormats: formats,
       onBack,
     }),
     [
@@ -72,28 +121,33 @@ export function DesignEditor({
       textDesignProvider,
       fontProvider,
       resolvedBackgroundRemovalProvider,
-      persistenceProvider,
+      persistence,
+      galleryProvider,
+      galleryWidget,
       sceneKey,
       onExport,
+      formats,
       onBack,
     ]
   );
 
   return (
-    <EngineProvider>
-      <EditorContextProvider value={ctx}>
-        <DesignEditorInner
-          adSizes={adSizes}
-          className={className}
-          initialScene={initialScene}
-          libraryPanel={libraryPanel}
-          onBack={onBack}
-          templatesPanel={templatesPanel}
-          textDesignProvider={textDesignProvider}
-          title={title}
-        />
-        <Toaster position="bottom-right" />
-      </EditorContextProvider>
-    </EngineProvider>
+    <MessagesProvider value={messages}>
+      <EngineProvider>
+        <EditorContextProvider value={ctx}>
+          <DesignEditorInner
+            adSizes={adSizes}
+            appearance={appearance}
+            className={className}
+            initialScene={initialScene}
+            libraryPanel={libraryPanel}
+            panelsConfig={innerConfig}
+            templatesPanel={templatesPanel}
+            theme={theme}
+            title={title}
+          />
+        </EditorContextProvider>
+      </EngineProvider>
+    </MessagesProvider>
   );
 }

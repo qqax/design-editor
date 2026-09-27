@@ -1,20 +1,65 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+import { createAutosaveStore } from './autosaveStore';
+
+import type { AutosavePayload, AutosaveViewport } from './autosaveStore';
+import type { CanvasBackground, Editor } from '../engine';
+import type { PersistenceProvider } from '../providers';
+
+export type { AutosavePayload, AutosaveViewport } from './autosaveStore';
 
 export const AUTOSAVE_KEY_PREFIX = 'design_autosave';
 export const getAutosaveKey = (sceneKey?: string) =>
   sceneKey ? `${AUTOSAVE_KEY_PREFIX}_${sceneKey}` : AUTOSAVE_KEY_PREFIX;
 
+export function getViewport(editor: Editor): AutosaveViewport | undefined {
+  try {
+    const { canvas } = editor.canvas;
+    const [zoom, , , , tx, ty] = canvas.viewportTransform;
+    const frameCenter = editor.frame.frame.getCenterPoint();
+    return {
+      zoom,
+      x: (canvas.width / 2 - tx) / zoom - frameCenter.x,
+      y: (canvas.height / 2 - ty) / zoom - frameCenter.y,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export function restoreViewport(editor: Editor, viewport: AutosaveViewport) {
+  const { zoom, x, y } = viewport;
+  if (![zoom, x, y].every((v) => Number.isFinite(v)) || zoom <= 0) return;
+
+  const { canvas } = editor.canvas;
+  const frameCenter = editor.frame.frame.getCenterPoint();
+  canvas.setViewportTransform([
+    zoom,
+    0,
+    0,
+    zoom,
+    canvas.width / 2 - (frameCenter.x + x) * zoom,
+    canvas.height / 2 - (frameCenter.y + y) * zoom,
+  ]);
+  canvas.requestRenderAll();
+  editor.state.setZoomRatio(zoom);
+}
+
 export function useAutoSave(
-  editor: any,
-  canvasBg: string,
+  editor: Editor | null,
+  canvasBg: CanvasBackground,
   workspaceBg: string,
+  persistence: PersistenceProvider,
   sceneKey?: string
 ) {
+  const store = useMemo(() => createAutosaveStore(persistence), [persistence]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const key = getAutosaveKey(sceneKey);
+
+  const isFirstRender = useRef(true);
 
   // Setup beforeunload to prevent accidental exit
   useEffect(() => {
@@ -28,72 +73,104 @@ export function useAutoSave(
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  // Track fabric.js changes
+  const scheduleSave = useRef<() => void>(undefined);
   useEffect(() => {
-    if (!editor) return;
-    const canvas = editor.canvas?.canvas;
-    if (!canvas) return;
-    const schedule = () => {
+    scheduleSave.current = () => {
       setHasUnsavedChanges(true);
       clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
+        if (!editor) return;
         try {
-          const payload = {
-            scene: editor.scene.exportToJSON(),
-            canvasBg,
-            workspaceBg,
-          };
-          localStorage.setItem(key, JSON.stringify(payload));
+          void store
+            .save(key, {
+              scene: editor.scene.exportToJSON(),
+              canvasBg,
+              workspaceBg,
+              viewport: getViewport(editor),
+            })
+            .catch(() => {});
         } catch {
           /* empty */
         }
       }, 1500);
     };
-    canvas.on('object:modified', schedule);
-    canvas.on('object:added', schedule);
-    canvas.on('object:removed', schedule);
-    return () => {
-      canvas.off('object:modified', schedule);
-      canvas.off('object:added', schedule);
-      canvas.off('object:removed', schedule);
-      clearTimeout(timerRef.current);
-    };
-  }, [editor, canvasBg, workspaceBg, key]);
+  });
 
-  // Track background changes explicitly
   useEffect(() => {
     if (!editor) return;
 
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      try {
-        setHasUnsavedChanges(true);
-        const payload = {
-          scene: editor.scene.exportToJSON(),
-          canvasBg,
-          workspaceBg,
-        };
-        localStorage.setItem(key, JSON.stringify(payload));
-      } catch {
-        /* empty */
-      }
-    }, 1500);
+    const canvas = editor.canvas?.canvas;
+    if (!canvas) return;
 
+    const triggerSave = () => scheduleSave.current?.();
+
+    canvas.on('object:modified', triggerSave);
+    canvas.on('object:added', triggerSave);
+    canvas.on('object:removed', triggerSave);
+
+    return () => {
+      canvas.off('object:modified', triggerSave);
+      canvas.off('object:added', triggerSave);
+      canvas.off('object:removed', triggerSave);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const triggerSave = () => scheduleSave.current?.();
+
+    editor.frame?.on?.('modified', triggerSave);
+    editor.on('history:changed', triggerSave);
+
+    return () => {
+      editor.frame?.off?.('modified', triggerSave);
+      editor.off('history:changed', triggerSave);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const saveViewport = () => {
+      const viewport = getViewport(editor);
+      if (viewport) store.saveViewport(key, viewport);
+    };
+
+    window.addEventListener('pagehide', saveViewport);
+    return () => window.removeEventListener('pagehide', saveViewport);
+  }, [editor, key, store]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    scheduleSave.current?.();
+  }, [canvasBg, workspaceBg]);
+
+  useEffect(() => {
     return () => clearTimeout(timerRef.current);
-  }, [canvasBg, workspaceBg, editor, key]);
+  }, []);
 
   return { hasUnsavedChanges, setHasUnsavedChanges };
 }
 
-export function loadAutosave(sceneKey?: string): any {
-  try {
-    const raw = localStorage.getItem(getAutosaveKey(sceneKey));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+export async function loadAutosave(
+  persistence: PersistenceProvider,
+  sceneKey?: string
+): Promise<AutosavePayload | null> {
+  return createAutosaveStore(persistence)
+    .load(getAutosaveKey(sceneKey))
+    .catch(() => null);
 }
 
-export function clearAutosave(sceneKey?: string) {
-  localStorage.removeItem(getAutosaveKey(sceneKey));
+export async function clearAutosave(
+  persistence: PersistenceProvider,
+  sceneKey?: string
+): Promise<void> {
+  return createAutosaveStore(persistence)
+    .clear(getAutosaveKey(sceneKey))
+    .catch(() => {});
 }

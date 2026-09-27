@@ -1,15 +1,19 @@
-export default function (selection: any): string[] | null {
-  const types = new Set<string>();
+export const getSelectionType = (selection: any): string[] | null => {
   if (!selection) {
     return null;
   }
-  if (selection._objects) {
-    for (const object of selection._objects) {
-      types.add(object.type);
-    }
-  } else {
+
+  const types = new Set<string>();
+
+  if (selection._objects && Array.isArray(selection._objects)) {
+    selection._objects.forEach((object: any) => {
+      if (object?.type) {
+        types.add(object.type);
+      }
+    });
+  } else if (selection.type) {
     types.add(selection.type);
   }
 
-  return Array.from(types);
-}
+  return types.size > 0 ? Array.from(types) : null;
+};

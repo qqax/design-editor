@@ -1,96 +1,192 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+import { clsx } from 'clsx';
+import { Toaster } from 'sonner';
 
 import { DevelopmentBadge } from './DevelopmentBadge';
 import { EditorSidebar } from './EditorSidebar';
-import { useActiveObject, useEditor, useZoomRatio } from '../../../engine';
+import {
+  NO_OFFSETS,
+  useActiveObject,
+  useEditor,
+  useZoomRatio,
+} from '../../../engine';
 import {
   clearAutosave,
   loadAutosave,
+  restoreViewport,
   useAutoSave,
 } from '../../../hooks/useAutoSave';
 import { useStudioExport } from '../../../hooks/useStudioExport';
-import { useToast } from '../../../hooks/useToast';
-import { CanvasArea } from '../../canvas';
+import { useMessages } from '../../../messages';
+import { CanvasArea, Rulers } from '../../canvas';
 import { useEditorContext } from '../../EditorContext';
 import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
 import { ObjectPropertiesBar } from '../../object-properties';
+import { PortalContainerProvider } from '../../primitives';
 import { Toolbar } from '../../toolbars';
+import { DEFAULT_DPI, sanitizeDpi } from '../../toolbars/model';
 import { getStorageSafe, setStorageSafe } from '../lib';
-import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
+import {
+  appearanceStyle,
+  useCanvasDrop,
+  useCanvasPanning,
+  useEditorActions,
+} from '../model';
 
-import type { FabricImage } from 'fabric';
+import type { FabricObject } from 'fabric';
 
-import type { SettingsType } from '../../../engine';
+import type {
+  CanvasBackground,
+  Guide,
+  IScene,
+  PageOffsets,
+  SettingsType,
+} from '../../../engine';
+import type { AutosaveViewport } from '../../../hooks/useAutoSave';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
-import type { ResourceProvider } from '../../panels/common/provider';
 import type { SelectOptions } from '../../primitives';
+import type { PageSetup } from '../../toolbars/model';
+import type { EditorAppearance, EditorTheme, InitialScene } from '../model';
 
-const WORKSPACE_BG = 'var(--de-color-bg)';
+// Earlier versions stored this default; '' lets the theme pick the workspace
+const LEGACY_DEFAULT_WORKSPACE = '#f5f5f5';
+const themedWorkspace = (color: string) =>
+  color.toLowerCase() === LEGACY_DEFAULT_WORKSPACE ? '' : color;
 
 interface DesignEditorInnerProps {
-  onBack?: () => void;
-  initialScene?: any;
+  initialScene?: InitialScene;
   className?: string;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
   title?: React.ReactNode;
-  textDesignProvider: ResourceProvider;
   adSizes?: SelectOptions;
   panelsConfig?: PanelsConfigType;
+  theme?: EditorTheme;
+  appearance?: EditorAppearance;
+}
+
+interface RestoreSource {
+  canvasBg?: CanvasBackground;
+  workspaceBg?: string;
+  viewport?: AutosaveViewport;
 }
 
 export function DesignEditorInner({
-  onBack,
   initialScene,
   className,
   templatesPanel,
   libraryPanel,
   title,
-  textDesignProvider,
   adSizes,
   panelsConfig,
+  theme = 'dark',
+  appearance,
 }: DesignEditorInnerProps) {
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [uiTheme, setUiTheme] = useState<EditorTheme>(() =>
+    getStorageSafe<EditorTheme>('studio_theme', theme)
+  );
+  const themeSwitchable = !appearance?.colors;
+
+  useEffect(() => {
+    setStorageSafe('studio_theme', uiTheme);
+  }, [uiTheme]);
   const editor = useEditor();
-  const activeObj = useActiveObject<FabricImage>();
+  const activeObj = useActiveObject<FabricObject | null>();
   const zoomRatio = useZoomRatio<number>();
-  const message = useToast();
-  const { exportToLibrary, exporting } = useStudioExport();
-  const { backgroundRemovalProvider, sceneKey, templateProvider } =
+  const { canSaveToLibrary } = useStudioExport();
+  const { persistenceProvider, fontProvider, sceneKey, onBack } =
     useEditorContext();
+
+  const messages = useMessages();
+
+  // Before the scene import below: effects run in declaration order.
+  useEffect(() => {
+    editor?.fonts.setResolver(async (family) => fontProvider.load(family));
+  }, [editor, fontProvider]);
+
+  useEffect(() => {
+    editor?.setLayerLabels(messages.layers.names);
+  }, [editor, messages]);
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
-  const [canvasBg, setCanvasBg] = useState<string>(
+  const [canvasBg, setCanvasBg] = useState<CanvasBackground>(
     () =>
-      (initialScene?.canvasBg ||
-        getStorageSafe<string>('studio_canvasBg', '#ffffff')) as string
+      initialScene?.canvasBg ||
+      getStorageSafe<CanvasBackground>('studio_canvasBg', '#ffffff')
   );
 
-  const [workspaceBg, setWorkspaceBg] = useState<string>(
-    () =>
-      (initialScene?.workspaceBg ||
-        getStorageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
+  const [workspaceBg, setWorkspaceBg] = useState<string>(() =>
+    themedWorkspace(
+      initialScene?.workspaceBg ||
+        getStorageSafe<string>('studio_workspaceBg', '')
+    )
   );
 
-  const [settings, setSettings] = useState<SettingsType>(() =>
-    getStorageSafe('studio_settings', {
-      showGrid: false,
-      snapGrid: false,
-      railSide: 'left',
-    })
-  );
+  const [settings, setSettings] = useState<SettingsType>(() => ({
+    showGrid: false,
+    snapGrid: false,
+    showRulers: false,
+    snapToGuides: true,
+    rulerSides: { horizontal: 'top', vertical: 'left' },
+    rulerOrigin: { x: 'left', y: 'top' },
+    railSide: 'left',
+    ...getStorageSafe<Partial<SettingsType>>('studio_settings', {}),
+  }));
 
   useEffect(() => {
     setStorageSafe('studio_settings', settings);
   }, [settings]);
+
+  const rulersKey = sceneKey ? `studio_rulers_${sceneKey}` : 'studio_rulers';
+  // Page setup of this scene: guides, offsets (also the bleed) and resolution
+  const [rulers, setRulers] = useState<{
+    guides: Guide[];
+    offsets: PageOffsets;
+    dpi: number;
+  }>(() => {
+    const stored = getStorageSafe<
+      Partial<{ guides: Guide[]; offsets: PageOffsets; dpi: number }>
+    >(rulersKey, {});
+    return {
+      guides: [],
+      offsets: NO_OFFSETS,
+      ...stored,
+      dpi: sanitizeDpi(stored.dpi ?? DEFAULT_DPI),
+    };
+  });
+
+  const handlePageSetup = useCallback((setup: PageSetup) => {
+    setRulers((prev) => {
+      const { top, right, bottom, left } = prev.offsets;
+      const wasBleed = top === right && right === bottom && bottom === left;
+      // Uneven offsets are the user's margins; only a bleed replaces them.
+      const offsets =
+        setup.offsets.top > 0 || wasBleed ? setup.offsets : prev.offsets;
+      return { ...prev, offsets, dpi: setup.dpi };
+    });
+  }, []);
+
+  useEffect(() => {
+    setStorageSafe(rulersKey, rulers);
+    editor?.guides.setGuides(rulers.guides);
+    editor?.guides.setOffsets(rulers.offsets);
+  }, [editor, rulers, rulersKey]);
+
+  useEffect(() => {
+    editor?.guides.setSnapping(settings.snapToGuides);
+  }, [editor, settings.snapToGuides]);
 
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const { hasUnsavedChanges, setHasUnsavedChanges } = useAutoSave(
     editor,
     canvasBg,
     workspaceBg,
+    persistenceProvider,
     sceneKey
   );
 
@@ -104,17 +200,12 @@ export function DesignEditorInner({
     handleApplyTemplate,
     handleRemoveBg,
     handleExport,
-  } = useEditorActions(
+  } = useEditorActions({
     editor,
     activeObj,
-    sceneKey,
-    backgroundRemovalProvider,
-    exportToLibrary,
-    message,
     setCanvasBg,
-    setWorkspaceBg,
-    setHasUnsavedChanges
-  );
+    setHasUnsavedChanges,
+  });
 
   const {
     spaceDown,
@@ -133,7 +224,7 @@ export function DesignEditorInner({
   useEffect(() => {
     if (editor && canvasBg) {
       try {
-        (editor as any).frame?.setBackgroundColor?.(canvasBg);
+        editor.frame.setBackground(canvasBg);
       } catch {
         // console.error(e);
       }
@@ -143,20 +234,30 @@ export function DesignEditorInner({
   useEffect(() => {
     if (!editor) return;
 
-    const saved = loadAutosave(sceneKey);
-    const processScene = (sceneData: any, bgSrc: any) => {
+    // The restore below is async (fonts + images). If this effect is torn down
+    // and re-run — or the user applies a template while it is still in flight —
+    // the late continuation must not write the *previous* scene's background
+    // colour onto the canvas, which left the select showing the new colour
+    // while the canvas still rendered the old one.
+    let cancelled = false;
+
+    const processScene = (scene: IScene, source: RestoreSource) => {
       void editor.scene
-        .importFromJSON(sceneData)
+        .importFromJSON(scene)
         .catch(() => {})
         .then(() => {
-          if (bgSrc?.canvasBg) {
+          if (cancelled) return;
+          if (source.canvasBg) {
             try {
-              (editor as any).frame?.setBackgroundColor?.(bgSrc.canvasBg);
+              editor.frame.setBackground(source.canvasBg);
             } catch {
               /* empty */
             }
           }
+          // After the zoomToFit calls in importFromJSON and Frame.initialize
           setTimeout(() => {
+            if (cancelled) return;
+            if (source.viewport) restoreViewport(editor, source.viewport);
             editor.history.reset();
             editor.history.initialize();
             setHasUnsavedChanges(false);
@@ -164,188 +265,204 @@ export function DesignEditorInner({
         });
     };
 
-    if (saved && Object.keys(saved).length > 0) {
-      if (saved.scene) processScene(saved.scene, saved);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved.canvasBg) setCanvasBg(saved.canvasBg);
-      if (saved.workspaceBg) setWorkspaceBg(saved.workspaceBg);
-    } else if (initialScene) {
-      const scene = initialScene.scene || initialScene;
-      processScene(scene, initialScene);
-      if (initialScene.canvasBg) setCanvasBg(initialScene.canvasBg);
-      if (initialScene.workspaceBg) setWorkspaceBg(initialScene.workspaceBg);
-    }
+    const restore = (scene: IScene, source: RestoreSource) => {
+      processScene(scene, source);
+      if (source.canvasBg) setCanvasBg(source.canvasBg);
+      if (source.workspaceBg !== undefined) {
+        setWorkspaceBg(themedWorkspace(source.workspaceBg));
+      }
+    };
+
+    void loadAutosave(persistenceProvider, sceneKey).then((saved) => {
+      if (cancelled) return;
+      if (saved) {
+        restore(saved.scene, saved);
+      } else if (initialScene) {
+        restore(
+          'scene' in initialScene ? initialScene.scene : initialScene,
+          initialScene
+        );
+      }
+    });
 
     const handleChange = () => setHasUnsavedChanges(true);
     editor.on('history:changed', handleChange);
-    return () => editor.off('history:changed', handleChange);
-  }, [editor, initialScene, setHasUnsavedChanges, sceneKey]);
+    return () => {
+      cancelled = true;
+      editor.off('history:changed', handleChange);
+    };
+  }, [
+    editor,
+    initialScene,
+    setHasUnsavedChanges,
+    sceneKey,
+    persistenceProvider,
+  ]);
 
   const zoomPct = Math.round(zoomRatio * 100);
 
   return (
     <div
+      ref={setRoot}
       data-de-root
-      className={className}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--de-color-bg)',
-        color: 'var(--de-color-fg)',
-      }}
+      className={clsx('de-root', className)}
+      data-de-theme={uiTheme}
+      style={appearanceStyle(appearance)}
     >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          background: WORKSPACE_BG,
-        }}
-      >
-        <Toolbar
-          adSizes={adSizes}
-          canvasBg={canvasBg}
-          editor={editor}
-          exporting={exporting}
-          hasUnsavedChanges={hasUnsavedChanges}
-          layerPanelOpen={layerPanelOpen}
-          onBgChange={setCanvasBg}
-          onExport={handleExport}
-          onSettings={(patch) => setSettings((p) => ({ ...p, ...patch }))}
-          onToggleLayers={() => setLayerPanelOpen((p) => !p)}
-          onWorkspaceBgChange={setWorkspaceBg}
-          settings={settings}
-          title={title}
-          workspaceBg={workspaceBg}
-          zoomPct={zoomPct}
-          onBack={
-            onBack
-              ? () => {
-                  clearAutosave(sceneKey);
-                  onBack();
-                }
-              : undefined
-          }
-        />
+      <PortalContainerProvider value={root}>
+        <div className="de-app">
+          <Toolbar
+            adSizes={adSizes}
+            canSaveToLibrary={canSaveToLibrary}
+            canvasBg={canvasBg}
+            dpi={rulers.dpi}
+            editor={editor}
+            hasUnsavedChanges={hasUnsavedChanges}
+            layerPanelOpen={layerPanelOpen}
+            offsets={rulers.offsets}
+            onBgChange={setCanvasBg}
+            onExport={handleExport}
+            onPageSetup={handlePageSetup}
+            onSettings={(patch) => setSettings((p) => ({ ...p, ...patch }))}
+            onThemeChange={themeSwitchable ? setUiTheme : undefined}
+            onToggleLayers={() => setLayerPanelOpen((p) => !p)}
+            onWorkspaceBgChange={setWorkspaceBg}
+            settings={settings}
+            theme={themeSwitchable ? uiTheme : undefined}
+            title={title}
+            workspaceBg={workspaceBg}
+            zoomPct={zoomPct}
+            onBack={
+              onBack
+                ? () => {
+                    void clearAutosave(persistenceProvider, sceneKey);
+                    onBack();
+                  }
+                : undefined
+            }
+            onDpiChange={(dpi) =>
+              setRulers((prev) => ({ ...prev, dpi: sanitizeDpi(dpi) }))
+            }
+            onOffsetsChange={(offsets) =>
+              setRulers((prev) => ({ ...prev, offsets }))
+            }
+          />
 
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            overflow: 'hidden',
-            position: 'relative',
-          }}
-        >
-          {settings.railSide === 'left' ? (
-            <React.Fragment>
-              <IconRail
-                activePanel={activePanel}
-                onTogglePanel={setActivePanel}
-                panelsConfig={panelsConfig}
-                side={settings.railSide}
-              />
-              <EditorSidebar
-                activePanel={activePanel}
-                addImageToCanvas={addImageToCanvas}
-                handleAddMedia={handleAddMedia}
-                handleAddText={handleAddText}
-                handleApplyTemplate={handleApplyTemplate}
-                handleApplyTextDesign={handleApplyTextDesign}
-                libraryPanel={libraryPanel}
-                onClose={() => setActivePanel(null)}
-                templateProvider={templateProvider}
-                templatesPanel={templatesPanel}
-                textDesignProvider={textDesignProvider}
-              />
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <EditorSidebar
-                activePanel={activePanel}
-                addImageToCanvas={addImageToCanvas}
-                handleAddMedia={handleAddMedia}
-                handleAddText={handleAddText}
-                handleApplyTemplate={handleApplyTemplate}
-                handleApplyTextDesign={handleApplyTextDesign}
-                libraryPanel={libraryPanel}
-                onClose={() => setActivePanel(null)}
-                templateProvider={templateProvider}
-                templatesPanel={templatesPanel}
-                textDesignProvider={textDesignProvider}
-              />
-              <IconRail
-                activePanel={activePanel}
-                onTogglePanel={setActivePanel}
-                side={settings.railSide}
-              />
-            </React.Fragment>
-          )}
+          <div className="de-main">
+            {settings.railSide === 'left' ? (
+              <React.Fragment>
+                <IconRail
+                  activePanel={activePanel}
+                  onTogglePanel={setActivePanel}
+                  panelsConfig={panelsConfig}
+                  side={settings.railSide}
+                />
+                <EditorSidebar
+                  activePanel={activePanel}
+                  addImageToCanvas={addImageToCanvas}
+                  handleAddMedia={handleAddMedia}
+                  handleAddText={handleAddText}
+                  handleApplyTemplate={handleApplyTemplate}
+                  handleApplyTextDesign={handleApplyTextDesign}
+                  libraryPanel={libraryPanel}
+                  onClose={() => setActivePanel(null)}
+                  templatesPanel={templatesPanel}
+                />
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <EditorSidebar
+                  activePanel={activePanel}
+                  addImageToCanvas={addImageToCanvas}
+                  handleAddMedia={handleAddMedia}
+                  handleAddText={handleAddText}
+                  handleApplyTemplate={handleApplyTemplate}
+                  handleApplyTextDesign={handleApplyTextDesign}
+                  libraryPanel={libraryPanel}
+                  onClose={() => setActivePanel(null)}
+                  templatesPanel={templatesPanel}
+                />
+                <IconRail
+                  activePanel={activePanel}
+                  onTogglePanel={setActivePanel}
+                  panelsConfig={panelsConfig}
+                  side={settings.railSide}
+                />
+              </React.Fragment>
+            )}
 
-          <div
-            ref={canvasWrapRef}
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseUp}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            style={{
-              flex: 1,
-              position: 'relative',
-              overflow: 'hidden',
-              cursor: spaceDown ? (isPanning ? 'grabbing' : 'grab') : 'default',
-            }}
-          >
-            <CanvasArea
-              canvasBg={canvasBg}
-              dragOver={dragOver}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={handleDrop}
-              settings={settings}
-              workspaceBg={workspaceBg}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
+            <div
+              ref={canvasWrapRef}
+              className="de-canvas-wrap"
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              style={{
+                cursor: spaceDown
+                  ? isPanning
+                    ? 'grabbing'
+                    : 'grab'
+                  : undefined,
               }}
-            />
-
-            {removingBg && shimmerRect ? (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: shimmerRect.top,
-                  left: shimmerRect.left,
-                  width: shimmerRect.width,
-                  height: shimmerRect.height,
-                  pointerEvents: 'none',
-                  zIndex: 20,
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                  background:
-                    'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-                  animation: 'shimmer 1.5s infinite',
+            >
+              <CanvasArea
+                canvasBg={canvasBg}
+                dragOver={dragOver}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                settings={settings}
+                workspaceBg={workspaceBg}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragOver(true);
                 }}
               />
+
+              {editor ? (
+                <Rulers
+                  editor={editor}
+                  guides={rulers.guides}
+                  layoutKey={`${settings.railSide}-${activePanel ?? ''}`}
+                  offsets={rulers.offsets}
+                  settings={settings}
+                  onGuidesChange={(guides) =>
+                    setRulers((prev) => ({ ...prev, guides }))
+                  }
+                  onSidesChange={(rulerSides) =>
+                    setSettings((prev) => ({ ...prev, rulerSides }))
+                  }
+                />
+              ) : null}
+
+              {removingBg && shimmerRect ? (
+                <div className="de-bg-removal" style={shimmerRect} />
+              ) : null}
+
+              <DevelopmentBadge />
+            </div>
+
+            {layerPanelOpen ? (
+              <LayerPanel
+                editor={editor}
+                onClose={() => setLayerPanelOpen(false)}
+              />
             ) : null}
-
-            <DevelopmentBadge />
           </div>
-
-          {layerPanelOpen ? (
-            <LayerPanel
-              editor={editor}
-              onClose={() => setLayerPanelOpen(false)}
-            />
-          ) : null}
         </div>
-      </div>
 
-      <ObjectPropertiesBar
-        activeObj={activeObj}
-        editor={editor}
-        onRemoveBg={handleRemoveBg}
-        removingBg={removingBg}
-      />
+        <ObjectPropertiesBar
+          activeObj={activeObj}
+          editor={editor}
+          onRemoveBg={handleRemoveBg}
+          removingBg={removingBg}
+        />
+        <Toaster
+          containerAriaLabel={messages.notifications}
+          position="bottom-right"
+          theme={uiTheme}
+        />
+      </PortalContainerProvider>
     </div>
   );
 }

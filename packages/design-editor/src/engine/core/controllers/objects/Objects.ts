@@ -153,6 +153,7 @@ export class Objects extends Base {
   public add = async (
     item: Partial<
       ILayer & {
+        /** Keep `left`/`top` (relative to the frame) instead of centring */
         skipCentering?: boolean;
       }
     >
@@ -182,6 +183,10 @@ export class Objects extends Base {
 
   public select = (id?: string) => {
     this.selection.select(id);
+  };
+
+  public selectMany = (ids: readonly string[]) => {
+    this.selection.selectMany(ids);
   };
 
   public deselect = () => {

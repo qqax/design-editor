@@ -1,38 +1,34 @@
 import React from 'react';
 
-import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Italic,
-  MoreHorizontal,
-} from 'lucide-react';
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic } from 'lucide-react';
 
 import { FontPickerPopover } from './FontPickerPopover';
 import { TextMoreContent } from './TextMoreContent';
-import { createDefaultFontProvider } from '../../../providers';
-import { UnifiedColorPicker } from '../../panels/color-picker';
-import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
+import { useMessages } from '../../../messages';
+import { UnifiedColorPicker } from '../../panels';
+import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useTextControls } from '../model';
+
+import type { Textbox } from 'fabric';
 
 import type { Editor } from '../../../engine';
 
 interface TextControlsProps {
   editor: Editor | null;
-  activeObj: any;
+  activeObj: Textbox | null;
+  multiple?: boolean;
   opacity: number;
   setOpacity: (o: number) => void;
 }
 
-const DEFAULT_FONT_PROVIDER = createDefaultFontProvider();
-
 export const TextControls = ({
   editor,
   activeObj,
+  multiple = false,
   opacity,
   setOpacity,
 }: TextControlsProps) => {
+  const m = useMessages().text;
   const {
     isEditingText,
     selStyle,
@@ -40,17 +36,16 @@ export const TextControls = ({
     charSpacing,
     setCharSpacing,
     lineHeight,
+    setLineHeight,
     textTransform,
-    setTextTransform,
+    applyTextTransform,
     handleFontChange,
-    originalTextRef,
   } = useTextControls({ editor, activeObj });
 
   return (
     <React.Fragment>
       {/* Font — show selection style font if editing */}
       <FontPickerPopover
-        fontProvider={DEFAULT_FONT_PROVIDER}
         onChange={handleFontChange}
         currentFamily={
           isEditingText && selStyle.fontFamily
@@ -61,24 +56,16 @@ export const TextControls = ({
       <PDivider />
       <input
         key={`${activeObj?.id}-fs`}
+        aria-label={m.fontSize}
+        className="de-num-input"
         max={500}
         min={6}
-        title="Font size"
+        style={{ width: 48, textAlign: 'center' }}
+        title={m.fontSize}
         type="number"
         onChange={(e) =>
           editor?.objects.update({ fontSize: Number(e.target.value) })
         }
-        style={{
-          width: 46,
-          background: 'var(--de-color-bg)',
-          border: '1px solid var(--de-color-border)',
-          borderRadius: 6,
-          color: 'var(--de-color-text)',
-          fontSize: 12,
-          padding: '4px 4px',
-          textAlign: 'center',
-          outline: 'none',
-        }}
         value={
           isEditingText && selStyle.fontSize != null
             ? selStyle.fontSize
@@ -89,8 +76,9 @@ export const TextControls = ({
       {/* Text Color — reflects selection color when editing */}
       <UnifiedColorPicker
         activeObjId={activeObj?.id}
+        label={m.color}
         onChange={(c) => editor?.objects.update({ fill: c })}
-        tooltip="Text color"
+        tooltip={m.color}
         variant="property-bar"
         color={
           isEditingText && typeof selStyle.fill === 'string'
@@ -101,8 +89,9 @@ export const TextControls = ({
         }
       />
       <PDivider />
-      <Tooltip placement="top" title="Bold">
+      <Tooltip placement="top" title={m.bold}>
         <PBtn
+          aria-label={m.bold}
           active={
             (isEditingText ? selStyle.fontWeight : activeObj?.fontWeight) ===
             'bold'
@@ -115,45 +104,49 @@ export const TextControls = ({
                   : activeObj?.fontWeight) === 'bold'
                   ? 'normal'
                   : 'bold',
-            } as any)
+            })
           }
         >
           <Bold size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Italic">
+      <Tooltip placement="top" title={m.italic}>
         <PBtn
           active={activeObj?.fontStyle === 'italic'}
+          aria-label={m.italic}
           onClick={() =>
             editor?.objects.update({
               fontStyle:
                 activeObj?.fontStyle === 'italic' ? 'normal' : 'italic',
-            } as any)
+            })
           }
         >
           <Italic size={14} />
         </PBtn>
       </Tooltip>
       <PDivider />
-      <Tooltip placement="top" title="Align left">
+      <Tooltip placement="top" title={m.alignLeft}>
         <PBtn
           active={activeObj?.textAlign === 'left'}
+          aria-label={m.alignLeft}
           onClick={() => editor?.objects.update({ textAlign: 'left' })}
         >
           <AlignLeft size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Align center">
+      <Tooltip placement="top" title={m.alignCenter}>
         <PBtn
           active={activeObj?.textAlign === 'center'}
+          aria-label={m.alignCenter}
           onClick={() => editor?.objects.update({ textAlign: 'center' })}
         >
           <AlignCenter size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Align right">
+      <Tooltip placement="top" title={m.alignRight}>
         <PBtn
           active={activeObj?.textAlign === 'right'}
+          aria-label={m.alignRight}
           onClick={() => editor?.objects.update({ textAlign: 'right' })}
         >
           <AlignRight size={14} />
@@ -165,43 +158,20 @@ export const TextControls = ({
         placement="top"
         content={
           <TextMoreContent
-            activeObj={activeObj}
             charSpacing={charSpacing}
             editor={editor}
             lineHeight={lineHeight}
+            multiple={multiple}
+            onTextTransformChange={applyTextTransform}
             opacity={opacity}
-            originalTextRef={originalTextRef}
             setCharSpacing={setCharSpacing}
-            setLineHeight={setOpacity}
+            setLineHeight={setLineHeight}
             setOpacity={setOpacity}
-            setTextTransform={setTextTransform}
             textTransform={textTransform}
           />
         }
       >
-        <button
-          title="More text options"
-          type="button"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '4px 8px',
-            borderRadius: 7,
-            cursor: 'pointer',
-            fontSize: 11,
-            fontWeight: 600,
-            background:
-              'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
-            border: '1px solid var(--de-color-border)',
-            color: 'var(--de-color-text-muted)',
-            outline: 'none',
-            transition: 'all 0.15s',
-          }}
-        >
-          <MoreHorizontal size={14} />
-          <span style={{ fontSize: 10 }}>More</span>
-        </button>
+        <MoreButton label={m.more} />
       </Popover>
     </React.Fragment>
   );

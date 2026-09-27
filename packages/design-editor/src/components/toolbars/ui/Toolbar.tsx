@@ -7,31 +7,46 @@ import { LayoutGrid } from 'lucide-react';
 import { Brand } from './Brand';
 import { CanvasSizeSelector } from './CanvasSizeSelector';
 import { ExitButton } from './ExitButton';
-import { SaveButton } from './SaveButton';
+import { ExportDialog } from './ExportDialog';
 import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
 import { Zoom } from './Zoom';
-import { TOOL_BTN, UnifiedColorPicker } from '../../panels/color-picker';
+import { useMessages } from '../../../messages';
+import { UnifiedColorPicker } from '../../panels';
 import { HDivider, Tooltip } from '../../primitives';
 
-import type { CSSProperties } from 'react';
-
-import type { SettingsType } from '../../../engine';
+import type {
+  CanvasBackground,
+  Editor,
+  ExportOptions,
+  PageOffsets,
+  SettingsType,
+} from '../../../engine';
 import type { SelectOptions } from '../../primitives';
+import type { ExportTarget, PageSetup } from '../model';
 
 interface Props {
-  editor: any;
+  editor: Editor | null;
   zoomPct: number;
   layerPanelOpen: boolean;
   onToggleLayers: () => void;
-  exporting: boolean;
-  onExport: () => void;
+  canSaveToLibrary: boolean;
+  onExport: (options: ExportOptions, target: ExportTarget) => Promise<boolean>;
   onBack?: () => void;
   settings: SettingsType;
   onSettings: (patch: Partial<SettingsType>) => void;
-  canvasBg: string;
-  onBgChange: (color: string) => void;
+  offsets: PageOffsets;
+  onOffsetsChange: (offsets: PageOffsets) => void;
+  /** Document resolution, for physical sizes and PDF */
+  dpi: number;
+  onDpiChange: (dpi: number) => void;
+  onPageSetup: (setup: PageSetup) => void;
+  /** Omit to hide the theme switcher */
+  theme?: 'dark' | 'light';
+  onThemeChange?: (theme: 'dark' | 'light') => void;
+  canvasBg: CanvasBackground;
+  onBgChange: (background: CanvasBackground) => void;
   workspaceBg: string;
   onWorkspaceBgChange: (color: string) => void;
   title?: React.ReactNode;
@@ -39,23 +54,23 @@ interface Props {
   adSizes?: SelectOptions;
 }
 
-const TOOL_BTN_ACTIVE: CSSProperties = {
-  ...TOOL_BTN,
-  background: 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)',
-  color: 'var(--de-color-primary)',
-  boxShadow: '0 0 0 1px var(--de-color-primary)',
-};
-
 export function Toolbar({
   editor,
   zoomPct,
   layerPanelOpen,
   onToggleLayers,
-  exporting,
+  canSaveToLibrary,
   onExport,
   onBack,
   settings,
   onSettings,
+  offsets,
+  onOffsetsChange,
+  dpi,
+  onDpiChange,
+  onPageSetup,
+  theme,
+  onThemeChange,
   canvasBg,
   onBgChange,
   workspaceBg,
@@ -64,18 +79,9 @@ export function Toolbar({
   hasUnsavedChanges,
   adSizes,
 }: Props) {
+  const m = useMessages().toolbar;
   return (
-    <div
-      className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto px-4 whitespace-nowrap"
-      style={{
-        background: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
-        borderBottom: '1px solid var(--color-border)',
-        boxShadow:
-          '0 1px 0 var(--color-border), 0 4px 20px var(--shadow-color)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-      }}
-    >
+    <div className="de-toolbar scrollbar-hide">
       {onBack ? (
         hasUnsavedChanges ? (
           <UnsavedChangesProtector
@@ -101,35 +107,60 @@ export function Toolbar({
 
       {/* ── BG + Canvas color pickers ────────────────────────────────────── */}
       <UnifiedColorPicker
+        alpha
         activeObjId={undefined}
-        color={canvasBg}
-        label="BG"
+        gradient={typeof canvasBg === 'string' ? null : canvasBg}
+        label={m.background}
         onChange={onBgChange}
-        tooltip="Outer workspace background"
+        onGradientChange={onBgChange}
+        tooltip={m.backgroundHint}
         variant="tool-bar"
+        color={
+          typeof canvasBg === 'string'
+            ? canvasBg
+            : (canvasBg.stops[0]?.color ?? '#ffffff')
+        }
       />
       <UnifiedColorPicker
         activeObjId={undefined}
         color={workspaceBg}
-        label="Canvas"
+        emptySwatch="var(--de-color-workspace)"
+        label={m.workspace}
         onChange={onWorkspaceBgChange}
-        tooltip="Canvas frame interior color"
+        tooltip={m.workspaceHint}
         variant="tool-bar"
       />
 
-      <div style={{ flex: 1 }} />
+      <div className="de-spacer" />
 
-      <CanvasSizeSelector adSizes={adSizes} editor={editor} />
+      <CanvasSizeSelector
+        adSizes={adSizes}
+        dpi={dpi}
+        editor={editor}
+        offsets={offsets}
+        onDpiChange={onDpiChange}
+        onPageSetup={onPageSetup}
+      />
 
       <HDivider />
 
-      <CanvasSettings onSettings={onSettings} settings={settings} />
+      <CanvasSettings
+        offsets={offsets}
+        onOffsetsChange={onOffsetsChange}
+        onSettings={onSettings}
+        onThemeChange={onThemeChange}
+        settings={settings}
+        theme={theme}
+      />
 
       {/* Layers toggle */}
-      <Tooltip placement="bottom" title="Toggle layers panel">
+      <Tooltip placement="bottom" title={m.layersHint}>
         <button
+          aria-label={m.layers}
+          aria-pressed={layerPanelOpen}
+          className="de-tool-btn"
+          data-active={layerPanelOpen}
           onClick={onToggleLayers}
-          style={layerPanelOpen ? TOOL_BTN_ACTIVE : TOOL_BTN}
           type="button"
         >
           <LayoutGrid size={18} />
@@ -138,8 +169,14 @@ export function Toolbar({
 
       <HDivider />
 
-      {/* Save */}
-      <SaveButton exporting={exporting} onExport={onExport} />
+      <ExportDialog
+        canSaveToLibrary={canSaveToLibrary}
+        dpi={dpi}
+        editor={editor}
+        offsets={offsets}
+        onDpiChange={onDpiChange}
+        onExport={onExport}
+      />
     </div>
   );
 }

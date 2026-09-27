@@ -1,4 +1,4 @@
-import {LayerType} from '../common/constants';
+import { LayerType } from '../../types';
 
 import type {
   IBackground,
@@ -48,6 +48,15 @@ class ObjectExporter {
       case LayerType.STATIC_AUDIO:
         object = this.staticAudio(item, options, inGroup);
         break;
+      case LayerType.STATIC_GROUP:
+      case LayerType.DYNAMIC_GROUP:
+      case LayerType.DYNAMIC_PATH:
+      case LayerType.DYNAMIC_IMAGE:
+      case LayerType.DYNAMIC_TEXT:
+      case LayerType.FRAME:
+      case LayerType.GROUP:
+      case LayerType.PRINT_ITEM:
+      case LayerType.ACTIVE_SELECTION:
       default:
         object = this.background(item, options, inGroup);
     }
@@ -64,6 +73,8 @@ class ObjectExporter {
       fontFamily,
       textAlign,
       fontSize,
+      fontWeight,
+      fontStyle,
       charSpacing,
       lineHeight,
       fill,
@@ -79,6 +90,8 @@ class ObjectExporter {
       fill,
       fontFamily,
       fontSize,
+      fontWeight,
+      fontStyle,
       lineHeight,
       text,
       textAlign,
@@ -95,12 +108,13 @@ class ObjectExporter {
     inGroup: boolean
   ): IStaticImage {
     const baseOptions = this.getBaseOptions(item, options, inGroup);
-    const { src, cropX, cropY, metadata } = item as IStaticImage;
+    const { src, cropX, cropY, cornerRadius, metadata } = item as IStaticImage;
     return {
       ...baseOptions,
       src,
       cropX,
       cropY,
+      ...(cornerRadius ? { cornerRadius } : {}),
       metadata,
     };
   }
@@ -213,6 +227,7 @@ class ObjectExporter {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this -- public API of the exporter
   public getBaseOptions(
     item: ILayer,
     options: Required<ILayer>,

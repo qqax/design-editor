@@ -5,6 +5,8 @@ import * as React from 'react';
 import * as RadixTooltip from '@radix-ui/react-tooltip';
 import { clsx } from 'clsx';
 
+import { usePortalContainer } from './PortalContainer';
+
 export interface TooltipProps {
   children: React.ReactNode;
   title: React.ReactNode;
@@ -12,16 +14,17 @@ export interface TooltipProps {
   className?: string;
 }
 
-export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(
+export const Tooltip = React.forwardRef<HTMLButtonElement, TooltipProps>(
   ({ children, title, placement = 'top', className }, ref) => {
+    const container = usePortalContainer();
     if (!title) return <React.Fragment>{children}</React.Fragment>;
     return (
       <RadixTooltip.Provider delayDuration={200}>
         <RadixTooltip.Root>
-          <RadixTooltip.Trigger ref={ref as any} asChild>
+          <RadixTooltip.Trigger ref={ref} asChild>
             {children}
           </RadixTooltip.Trigger>
-          <RadixTooltip.Portal>
+          <RadixTooltip.Portal container={container}>
             <RadixTooltip.Content
               className={clsx('de-tooltip-content', className)}
               side={placement}

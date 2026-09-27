@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
 
 import { CanvasContextBridge } from './CanvasContextBridge';
+import { useMessages } from '../../../messages';
 
-import type { EditorConfig } from '../../../engine';
+import type { CanvasBackground, EditorConfig } from '../../../engine';
 
-const WORKSPACE_BG = 'var(--de-color-bg)';
+const WORKSPACE_BG = 'var(--de-color-workspace)';
 
 export const CanvasArea = memo(
   ({
@@ -20,10 +21,11 @@ export const CanvasArea = memo(
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
     onDrop: (e: React.DragEvent) => void;
-    canvasBg: string;
+    canvasBg: CanvasBackground;
     workspaceBg?: string;
     settings: Partial<EditorConfig>;
   }) => {
+    const m = useMessages().canvas;
     return (
       <div
         onDragLeave={onDragLeave}
@@ -32,7 +34,7 @@ export const CanvasArea = memo(
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: workspaceBg ?? WORKSPACE_BG,
+          backgroundColor: workspaceBg || WORKSPACE_BG,
           backgroundImage: settings.showGrid
             ? 'radial-gradient(color-mix(in srgb, var(--de-color-text) 8%, transparent) 1.5px, transparent 1.5px)'
             : 'none',
@@ -66,7 +68,7 @@ export const CanvasArea = memo(
                 '0 4px 24px color-mix(in srgb, var(--de-color-primary) 50%, transparent)',
             }}
           >
-            Drop to add to canvas
+            {m.drop}
           </div>
         ) : null}
       </div>

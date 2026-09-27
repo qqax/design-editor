@@ -2,7 +2,7 @@ import { classRegistry, Textbox } from 'fabric';
 
 import type { TextboxProps } from 'fabric';
 
-export type StaticTextOptions = TextboxProps & {
+export type StaticTextOptions = Partial<TextboxProps> & {
   text: string;
   fontURL?: string;
 };
@@ -10,6 +10,12 @@ export type StaticTextOptions = TextboxProps & {
 export class StaticText extends Textbox {
   static type = 'StaticText';
 
+  // eslint-disable-next-line class-methods-use-this -- type is a fixed constant for this class
+  get type() {
+    return 'StaticText';
+  }
+
+  // eslint-disable-next-line class-methods-use-this -- setter intentionally ignores value; type is immutable
   set type(_value: string) {
     // fixed value — intentional no-op
   }

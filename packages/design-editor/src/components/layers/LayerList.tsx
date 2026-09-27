@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { LayerRow } from './LayerRow';
+import { useMessages } from '../../messages';
 
 import type { LayerCallbacks, LayerItem } from './layer-panel.types';
 
@@ -18,19 +19,13 @@ export function LayerList({
   selectedIds,
   ...callbacks
 }: LayerListProps) {
+  const m = useMessages().layers;
   if (layers.length === 0) {
     return (
-      <div
-        style={{
-          padding: '32px 16px',
-          textAlign: 'center',
-          color: 'var(--de-color-text-muted)',
-          fontSize: 12,
-        }}
-      >
-        No layers yet.
+      <div className="de-panel-empty">
+        {m.empty}
         <br />
-        Add content to the canvas.
+        {m.emptyHint}
       </div>
     );
   }

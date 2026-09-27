@@ -1,21 +1,79 @@
 import { useCallback, useState } from 'react';
 
+import { collectFonts, exportScene, StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
+import { useStudioExport } from '../../../hooks/useStudioExport';
+import { useToast } from '../../../hooks/useToast';
+import { useMessages } from '../../../messages';
+import { useEditorContext } from '../../EditorContext';
+import { exportFileName } from '../../toolbars/model';
+import { downloadBlob } from '../lib/download';
+import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
+import { svgFontCss } from '../lib/svgFonts';
+import { buildTextDesignLayers } from '../lib/textDesignLayers';
 
+import type { FabricObject } from 'fabric';
+
+import type {
+  CanvasBackground,
+  Editor,
+  ExportOptions,
+  ILayer,
+} from '../../../engine';
+import type { TextPreset } from '../../panels';
 import type { DesignResource } from '../../panels/common/provider';
+import type { ExportTarget } from '../../toolbars/model';
 
-export function useEditorActions(
-  editor: any,
-  activeObj: any,
-  sceneKey: string | undefined,
-  backgroundRemovalProvider: any,
-  exportToLibrary: any,
-  message: any,
-  setCanvasBg: (bg: string) => void,
-  setWorkspaceBg: (bg: string) => void,
-  setHasUnsavedChanges: (val: boolean) => void
-) {
+const blobToDataUrl = async (blob: Blob) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error('Failed to read image'));
+    reader.readAsDataURL(blob);
+  });
+
+const toScreenRect = (editor: Editor, object: FabricObject) => {
+  const { left, top, width, height } = object.getBoundingRect();
+  const [zoomX, , , zoomY, panX, panY] = editor.canvas.canvas.viewportTransform;
+  return {
+    left: left * zoomX + panX,
+    top: top * zoomY + panY,
+    width: width * zoomX,
+    height: height * zoomY,
+  };
+};
+
+/** A point on the page, in page pixels from its top-left corner */
+export interface PagePoint {
+  left: number;
+  top: number;
+}
+
+interface EditorActionsOptions {
+  editor: Editor | null;
+  activeObj: FabricObject | null;
+  setCanvasBg: (background: CanvasBackground) => void;
+  setHasUnsavedChanges: (value: boolean) => void;
+}
+
+/** Canvas actions of the editor UI; providers and texts come from context */
+export function useEditorActions({
+  editor,
+  activeObj,
+  setCanvasBg,
+  setHasUnsavedChanges,
+}: EditorActionsOptions) {
+  const {
+    backgroundRemovalProvider,
+    persistenceProvider,
+    fontProvider,
+    sceneKey,
+  } = useEditorContext();
+  const message = useToast();
+  const { exportToLibrary } = useStudioExport();
+  const m = useMessages();
   const [removingBg, setRemovingBg] = useState(false);
   const [shimmerRect, setShimmerRect] = useState<{
     top: number;
@@ -24,121 +82,130 @@ export function useEditorActions(
     height: number;
   } | null>(null);
 
-  const handleAddMedia = useCallback(
-    async (url: string, position?: { top: number; left: number }) => {
-      if (!editor) return;
-      try {
-        const type = /\.(mp4|webm)$/i.test(url) ? 'StaticVideo' : 'StaticImage';
-        await editor.objects.add({
-          type,
-          src: url,
-          top: position?.top ?? 100,
-          left: position?.left ?? 100,
-          metadata: { source: 'qqax' },
-        });
-      } catch {
-        message.error('Failed to add media');
-      }
-    },
-    [editor, message]
-  );
-
+  /** Images are scaled to fit the page; `at` is where the centre lands */
   const addImageToCanvas = useCallback(
-    (url: string, top = 100, left = 100) => {
+    async (url: string, at?: PagePoint, metadata?: ILayer['metadata']) => {
       if (!editor) return;
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = url;
-      img.onload = async () => {
-        let scale = 1;
-        const frame = editor.frame?.frame;
-        const maxW = (frame?.width || 1080) * 0.8;
-        const maxH = (frame?.height || 1080) * 0.8;
-        if (img.width > maxW || img.height > maxH) {
-          scale = Math.min(maxW / img.width, maxH / img.height);
-        }
-        await editor.objects.add({
-          type: 'StaticImage',
-          src: url,
-          top,
-          left,
-          scaleX: scale,
-          scaleY: scale,
-        });
-      };
-      img.onerror = () => {
-        message.error('Failed to load image.');
-      };
+      try {
+        await img.decode();
+      } catch {
+        message.error(m.gallery.loadImageFailed);
+        return;
+      }
+      const { width: pageWidth, height: pageHeight } = editor.frame.frame;
+      const scale = Math.min(
+        1,
+        (pageWidth * 0.8) / img.width,
+        (pageHeight * 0.8) / img.height
+      );
+      await editor.objects.add({
+        type: 'StaticImage',
+        src: url,
+        scaleX: scale,
+        scaleY: scale,
+        ...(metadata && { metadata }),
+        ...(at && {
+          left: at.left - (img.width * scale) / 2,
+          top: at.top - (img.height * scale) / 2,
+          skipCentering: true,
+        }),
+      });
     },
-    [editor, message]
+    [editor, message, m]
+  );
+
+  const handleAddMedia = useCallback(
+    async (url: string, at?: PagePoint) => {
+      if (!editor) return;
+      try {
+        if (/\.(mp4|webm)$/i.test(url)) {
+          await editor.objects.add({
+            type: 'StaticVideo',
+            src: url,
+            metadata: { source: 'qqax' },
+          });
+          return;
+        }
+        await addImageToCanvas(url, at, { source: 'qqax' });
+      } catch {
+        message.error(m.gallery.addFailed);
+      }
+    },
+    [editor, addImageToCanvas, message, m]
   );
 
   const handleAddText = useCallback(
-    async (text: string, fontSize: number) => {
+    async ({ text, fontSize, fontWeight }: TextPreset) => {
       if (!editor) return;
       try {
         await editor.objects.add({
           type: 'StaticText',
           text,
           fontSize,
+          fontWeight: String(fontWeight),
           fill: '#1a1a1a',
           top: 100,
           left: 100,
         });
       } catch {
-        message.error('Failed to add text');
+        message.error(m.textDesigns.addTextFailed);
       }
     },
-    [editor, message]
+    [editor, message, m]
   );
 
   const handleApplyTextDesign = useCallback(
     (design: DesignResource) => {
       if (!editor) return;
-      const frameOpts = editor.frame?.options;
-      const dx = ((frameOpts?.width ?? 1080) - design.scene.frame.width) / 2;
-      const dy = ((frameOpts?.height ?? 1080) - design.scene.frame.height) / 2;
-
-      const textLayers = design.scene.layers.filter((l: any) =>
-        new Set(['StaticText', 'DynamicText']).has(l.type)
+      const { width = 1080, height = 1080 } = editor.frame.options;
+      const layers = buildTextDesignLayers(
+        design,
+        { width, height },
+        generateId,
+        m.layers.names.backdrop
       );
-      const layersToAdd =
-        textLayers.length === 1 && design.scene.layers.length === 1
-          ? textLayers
-          : design.scene.layers;
 
-      layersToAdd.forEach((layer) => {
-        editor.objects.add({
-          ...layer,
-          id: generateId(),
-          left: ((layer.left as number) ?? 0) + dx,
-          top: ((layer.top as number) ?? 0) + dy,
-          skipCentering: true,
+      void layers
+        .reduce<Promise<unknown>>(
+          async (previous, layer) =>
+            previous.then(async () =>
+              editor.objects.add({ ...layer, skipCentering: true })
+            ),
+          Promise.resolve()
+        )
+        .then(() => {
+          editor.objects.selectMany(
+            layers.flatMap((layer) => (layer.id ? [layer.id] : []))
+          );
+        })
+        .catch(() => {
+          message.error(m.textDesigns.addFailed);
         });
-      });
     },
-    [editor]
+    [editor, message, m]
   );
 
   const handleApplyTemplate = useCallback(
     (template: DesignResource) => {
       if (!editor) return;
-      editor.scene
+      void editor.scene
         .importFromJSON(template.scene)
         .catch(() => {
-          message.error('Failed to apply template');
+          message.error(m.templates.applyFailed);
         })
         .then(() => {
           if (template.canvasBg) {
             setCanvasBg(template.canvasBg);
             try {
-              editor.frame?.setBackgroundColor?.(template.canvasBg);
+              editor.frame.setBackground(template.canvasBg);
             } catch {
               /* empty */
             }
           }
-          if (template.workspaceBg) setWorkspaceBg(template.workspaceBg);
-          clearAutosave(sceneKey);
+          void clearAutosave(persistenceProvider, sceneKey);
           setHasUnsavedChanges(false);
           setTimeout(() => {
             editor.history.initialize();
@@ -149,61 +216,91 @@ export function useEditorActions(
       editor,
       sceneKey,
       setCanvasBg,
-      setWorkspaceBg,
       setHasUnsavedChanges,
       message,
+      persistenceProvider,
+      m,
     ]
   );
 
   const handleRemoveBg = useCallback(async () => {
-    const src = activeObj?.getSrc ? activeObj.getSrc() : activeObj?.src;
-    if (!editor || activeObj?.type !== 'StaticImage' || !src) return;
+    if (!editor || !(activeObj instanceof StaticImage)) return;
+    const image = activeObj;
+    const src = image.getSrc();
+    if (!src) return;
 
-    setShimmerRect({
-      top: activeObj.top ?? 0,
-      left: activeObj.left ?? 0,
-      width: (activeObj.width ?? 100) * (activeObj.scaleX ?? 1),
-      height: (activeObj.height ?? 100) * (activeObj.scaleY ?? 1),
-    });
+    setShimmerRect(toScreenRect(editor, image));
     setRemovingBg(true);
-    message.info('Removing background...');
+    message.info(m.image.removingBackground);
     try {
       const blob = await backgroundRemovalProvider.remove(src);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        await activeObj.setSrc(reader.result);
-        editor.canvas.requestRenderAll();
-        editor.history.save();
-        setRemovingBg(false);
-        setShimmerRect(null);
-      };
-      reader.readAsDataURL(blob);
-      message.success('Background removed successfully!');
-    } catch (err: any) {
-      message.error(`Failed: ${err.message || 'Unknown error'}`);
+      const dataUrl = await blobToDataUrl(blob);
+      const originalSize = image.getOriginalSize();
+      const { width, height, cropX, cropY, scaleX, scaleY } = image;
+      await image.setSrc(dataUrl);
+      image.set(
+        rescaleImageGeometry(
+          { width, height, cropX, cropY, scaleX, scaleY },
+          originalSize,
+          image.getOriginalSize()
+        )
+      );
+      image.setCoords();
+      editor.canvas.requestRenderAll();
+      editor.history.save();
+      message.success(m.image.backgroundRemoved);
+    } catch (err) {
+      message.error(
+        m.image.removeFailed(
+          err instanceof Error ? err.message : m.image.unknownError
+        )
+      );
+    } finally {
       setRemovingBg(false);
       setShimmerRect(null);
     }
-  }, [editor, activeObj, backgroundRemovalProvider, message]);
+  }, [editor, activeObj, backgroundRemovalProvider, message, m]);
 
-  const handleExport = useCallback(async () => {
-    if (!editor) return;
-    try {
-      const scene = editor.scene.exportToJSON();
-      const dataUrl = await editor.renderer.toDataURL(scene, {
-        format: 'png',
-        quality: 1,
-        multiplier: 2,
-      });
-      const blob = await (await fetch(dataUrl)).blob();
-      if (await exportToLibrary(blob, `design-${Date.now()}.png`, scene)) {
+  const handleExport = useCallback(
+    async (options: ExportOptions, target: ExportTarget): Promise<boolean> => {
+      if (!editor) return false;
+      try {
+        const scene = editor.scene.exportToJSON();
+        const svgCss =
+          options.format === 'svg'
+            ? svgFontCss(
+                collectFonts(scene).map((ref) => ref.family),
+                await fontProvider.list().catch(() => [])
+              )
+            : undefined;
+        const blob = await exportScene(editor.renderer, scene, {
+          ...options,
+          ...(svgCss && { svgCss }),
+        });
+        if (target === 'download') {
+          downloadBlob(blob, exportFileName(scene.name, options.format));
+          return true;
+        }
+        if (!(await exportToLibrary(blob, options.format, scene))) return false;
         setHasUnsavedChanges(false);
-        clearAutosave(sceneKey);
+        void clearAutosave(persistenceProvider, sceneKey);
+        return true;
+      } catch {
+        message.error(m.export.failed);
+        return false;
       }
-    } catch {
-      message.error('Failed to export');
-    }
-  }, [editor, exportToLibrary, setHasUnsavedChanges, sceneKey, message]);
+    },
+    [
+      editor,
+      exportToLibrary,
+      setHasUnsavedChanges,
+      sceneKey,
+      message,
+      persistenceProvider,
+      fontProvider,
+      m,
+    ]
+  );
 
   return {
     removingBg,

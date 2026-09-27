@@ -4,25 +4,30 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronDown, Upload } from 'lucide-react';
 
+import { useEditor } from '../../../engine';
+import { useMessages } from '../../../messages';
+import { useEditorContext } from '../../EditorContext';
 import { Input, Popover } from '../../primitives';
 
-import type { FontDescriptor, FontProvider } from '../../../providers';
+import type { FontDescriptor } from '../../../providers';
 
 interface FontPickerPopoverProps {
-  fontProvider: FontProvider;
   currentFamily: string | undefined;
   onChange: (family: string) => void;
 }
 
 export function FontPickerPopover({
-  fontProvider,
   currentFamily,
   onChange,
 }: FontPickerPopoverProps) {
+  const m = useMessages().text;
   const [open, setOpen] = useState(false);
   const [fonts, setFonts] = useState<FontDescriptor[]>([]);
   const [search, setSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { fontProvider } = useEditorContext();
+  const editorFonts = useEditor()?.fonts;
 
   // Subscribe to provider changes (e.g. upload)
   useEffect(() => {
@@ -41,16 +46,14 @@ export function FontPickerPopover({
           setFonts(list);
           // Fire-and-forget: load each font for preview rendering
           list.forEach((f) => {
-            fontProvider.load(f.family).catch(() => {
-              /* ignore */
-            });
+            void editorFonts?.ensureFamily(f.family);
           });
         });
       } else {
         setSearch('');
       }
     },
-    [fontProvider]
+    [fontProvider, editorFonts]
   );
 
   const filtered = fonts.filter((f) =>
@@ -59,14 +62,12 @@ export function FontPickerPopover({
 
   const handleSelect = useCallback(
     async (family: string) => {
-      await fontProvider.load(family).catch(() => {
-        /* ignore */
-      });
+      await editorFonts?.ensureFamily(family);
       onChange(family);
       setOpen(false);
       setSearch('');
     },
-    [fontProvider, onChange]
+    [onChange, editorFonts]
   );
 
   const handleUpload = useCallback(
@@ -74,178 +75,89 @@ export function FontPickerPopover({
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        await fontProvider.upload(file);
+        const uploaded = await fontProvider.upload(file);
+        // Drop any cached miss from before this face existed.
+        editorFonts?.invalidate(uploaded.family);
         // onChange subscriber will refresh the list
       } catch {
         // Upload failed — silently ignore; list stays unchanged
       }
       e.target.value = '';
     },
-    [fontProvider]
+    [fontProvider, editorFonts]
   );
 
   const trigger = (
     <button
+      aria-label={m.font}
+      className="de-font-trigger"
+      title={m.font}
       type="button"
       style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
-        padding: '4px 8px',
-        background: 'var(--de-color-bg)',
-        border: '1px solid var(--de-color-border)',
-        borderRadius: 6,
-        color: 'var(--de-color-text)',
-        fontSize: 12,
-        cursor: 'pointer',
-        outline: 'none',
         fontFamily: currentFamily
           ? `'${currentFamily}', sans-serif`
-          : 'inherit',
-        maxWidth: 140,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
+          : undefined,
       }}
     >
-      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {currentFamily ?? 'Default'}
-      </span>
-      <ChevronDown size={12} style={{ flexShrink: 0 }} />
+      <span>{currentFamily ?? m.defaultFont}</span>
+      <ChevronDown size={12} />
     </button>
   );
 
   const popoverContent = (
-    <div
-      style={{ width: 240, display: 'flex', flexDirection: 'column', gap: 0 }}
-    >
-      {/* Search */}
-      <div style={{ padding: '8px 8px 4px' }}>
+    <div className="de-font-picker">
+      <div className="de-font-search">
         <Input
           autoFocus
+          aria-label={m.searchFonts}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search fonts…"
-          style={{ width: '100%', fontSize: 12 }}
+          placeholder={m.searchFonts}
           value={search}
         />
       </div>
 
-      {/* Scrollable font list */}
-      <div style={{ maxHeight: 360, overflowY: 'auto', padding: '4px 0' }}>
+      <div className="de-font-list">
         {filtered.map((f) => (
-          <div
+          <button
             key={f.family}
+            aria-pressed={f.family === currentFamily}
+            className="de-font-item"
             onClick={async () => handleSelect(f.family)}
-            onMouseEnter={(e) => {
-              if (f.family !== currentFamily) {
-                e.currentTarget.style.background =
-                  'color-mix(in srgb, var(--de-color-text) 6%, var(--de-color-surface))';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (f.family !== currentFamily) {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-            style={{
-              padding: '6px 12px',
-              cursor: 'pointer',
-              background:
-                f.family === currentFamily
-                  ? 'color-mix(in srgb, var(--de-color-primary) 12%, var(--de-color-surface))'
-                  : 'transparent',
-              borderLeft:
-                f.family === currentFamily
-                  ? '2px solid var(--de-color-primary)'
-                  : '2px solid transparent',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1,
-            }}
+            type="button"
           >
-            <span
-              style={{
-                fontSize: 10,
-                color: 'var(--de-color-text-muted)',
-                fontWeight: 600,
-              }}
-            >
+            <span className="de-font-name">
               {f.family}
-              {f.source === 'custom' && (
-                <span
-                  style={{
-                    marginLeft: 4,
-                    fontSize: 9,
-                    color: 'var(--de-color-primary)',
-                  }}
-                >
-                  Custom
-                </span>
-              )}
+              {f.source === 'custom' ? (
+                <span className="de-font-badge">{m.customFont}</span>
+              ) : null}
             </span>
             <span
-              style={{
-                fontFamily: `'${f.family}', sans-serif`,
-                fontSize: 17,
-                color: 'var(--de-color-text)',
-                lineHeight: 1.2,
-              }}
+              className="de-font-sample"
+              style={{ fontFamily: `'${f.family}', sans-serif` }}
             >
-              Aa Bb Cc 123
+              {m.fontSample}
             </span>
-          </div>
+          </button>
         ))}
-        {filtered.length === 0 && (
-          <div
-            style={{
-              padding: '12px',
-              fontSize: 12,
-              color: 'var(--de-color-text-muted)',
-              textAlign: 'center',
-            }}
-          >
-            No fonts found
-          </div>
-        )}
+        {filtered.length === 0 ? (
+          <div className="de-panel-empty">{m.noFonts}</div>
+        ) : null}
       </div>
 
-      {/* Sticky footer — Upload */}
-      <div
-        style={{
-          borderTop: '1px solid var(--de-color-border)',
-          padding: '8px',
-        }}
-      >
+      <div className="de-font-footer">
         <button
+          className="de-gallery-upload de-font-upload"
           onClick={() => fileInputRef.current?.click()}
           type="button"
-          style={{
-            width: '100%',
-            padding: '7px',
-            background:
-              'color-mix(in srgb, var(--de-color-primary) 10%, transparent)',
-            border:
-              '1px dashed color-mix(in srgb, var(--de-color-primary) 35%, transparent)',
-            borderRadius: 6,
-            color: 'var(--de-color-primary)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 5,
-            fontSize: 11,
-            fontWeight: 600,
-            outline: 'none',
-          }}
         >
           <Upload size={14} />
-          Upload font
+          {m.uploadFont}
         </button>
         <input
           ref={fileInputRef}
+          hidden
           accept=".ttf,.otf,.woff,.woff2"
           onChange={handleUpload}
-          style={{ display: 'none' }}
           type="file"
         />
       </div>

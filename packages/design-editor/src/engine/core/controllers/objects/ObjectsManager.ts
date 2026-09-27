@@ -1,50 +1,131 @@
-import type { FabricObject } from 'fabric';
-
 import { LayerType } from '../../../types';
-
 import ObjectImporter from '../../utils/object-importer';
 
-import type { ILayer, ILayerOptions } from '../../../types';
+import type { FabricObject } from 'fabric';
 
 import type { ObjectsContext } from './ObjectsContext';
+import type { ILayer, ILayerOptions } from '../../../types';
+
+const updateTextSelection = (object: any, property: string, value: unknown) => {
+  const hasSelection =
+    object.isEditing && object.selectionStart !== object.selectionEnd;
+
+  if (
+    !hasSelection ||
+    ![
+      'fontSize',
+      'fontFamily',
+      'fontWeight',
+      'fontStyle',
+      'fill',
+      'underline',
+      'linethrough',
+    ].includes(property)
+  ) {
+    return false;
+  }
+
+  object.setSelectionStyles({
+    [property]: value,
+  });
+
+  return true;
+};
+
+const updatePosition = (
+  object: FabricObject,
+  property: string,
+  value: unknown
+) => {
+  if (property !== 'angle' && property !== 'top' && property !== 'left') {
+    return false;
+  }
+
+  if (property === 'angle') {
+    object.rotate(value as number);
+  } else {
+    object.set(property, value);
+  }
+
+  object.setCoords();
+
+  return true;
+};
+
+const updateMetadata = (
+  object: FabricObject,
+  property: string,
+  value: unknown
+) => {
+  if (property !== 'metadata') {
+    return false;
+  }
+
+  object.set('metadata', {
+    ...(object as any).metadata,
+    ...(value as Record<string, unknown>),
+  });
+
+  return true;
+};
+
+const updateActiveSelection = (
+  object: FabricObject,
+  property: string,
+  value: unknown
+) => {
+  // Fabric 7 reports the type in lower case
+  if (
+    object.type.toLowerCase() !== LayerType.ACTIVE_SELECTION.toLowerCase() ||
+    !(object as any)._objects
+  ) {
+    return false;
+  }
+
+  const objects = (object as any)._objects as FabricObject[];
+
+  objects.forEach((child) => {
+    if (property === 'metadata') {
+      child.set('metadata', {
+        ...(child as any).metadata,
+        ...(value as Record<string, unknown>),
+      });
+    } else {
+      child.set(property as any, value as any);
+    }
+
+    child.setCoords();
+  });
+
+  (object as any).triggerLayout();
+
+  return true;
+};
 
 export class ObjectsManager {
-  constructor(
-    private readonly context: ObjectsContext,
-  ) {}
+  constructor(private readonly context: ObjectsContext) {}
 
   public add = async (
     item: Partial<
       ILayer & {
-      skipCentering?: boolean;
-    }
-    >,
+        skipCentering?: boolean;
+      }
+    >
   ) => {
     const { canvas } = this.context;
-    const { options } =
-      this.context.editor.frame;
+    const { options } = this.context.editor.frame;
 
-    const objectImporter =
-      new ObjectImporter(
-        this.context.editor,
-      );
+    const objectImporter = new ObjectImporter(this.context.editor);
 
-    const object =
-      await objectImporter.import(
-        item as ILayer,
-        options,
-      );
+    const object = await objectImporter.import(item as ILayer, options);
 
     if (this.context.config.clipToFrame) {
-      object.clipPath =
-        this.context.editor.frame.frame as any;
+      object.clipPath = this.context.editor.frame.frame;
     }
 
-    const isBackgroundImage =
-      item.type === LayerType.BACKGROUND_IMAGE;
+    const isBackgroundImage = item.type === LayerType.BACKGROUND_IMAGE;
 
-    let currentBackgroundImage: FabricObject | null =
-      null;
+    let currentBackgroundImage: FabricObject | null = null;
 
     if (isBackgroundImage) {
       currentBackgroundImage =
@@ -56,24 +137,15 @@ export class ObjectsManager {
     if (isBackgroundImage) {
       canvas.moveObjectTo(object, 2);
 
-      this.context.editor.objects.scale(
-        'fill',
-        object.id,
-      );
+      this.context.editor.objects.scale('fill', object.id);
 
       if (currentBackgroundImage) {
         canvas.add(currentBackgroundImage);
 
-        this.context.editor.objects.sendToBack(
-          currentBackgroundImage.id,
-        );
+        this.context.editor.objects.sendToBack(currentBackgroundImage.id);
       }
     } else if (item.skipCentering) {
-      object.set({
-        left: item.left,
-        top: item.top,
-      });
-
+      // The importer already placed it: item.left/top are relative to the frame.
       object.setCoords();
     } else {
       canvas.centerObject(object);
@@ -94,135 +166,18 @@ export class ObjectsManager {
     }
   };
 
-  private updateTextSelection = (
-    object: any,
-    property: string,
-    value: unknown,
-  ) => {
-    const hasSelection =
-      object.isEditing &&
-      object.selectionStart !==
-      object.selectionEnd;
-
-    if (
-      !hasSelection ||
-      ![
-        'fontSize',
-        'fontFamily',
-        'fontWeight',
-        'fontStyle',
-        'fill',
-        'underline',
-        'linethrough',
-      ].includes(property)
-    ) {
-      return false;
-    }
-
-    object.setSelectionStyles({
-      [property]: value,
-    });
-
-    return true;
-  };
-
-  private updatePosition = (
-    object: FabricObject,
-    property: string,
-    value: unknown,
-  ) => {
-    if (
-      property !== 'angle' &&
-      property !== 'top' &&
-      property !== 'left'
-    ) {
-      return false;
-    }
-
-    if (property === 'angle') {
-      object.rotate(value as number);
-    } else {
-      object.set(
-        property,
-        value as number,
-      );
-    }
-
-    object.setCoords();
-
-    return true;
-  };
-
   private updateClipPath = (
     object: FabricObject,
     property: string,
-    value: unknown,
+    value: unknown
   ) => {
     if (property !== 'clipToFrame') {
       return false;
     }
 
-    object.set(
-      'clipPath',
-      value
-        ? this.context.editor.frame.frame
-        : null,
-    );
+    object.set('clipPath', value ? this.context.editor.frame.frame : null);
 
     object.setCoords();
-
-    return true;
-  };
-
-  private updateMetadata = (
-    object: FabricObject,
-    property: string,
-    value: unknown,
-  ) => {
-    if (property !== 'metadata') {
-      return false;
-    }
-
-    object.set('metadata', {
-      ...(object as any).metadata,
-      ...(value as Record<string, unknown>),
-    });
-
-    return true;
-  };
-
-  private updateActiveSelection = (
-    object: FabricObject,
-    property: string,
-    value: unknown,
-  ) => {
-    if (
-      object.type !==
-      LayerType.ACTIVE_SELECTION ||
-      !(object as any)._objects
-    ) {
-      return false;
-    }
-
-    const objects =
-      (object as any)
-        ._objects as FabricObject[];
-
-    objects.forEach((child) => {
-      if (property === 'metadata') {
-        child.set('metadata', {
-          ...(child as any).metadata,
-          ...(value as Record<string, unknown>),
-        });
-      } else {
-        child.set(
-          property as any,
-          value as any,
-        );
-      }
-
-      child.setCoords();
-    });
 
     return true;
   };
@@ -230,100 +185,53 @@ export class ObjectsManager {
   private updateProperty = (
     object: FabricObject,
     property: string,
-    value: unknown,
+    value: unknown
   ) => {
-    if (
-      this.updateTextSelection(
-        object,
-        property,
-        value,
-      )
-    ) {
+    if (updateTextSelection(object, property, value)) {
       return;
     }
 
-    if (
-      this.updatePosition(
-        object,
-        property,
-        value,
-      )
-    ) {
+    if (updatePosition(object, property, value)) {
       return;
     }
 
-    if (
-      this.updateClipPath(
-        object,
-        property,
-        value,
-      )
-    ) {
+    if (this.updateClipPath(object, property, value)) {
       return;
     }
 
-    if (
-      property === 'shadow'
-    ) {
-      this.context.editor.objects.setShadow(
-        value as any,
-      );
+    if (property === 'shadow') {
+      this.context.editor.objects.setShadow(value as any);
 
       return;
     }
 
-    if (
-      this.updateMetadata(
-        object,
-        property,
-        value,
-      )
-    ) {
+    if (updateMetadata(object, property, value)) {
       return;
     }
 
-    if (
-      this.updateActiveSelection(
-        object,
-        property,
-        value,
-      )
-    ) {
+    if (updateActiveSelection(object, property, value)) {
       return;
     }
 
-    object.set(
-      property as any,
-      value as any,
-    );
+    object.set(property as any, value as any);
 
     object.setCoords();
   };
 
-  public update = (
-    options: Partial<ILayerOptions>,
-    id?: string,
-  ) => {
+  public update = (options: Partial<ILayerOptions>, id?: string) => {
     if (this.context.editor.history.isActive) {
       return;
     }
 
-    const refObject =
-      this.context.getRefObject(id);
+    const refObject = this.context.getRefObject(id);
 
     if (!refObject) {
       return;
     }
 
-    Object.entries(options).forEach(
-      ([property, value]) => {
-        this.updateProperty(
-          refObject,
-          property,
-          value,
-        );
-      },
-    );
+    Object.entries(options).forEach(([property, value]) => {
+      this.updateProperty(refObject, property, value);
+    });
 
     this.context.canvas.requestRenderAll();
 
@@ -332,21 +240,12 @@ export class ObjectsManager {
   };
 
   public clear = () => {
-    const objects =
-      this.context.canvas
-        .getObjects()
-        .slice();
+    const objects = this.context.canvas.getObjects().slice();
 
     objects.forEach((object) => {
-      if (
-        object.type !== LayerType.FRAME
-      ) {
+      if (object.type !== LayerType.FRAME) {
         this.context.canvas.remove(object);
       }
-    });
-
-    this.context.editor.frame.frame.set({
-      fill: '#ffffff',
     });
 
     this.context.canvas.discardActiveObject();
@@ -358,13 +257,9 @@ export class ObjectsManager {
   };
 
   public reset = () => {
-    const { background } =
-      this.context.editor.frame;
+    const { background } = this.context.editor.frame;
 
-    const objects =
-      this.context.canvas
-        .getObjects()
-        .slice();
+    const objects = this.context.canvas.getObjects().slice();
 
     objects.forEach((object) => {
       if (
@@ -391,15 +286,13 @@ export class ObjectsManager {
 
   public remove = (id?: string) => {
     if (id) {
-      const object =
-        this.context.findOneById(id);
+      const object = this.context.findOneById(id);
 
       if (object) {
         this.context.canvas.remove(object);
       }
     } else {
-      const objects =
-        this.context.canvas.getActiveObjects();
+      const objects = this.context.canvas.getActiveObjects();
 
       objects.forEach((object) => {
         this.context.canvas.remove(object);
@@ -423,14 +316,12 @@ export class ObjectsManager {
   public removeByName = (name: string) => {
     let removed = false;
 
-    this.context.canvas
-      .getObjects()
-      .forEach((object) => {
-        if (object.name === name) {
-          this.context.canvas.remove(object);
-          removed = true;
-        }
-      });
+    this.context.canvas.getObjects().forEach((object) => {
+      if (object.name === name) {
+        this.context.canvas.remove(object);
+        removed = true;
+      }
+    });
 
     if (!removed) {
       return;

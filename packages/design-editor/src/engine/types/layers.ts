@@ -16,27 +16,28 @@ export type ILayerType =
   | 'Background'
   | 'Frame'
   | 'Group'
+  | 'PrintItem'
   | 'activeSelection';
 
-export enum LayerType {
-  STATIC_VECTOR = 'StaticVector',
-  STATIC_GROUP = 'StaticGroup',
-  DYNAMIC_GROUP = 'DynamicGroup',
-  STATIC_PATH = 'StaticPath',
-  DYNAMIC_PATH = 'DynamicPath',
-  STATIC_IMAGE = 'StaticImage',
-  BACKGROUND_IMAGE = 'BackgroundImage',
-  STATIC_VIDEO = 'StaticVideo',
-  STATIC_AUDIO = 'StaticAudio',
-  DYNAMIC_IMAGE = 'DynamicImage',
-  STATIC_TEXT = 'StaticText',
-  DYNAMIC_TEXT = 'DynamicText',
-  BACKGROUND = 'Background',
-  PRINT_ITEM = 'PrintItem',
-  FRAME = 'Frame',
-  GROUP = 'Group',
-  ACTIVE_SELECTION = 'activeSelection',
-}
+export const LayerType = {
+  STATIC_VECTOR: 'StaticVector',
+  STATIC_GROUP: 'StaticGroup',
+  DYNAMIC_GROUP: 'DynamicGroup',
+  STATIC_PATH: 'StaticPath',
+  DYNAMIC_PATH: 'DynamicPath',
+  STATIC_IMAGE: 'StaticImage',
+  BACKGROUND_IMAGE: 'BackgroundImage',
+  STATIC_VIDEO: 'StaticVideo',
+  STATIC_AUDIO: 'StaticAudio',
+  DYNAMIC_IMAGE: 'DynamicImage',
+  STATIC_TEXT: 'StaticText',
+  DYNAMIC_TEXT: 'DynamicText',
+  BACKGROUND: 'Background',
+  PRINT_ITEM: 'PrintItem',
+  FRAME: 'Frame',
+  GROUP: 'Group',
+  ACTIVE_SELECTION: 'activeSelection',
+} as const satisfies Record<string, ILayerType>;
 
 export interface IKeyValue {
   key: string;
@@ -123,6 +124,8 @@ export interface IStaticImage extends LayerBaseOptions {
   src: string;
   cropX?: number;
   cropY?: number;
+  /** Rounded corners, in page pixels */
+  cornerRadius?: number;
 }
 
 export type IBackgroundImage = IStaticImage;
@@ -135,7 +138,8 @@ export interface IGroup extends LayerBaseOptions {
 }
 
 export interface IStaticPath extends LayerBaseOptions {
-  path: number[][];
+  /** Fabric path commands, e.g. `[['M', 0, 0], ['L', 10, 0], ['Z']]` */
+  path: (string | number)[][];
   fill: string;
 }
 

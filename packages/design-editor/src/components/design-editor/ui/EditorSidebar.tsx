@@ -1,5 +1,9 @@
 import React from 'react';
 
+import { X } from 'lucide-react';
+
+import { useMessages } from '../../../messages';
+import { useEditorContext } from '../../EditorContext';
 import {
   getItemsFactory,
   Panel,
@@ -11,24 +15,19 @@ import {
   UploadPanel,
 } from '../../panels';
 
-import type { PanelKey } from '../../panels';
+import type { PanelKey, TextPreset } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
-import type {
-  DesignResource,
-  ResourceProvider,
-} from '../../panels/common/provider';
+import type { DesignResource } from '../../panels/common/provider';
 
 interface EditorSidebarProps {
   activePanel: PanelKey | null;
   onClose: () => void;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
-  templateProvider: any;
-  textDesignProvider: ResourceProvider;
-  handleApplyTemplate: (template: any) => void;
+  handleApplyTemplate: (template: DesignResource) => void;
   addImageToCanvas: (src: string) => void;
   handleApplyTextDesign: (design: DesignResource) => void;
-  handleAddText: (text: string, size: number) => void;
+  handleAddText: (preset: TextPreset) => void;
   handleAddMedia: (url: string) => Promise<void>;
   // setActivePanel: (panel: PanelKey | null) => void;
 }
@@ -38,8 +37,6 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   onClose,
   templatesPanel,
   libraryPanel,
-  templateProvider,
-  textDesignProvider,
   handleApplyTemplate,
   addImageToCanvas,
   handleApplyTextDesign,
@@ -47,71 +44,40 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   handleAddMedia,
   // setActivePanel,
 }) => {
+  const {
+    textDesignProvider,
+    templateProvider,
+    galleryProvider,
+    galleryWidget,
+  } = useEditorContext();
+
+  const m = useMessages();
+
   if (!activePanel) return null;
 
+  const titles: Record<PanelKey, string> = {
+    templates: m.templates.title,
+    text: m.textDesigns.title,
+    shapes: m.shapes.title,
+    stickers: m.stickers.title,
+    upload: m.gallery.title,
+  };
+
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 64,
-        bottom: 0,
-        width: 320,
-        background: 'var(--de-color-bg-elevated)',
-        borderRight: '1px solid var(--de-color-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 10,
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px 12px 0 12px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            textTransform: 'capitalize',
-            color: 'var(--de-color-text)',
-          }}
-        >
-          {activePanel}
-        </span>
+    <div data-canvas-overlay className="de-sidebar">
+      <div className="de-sidebar-header">
+        <span>{titles[activePanel]}</span>
         <button
+          aria-label={m.panel.close}
+          className="de-icon-btn"
           onClick={onClose}
           type="button"
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: 18,
-            color: 'var(--de-color-text-muted)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 24,
-            height: 24,
-            borderRadius: 4,
-          }}
         >
-          ×
+          <X size={16} />
         </button>
       </div>
 
-      {/* Content Switcher */}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div className="de-sidebar-body">
         {activePanel === 'templates' &&
           (templatesPanel ? (
             typeof templatesPanel === 'function' ? (
@@ -121,13 +87,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             )
           ) : (
             <ResourcePanel
-              emptyMessage="No templates in this category"
-              errorLoadMoreMessage="Failed to load more templates"
-              errorMessage="Failed to load more templates"
-              noMatchMessage="No templates match"
-              noResourceAvailableMessage="No templates available. Host apps can supply a templateProvider."
+              emptyMessage={m.templates.empty}
+              errorLoadMoreMessage={m.templates.errorLoadMore}
+              errorMessage={m.templates.error}
+              noMatchMessage={m.templates.noMatch}
+              noResourceAvailableMessage={m.templates.unavailable}
               onApplyResource={handleApplyTemplate}
-              placeholder="Search templates"
+              placeholder={m.templates.search}
               provider={templateProvider}
             />
           ))}
@@ -144,19 +110,15 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
         {activePanel === 'text' && (
           <ResourcePanel
-            emptyMessage="No text designs in this category"
-            errorLoadMoreMessage="Failed to load more text designs"
-            errorMessage="Failed to load text designs"
-            noMatchMessage="No text designs match"
-            noResourceAvailableMessage="No text designs available. Host apps can supply a textDesignProvider."
+            emptyMessage={m.textDesigns.empty}
+            errorLoadMoreMessage={m.textDesigns.errorLoadMore}
+            errorMessage={m.textDesigns.error}
+            noMatchMessage={m.textDesigns.noMatch}
+            noResourceAvailableMessage={m.textDesigns.unavailable}
+            onAddPlainText={handleAddText}
             onApplyResource={handleApplyTextDesign}
-            placeholder="Search text designs"
+            placeholder={m.textDesigns.search}
             provider={textDesignProvider}
-            title="Text Designs"
-            onAddPlainText={(preset) => {
-              const map = { heading: 72, subheading: 48, body: 28 } as const;
-              handleAddText(preset, map[preset]);
-            }}
           />
         )}
 
@@ -168,7 +130,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 ...shape,
                 src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`,
               })),
-              SHAPES_ORDER
+              SHAPES_ORDER.map((category) => ({
+                ...category,
+                label: m.shapes.categories[category.key],
+              }))
             )}
           />
         )}
@@ -181,7 +146,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 ...sticker,
                 src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/stickers/${sticker.category}/${sticker.file}`,
               })),
-              STICKERS_ORDER
+              STICKERS_ORDER.map((category) => ({
+                ...category,
+                label: m.stickers.categories[category.key],
+              }))
             )}
           />
         )}
@@ -194,7 +162,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               libraryPanel
             )
           ) : (
-            <UploadPanel onUploadFile={handleAddMedia} />
+            <UploadPanel
+              onAddToCanvas={(url) => void handleAddMedia(url)}
+              provider={galleryProvider}
+              widget={galleryWidget}
+            />
           ))}
       </div>
     </div>

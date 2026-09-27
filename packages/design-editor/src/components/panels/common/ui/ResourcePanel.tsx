@@ -3,10 +3,14 @@
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
+import { ArrowLeft } from 'lucide-react';
+
 import { ResourceCategoryRow } from './ResourceCategoryRow';
 import { ResourceDesignGrid } from './ResourceDesignGrid';
 import { ResourceSearchBar } from './ResourceSearchBar';
+import { useMessages } from '../../../../messages';
 
+import type { TextPreset } from '../model';
 import type {
   DesignResource,
   ResourceCategory,
@@ -16,12 +20,12 @@ import type {
 interface ResourcePanelProps {
   provider: ResourceProvider;
   onApplyResource: (design: DesignResource) => void;
-  onAddPlainText?: (preset: 'heading' | 'subheading' | 'body') => void;
-  title?: string;
+  /** Shows Heading / Subheading / Body buttons */
+  onAddPlainText?: (preset: TextPreset) => void;
   placeholder: string;
   emptyMessage: string;
   errorMessage: string;
-  noMatchMessage: string;
+  noMatchMessage: (query: string) => string;
   noResourceAvailableMessage: string;
   errorLoadMoreMessage: string;
 }
@@ -31,37 +35,16 @@ type Mode =
   | { kind: 'category'; categoryId: string }
   | { kind: 'search'; query: string };
 
-const QUICK_ADD_PRESETS: {
-  label: string;
-  preset: 'heading' | 'subheading' | 'body';
-  fontSize: number;
-  fontWeight: number;
-}[] = [
-  {
-    label: 'Heading',
-    preset: 'heading',
-    fontSize: 72,
-    fontWeight: 800,
-  },
-  {
-    label: 'Subheading',
-    preset: 'subheading',
-    fontSize: 48,
-    fontWeight: 600,
-  },
-  {
-    label: 'Body',
-    preset: 'body',
-    fontSize: 28,
-    fontWeight: 400,
-  },
+const QUICK_ADD_PRESETS: Omit<TextPreset, 'text'>[] = [
+  { key: 'heading', fontSize: 72, fontWeight: 800 },
+  { key: 'subheading', fontSize: 48, fontWeight: 600 },
+  { key: 'body', fontSize: 28, fontWeight: 400 },
 ];
 
 export function ResourcePanel({
   provider,
   onApplyResource,
   onAddPlainText,
-  title,
   placeholder,
   emptyMessage,
   errorMessage,
@@ -69,12 +52,11 @@ export function ResourcePanel({
   noResourceAvailableMessage,
   errorLoadMoreMessage,
 }: ResourcePanelProps) {
+  const m = useMessages();
   const [categories, setCategories] = useState<ResourceCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [mode, setMode] = useState<Mode>({
-    kind: 'browse',
-  });
+  const [mode, setMode] = useState<Mode>({ kind: 'browse' });
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
@@ -82,12 +64,9 @@ export function ResourcePanel({
     const controller = new AbortController();
 
     provider
-      .categories({
-        signal: controller.signal,
-      })
+      .categories({ signal: controller.signal })
       .then((result) => {
         if (cancelled) return;
-
         setCategories(result);
         setLoading(false);
         setError(false);
@@ -96,7 +75,6 @@ export function ResourcePanel({
         if (cancelled || (reason as { name?: string })?.name === 'AbortError') {
           return;
         }
-
         setError(true);
         setLoading(false);
       });
@@ -115,30 +93,15 @@ export function ResourcePanel({
 
   const handleSearchChange = useCallback((next: string) => {
     const query = next.trim();
-
-    if (query) {
-      setMode({
-        kind: 'search',
-        query,
-      });
-    } else {
-      setMode({
-        kind: 'browse',
-      });
-    }
+    setMode(query ? { kind: 'search', query } : { kind: 'browse' });
   }, []);
 
   const handleSeeMore = useCallback((categoryId: string) => {
-    setMode({
-      kind: 'category',
-      categoryId,
-    });
+    setMode({ kind: 'category', categoryId });
   }, []);
 
   const handleBack = useCallback(() => {
-    setMode({
-      kind: 'browse',
-    });
+    setMode({ kind: 'browse' });
   }, []);
 
   const activeCategory =
@@ -149,79 +112,27 @@ export function ResourcePanel({
   const searchValue = mode.kind === 'search' ? mode.query : '';
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{ padding: '12px 12px 0 12px' }}>
-        {title ? (
-          <h2
-            style={{
-              margin: '0 0 10px 0',
-              fontSize: 15,
-              fontWeight: 700,
-              color: 'var(--de-color-text)',
-            }}
-          >
-            {title}
-          </h2>
-        ) : null}
-
-        {onAddPlainText ? (
-          <div
-            style={{
-              display: 'flex',
-              gap: 6,
-              marginBottom: 4,
-            }}
-          >
-            {QUICK_ADD_PRESETS.map(
-              ({ label, preset, fontSize, fontWeight }) => (
-                <button
-                  key={preset}
-                  onClick={() => onAddPlainText(preset)}
-                  title={`Add ${label} (${fontSize}px)`}
-                  type="button"
-                  style={{
-                    flex: 1,
-                    padding: '6px 4px',
-                    fontSize: 11,
-                    fontWeight,
-                    cursor: 'pointer',
-                    background:
-                      'color-mix(in srgb, var(--de-color-text) 4%, var(--de-color-surface-2))',
-                    border: '1px solid var(--de-color-border)',
-                    borderRadius: 6,
-                    color: 'var(--de-color-text)',
-                    textAlign: 'center',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  {label}
-
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 9,
-                      fontWeight: 400,
-                      opacity: 0.6,
-                    }}
-                  >
-                    {fontSize}px
-                  </span>
-                </button>
-              )
-            )}
-          </div>
-        ) : null}
-      </div>
+    <div className="de-panel">
+      {onAddPlainText ? (
+        <div className="de-text-presets">
+          {QUICK_ADD_PRESETS.map((preset) => {
+            const label = m.textDesigns[preset.key];
+            return (
+              <button
+                key={preset.key}
+                className="de-text-preset"
+                onClick={() => onAddPlainText({ ...preset, text: label })}
+                style={{ fontWeight: preset.fontWeight }}
+                title={m.textDesigns.addPreset(label, preset.fontSize)}
+                type="button"
+              >
+                {label}
+                <span>{preset.fontSize}px</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
 
       <ResourceSearchBar
         onChange={handleSearchChange}
@@ -229,96 +140,49 @@ export function ResourcePanel({
         value={searchValue}
       />
 
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-        }}
-      >
+      <div className="de-panel-body">
         {mode.kind === 'search' ? (
           <ResourceDesignGrid
-            emptyMessage={`${noMatchMessage} "${mode.query}"`}
+            emptyMessage={noMatchMessage(mode.query)}
             errorLoadMoreMessage={errorLoadMoreMessage}
             errorMessage={errorMessage}
+            listOpts={{ search: mode.query, limit: 12 }}
             onSelect={onApplyResource}
             provider={provider}
-            listOpts={{
-              search: mode.query,
-              limit: 12,
-            }}
           />
         ) : mode.kind === 'category' && activeCategory ? (
           <React.Fragment>
-            <div
-              style={{
-                padding: '12px 12px 0 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
+            <div className="de-panel-subheader">
               <button
+                className="de-link-btn"
                 onClick={handleBack}
                 type="button"
-                style={{
-                  all: 'unset',
-                  cursor: 'pointer',
-                  fontSize: 12,
-                  color: 'var(--de-color-primary)',
-                }}
               >
-                ← Back
+                <ArrowLeft size={13} />
+                {m.panel.back}
               </button>
-
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                {activeCategory.name}
-              </h3>
+              <span>{activeCategory.name}</span>
             </div>
-
             <ResourceDesignGrid
               emptyMessage={emptyMessage}
               errorLoadMoreMessage={errorLoadMoreMessage}
               errorMessage={errorMessage}
+              listOpts={{ categoryId: activeCategory.id, limit: 12 }}
               onSelect={onApplyResource}
               provider={provider}
-              listOpts={{
-                categoryId: activeCategory.id,
-                limit: 12,
-              }}
             />
           </React.Fragment>
         ) : loading ? (
-          <div style={{ padding: 16 }}>Loading...</div>
+          <div className="de-panel-empty">{m.panel.loading}</div>
         ) : error ? (
-          <div style={{ padding: 16 }}>
-            Failed to load text designs —{' '}
-            <button
-              onClick={handleRetry}
-              type="button"
-              style={{
-                all: 'unset',
-                cursor: 'pointer',
-                color: 'var(--de-color-primary)',
-              }}
-            >
-              Retry
+          <div className="de-panel-empty">
+            {errorMessage}
+            <button className="de-link-btn" onClick={handleRetry} type="button">
+              {m.panel.retry}
             </button>
           </div>
         ) : categories.length === 0 ? (
-          <div
-            style={{
-              padding: 16,
-              color: 'var(--de-color-text-muted)',
-            }}
-          >
-            {noResourceAvailableMessage}
-          </div>
+          <div className="de-panel-empty">{noResourceAvailableMessage}</div>
         ) : (
           categories.map((category) => (
             <ResourceCategoryRow

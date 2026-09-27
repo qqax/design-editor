@@ -5,6 +5,8 @@ import * as React from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
 import { clsx } from 'clsx';
 
+import { usePortalContainer } from './PortalContainer';
+
 export interface SelectOption {
   value: string;
   label: React.ReactNode;
@@ -24,6 +26,7 @@ export interface SelectProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
+  'aria-label'?: string;
 }
 
 const isGroupedOptions = (options: SelectOptions): options is SelectGroup[] => {
@@ -80,9 +83,11 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       placeholder,
       className,
       style,
+      'aria-label': ariaLabel,
     },
     ref
   ) => {
+    const container = usePortalContainer();
     return (
       <RadixSelect.Root
         defaultValue={defaultValue}
@@ -91,6 +96,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       >
         <RadixSelect.Trigger
           ref={ref}
+          aria-label={ariaLabel}
           className={clsx('de-select-trigger', className)}
           style={style}
         >
@@ -112,7 +118,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
             </svg>
           </RadixSelect.Icon>
         </RadixSelect.Trigger>
-        <RadixSelect.Portal>
+        <RadixSelect.Portal container={container}>
           <RadixSelect.Content
             className="de-select-content"
             position="popper"

@@ -1,11 +1,25 @@
-import type {Object as FabricObject,} from 'fabric';
-import {ActiveSelection, Point, Textbox} from 'fabric';
+import { ActiveSelection, Point, Textbox } from 'fabric';
 
 import Base from './Base';
-import {LayerType} from '../common/constants';
-import shourcutsManager from '../utils/shourcutsManager';
+import { LayerType } from '../../types';
+import {
+  isCtrlA,
+  isCtrlC,
+  isCtrlEqual,
+  isCtrlMinus,
+  isCtrlOne,
+  isCtrlShiftZ,
+  isCtrlV,
+  isCtrlX,
+  isCtrlY,
+  isCtrlZ,
+  isCtrlZero,
+  isDelete,
+} from '../utils/shourcuts-manager';
 
-import type {ControllerOptions} from '..';
+import type { FabricObject } from 'fabric';
+
+import type { ControllerOptions } from '..';
 
 class Events extends Base {
   constructor(props: ControllerOptions) {
@@ -16,7 +30,6 @@ class Events extends Base {
   private initialize() {
     this.canvas.wrapperEl.tabIndex = 1;
     this.canvas.wrapperEl.style.outline = 'none';
-    // @ts-ignore
     this.canvas.on({
       'mouse:dblclick': this.onDoubleClick,
       'mouse:down': this.onMouseDown,
@@ -116,47 +129,45 @@ class Events extends Base {
   };
 
   onKeyDown(event: KeyboardEvent) {
-    if (shourcutsManager.isCtrlZero(event)) {
+    if (isCtrlZero(event)) {
       event.preventDefault();
       this.editor.zoom.zoomToFit();
-    } else if (shourcutsManager.isCtrlMinus(event)) {
+    } else if (isCtrlMinus(event)) {
       event.preventDefault();
       this.editor.zoom.zoomIn();
-    } else if (shourcutsManager.isCtrlEqual(event)) {
+    } else if (isCtrlEqual(event)) {
       event.preventDefault();
       this.editor.zoom.zoomOut();
-    } else if (shourcutsManager.isCtrlOne(event)) {
+    } else if (isCtrlOne(event)) {
       event.preventDefault();
       this.editor.zoom.zoomToOne();
-    } else if (shourcutsManager.isCtrlZ(event)) {
+    } else if (isCtrlZ(event)) {
       this.editor.history.undo();
-    } else if (shourcutsManager.isCtrlShiftZ(event)) {
+    } else if (isCtrlShiftZ(event)) {
       this.editor.history.redo();
-    } else if (shourcutsManager.isCtrlY(event)) {
+    } else if (isCtrlY(event)) {
       this.editor.history.redo();
-    } else if (shourcutsManager.isCtrlA(event)) {
+    } else if (isCtrlA(event)) {
       event.preventDefault();
       this.editor.objects.select();
-    } else if (shourcutsManager.isDelete(event)) {
+    } else if (isDelete(event)) {
       event.preventDefault();
       this.editor.objects.remove();
-    } else if (shourcutsManager.isCtrlC(event)) {
+    } else if (isCtrlC(event)) {
       event.preventDefault();
       this.editor.objects.copy();
-    } else if (shourcutsManager.isCtrlV(event)) {
+    } else if (isCtrlV(event)) {
       event.preventDefault();
-      this.editor.objects.paste();
-    } else if (shourcutsManager.isCtrlX(event)) {
+      void this.editor.objects.paste();
+    } else if (isCtrlX(event)) {
       event.preventDefault();
       this.editor.objects.cut();
     }
   }
 
   onBackgroundSelected = () => {
-    const objects = this.canvas.getObjects();
-    const frame = objects[0];
-    this.canvas.setActiveObject(objects[0]);
-    this.state.setActiveObject(frame);
+    this.canvas.discardActiveObject();
+    this.state.setActiveObject(null);
     this.canvas.requestRenderAll();
   };
 
@@ -165,9 +176,8 @@ class Events extends Base {
       this.state.setActiveObject(null);
       const initialSelection = this.canvas.getActiveObject() as any;
       const isNotMultipleSelection =
-        (initialSelection &&
-          initialSelection.type === LayerType.GROUP.toLowerCase()) ||
-        (initialSelection && initialSelection.type === LayerType.STATIC_VECTOR);
+        initialSelection?.type === LayerType.GROUP.toLowerCase() ||
+        initialSelection?.type === LayerType.STATIC_VECTOR;
 
       if (
         initialSelection &&

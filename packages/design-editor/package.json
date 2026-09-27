@@ -39,12 +39,14 @@
     "dist",
     "README.md",
     "LICENSE",
+    "NOTICE",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build": "tsup && tailwindcss -i src/theme/theme.css -o dist/theme.css && node scripts/postbuild-use-client.mjs",
+    "build": "tsup && node scripts/copy-theme.mjs && node scripts/postbuild-use-client.mjs",
+    "prepack": "node scripts/copy-docs.mjs",
     "dev:js": "tsup --watch",
-    "dev:css": "tailwindcss -i src/theme/theme.css -o dist/theme.css --watch",
+    "dev:css": "node scripts/copy-theme.mjs --watch",
     "dev": "concurrently \"npm:dev:js\" \"npm:dev:css\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -73,7 +75,6 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^13.0.3",
-    "@tailwindcss/cli": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/lodash": "^4.17.25",
@@ -86,7 +87,6 @@
     "prettier": "^3.9.6",
     "resize-observer-polyfill": "^1.5.1",
     "size-limit": "^13.0.3",
-    "tailwindcss": "^4.3.3",
     "tsup": "^8.5.1",
     "typescript": "5.7.3",
     "vitest": "^5.0.0"

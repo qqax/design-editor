@@ -4,49 +4,44 @@ import React, { useCallback, useState } from 'react';
 
 import { Folder, X } from 'lucide-react';
 
+import { useMessages } from '../../messages';
 import { Tooltip } from '../primitives';
-import { ICON_BTN } from './layer-panel.types';
 import { LayerList } from './LayerList';
 import { useLayerPanel } from './useLayerPanel';
 
+import type { Editor } from '../../engine';
+
 interface LayerPanelProps {
-  editor: any;
+  editor: Editor | null;
   onClose: () => void;
 }
 
 export function LayerPanel({ editor, onClose }: LayerPanelProps) {
+  const m = useMessages().layers;
   const { layers, activeId } = useLayerPanel();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const handleSelect = useCallback(
     (id: string, multi: boolean) => {
-      setSelectedIds((prev) => {
-        if (multi) {
-          const next = new Set(prev);
-          if (next.has(id)) {
-            next.delete(id);
-          } else {
-            next.add(id);
-          }
-          return next;
-        }
-        return new Set([id]);
-      });
-      editor?.objects?.select?.(id);
+      const next = new Set(multi ? selectedIds : []);
+      if (multi && next.has(id)) next.delete(id);
+      else next.add(id);
+      setSelectedIds(next);
+      editor?.objects.selectMany([...next]);
     },
-    [editor]
+    [editor, selectedIds]
   );
 
   const handleVisibilityChange = useCallback(
     (id: string, visible: boolean) => {
-      editor?.objects?.update?.({ visible }, id);
+      editor?.objects.update({ visible }, id);
     },
     [editor]
   );
 
   const handleDelete = useCallback(
     (id: string) => {
-      editor?.objects?.remove?.(id);
+      editor?.objects.remove(id);
       setSelectedIds((prev) => {
         if (!prev.has(id)) return prev;
         const next = new Set(prev);
@@ -59,97 +54,60 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   const handleDuplicate = useCallback(
     (id: string) => {
-      editor?.objects?.clone?.(id);
+      if (!editor) return;
+      editor.objects.select(id);
+      void editor.objects.clone();
     },
     [editor]
   );
 
   const handleRename = useCallback(
     (id: string, name: string) => {
-      editor?.objects?.update?.({ name }, id);
+      editor?.objects.update({ name }, id);
     },
     [editor]
   );
 
   const handleGroup = useCallback(() => {
-    if (selectedIds.size < 2) return;
-    editor?.objects?.group?.([...selectedIds]);
+    if (!editor || selectedIds.size < 2) return;
+    editor.objects.selectMany([...selectedIds]);
+    editor.objects.group();
     setSelectedIds(new Set());
   }, [editor, selectedIds]);
 
   return (
-    <div
-      className="absolute top-0 right-0 bottom-16.5 z-40 w-full shrink-0 animate-[panelSlideIn_0.2s_cubic-bezier(0.4,0,0.2,1)] md:top-0 md:bottom-0 md:z-auto md:w-57.5"
-      style={{
-        background:
-          'color-mix(in srgb, var(--de-color-bg-elevated) 97%, transparent)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderLeft: '1px solid var(--de-color-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        boxShadow: '-8px 0 40px var(--de-shadow-color)',
-        zIndex: 100,
-      }}
-    >
+    <div className="de-layer-panel">
       {/* Header */}
-      <div
-        style={{
-          height: 50,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          padding: '0 14px',
-          gap: 8,
-          background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--de-color-primary) 12%, transparent) 0%, transparent 100%)',
-          borderBottom: '1px solid var(--de-color-border)',
-        }}
-      >
-        <div
-          style={{
-            width: 3,
-            height: 16,
-            borderRadius: 2,
-            background: 'var(--de-color-primary)',
-            flexShrink: 0,
-          }}
-        />
-        <span
-          style={{
-            flex: 1,
-            fontSize: 11,
-            fontWeight: 800,
-            color: 'var(--de-color-primary)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.09em',
-          }}
-        >
-          Layers
-        </span>
-
-        {selectedIds.size >= 2 && (
-          <Tooltip title="Group selected layers">
-            <button onClick={handleGroup} style={ICON_BTN} type="button">
-              <Folder size={14} />
+      <div className="de-sidebar-header">
+        <span>{m.title}</span>
+        <div className="de-header-actions">
+          {selectedIds.size >= 2 && (
+            <Tooltip title={m.group}>
+              <button
+                aria-label={m.group}
+                className="de-icon-btn"
+                onClick={handleGroup}
+                type="button"
+              >
+                <Folder size={15} />
+              </button>
+            </Tooltip>
+          )}
+          <Tooltip title={m.close}>
+            <button
+              aria-label={m.close}
+              className="de-icon-btn"
+              onClick={onClose}
+              type="button"
+            >
+              <X size={15} />
             </button>
           </Tooltip>
-        )}
-
-        <Tooltip title="Close layers panel">
-          <button
-            onClick={onClose}
-            style={{ ...ICON_BTN, color: 'var(--de-color-text-muted)' }}
-            type="button"
-          >
-            <X size={14} />
-          </button>
-        </Tooltip>
+        </div>
       </div>
 
       {/* Layer list */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="de-layer-list">
         <LayerList
           activeId={activeId}
           layers={layers}
@@ -162,17 +120,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
         />
       </div>
 
-      <div
-        style={{
-          padding: '8px 12px',
-          borderTop: '1px solid var(--de-color-border)',
-          fontSize: 9,
-          color: 'var(--de-color-text-muted)',
-          lineHeight: 1.5,
-        }}
-      >
-        Click to select · Shift-click to multi-select · Double-click to rename
-      </div>
+      <div className="de-panel-hint">{m.hint}</div>
     </div>
   );
 }

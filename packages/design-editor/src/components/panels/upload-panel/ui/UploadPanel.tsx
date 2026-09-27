@@ -5,196 +5,139 @@ import React, { useRef, useState } from 'react';
 import { CloudUpload, Loader2, Trash2 } from 'lucide-react';
 
 import { useToast } from '../../../../hooks/useToast';
-import { useLocalMedia } from '../model';
+import { useMessages } from '../../../../messages';
+import { useGallery } from '../model';
+
+import type {
+  GalleryItem,
+  GalleryProvider,
+  GalleryWidget,
+} from '../../../../providers';
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 interface Props {
-  onUploadFile: (url: string) => void;
+  provider: GalleryProvider;
+  widget?: GalleryWidget;
+  onAddToCanvas: (url: string) => void;
 }
 
-export function UploadPanel({ onUploadFile }: Props) {
+function Preview({
+  item,
+  fallbackName,
+}: {
+  item: GalleryItem;
+  fallbackName: string;
+}) {
+  const src = item.thumbnailUrl ?? item.url;
+  return item.type === 'video' && !item.thumbnailUrl ? (
+    <video muted className="de-gallery-media" preload="metadata" src={src} />
+  ) : (
+    <img
+      alt={item.name ?? fallbackName}
+      className="de-gallery-media"
+      draggable={false}
+      src={src}
+    />
+  );
+}
+
+export function UploadPanel({ provider, widget, onAddToCanvas }: Props) {
+  const m = useMessages().gallery;
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [hov, setHov] = useState(false);
   const toast = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const { media, loading, addMedia, removeMedia } = useLocalMedia();
+  const { items, loading, error, refresh, upload, remove } =
+    useGallery(provider);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (f.size > 50 * 1024 * 1024) {
-      toast.error('File size must be less than 50MB');
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !upload) return;
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(m.tooLarge);
       return;
     }
+    setIsUploading(true);
     try {
-      setIsUploading(true);
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const url = reader.result as string;
-        await addMedia(url);
-        // Note: we just add to the local gallery, user can click it to add to canvas.
-        // Wait, for best UX, we should also automatically add it to canvas when uploaded:
-        onUploadFile(url);
-        toast.success('Upload complete');
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        toast.error('Failed to read file');
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(f);
+      const item = await upload(file);
+      if (item) onAddToCanvas(item.url);
+      toast.success(m.uploaded);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Upload failed');
-      setIsUploading(false);
+      toast.error(err instanceof Error ? err.message : m.uploadFailed);
     } finally {
-      e.target.value = '';
+      setIsUploading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        padding: 14,
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-      }}
-    >
-      <input
-        ref={fileInputRef}
-        accept="image/*,video/*"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-        type="file"
-      />
-      <button
-        disabled={isUploading}
-        onClick={() => fileInputRef.current?.click()}
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        type="button"
-        style={{
-          width: '100%',
-          padding: '24px 16px',
-          cursor: isUploading ? 'wait' : 'pointer',
-          borderRadius: 14,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 8,
-          background: hov
-            ? 'color-mix(in srgb, var(--de-color-primary) 12%, transparent)'
-            : 'color-mix(in srgb, var(--de-color-primary) 6%, transparent)',
-          border: `2px dashed ${hov ? 'var(--de-color-primary)' : 'color-mix(in srgb, var(--de-color-primary) 30%, transparent)'}`,
-          transition: 'all 0.2s',
-          outline: 'none',
-          flexShrink: 0,
-        }}
-      >
-        {isUploading ? (
-          <Loader2
-            className="animate-spin"
-            color="var(--de-color-primary)"
-            size={32}
-          />
-        ) : (
-          <CloudUpload color="var(--de-color-primary)" size={32} />
-        )}
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              color: 'var(--de-color-text)',
-              fontSize: 13,
-              fontWeight: 600,
-            }}
-          >
-            {isUploading ? 'Uploading...' : 'Click to upload'}
-          </div>
-          <div
-            style={{
-              color: 'var(--de-color-text-muted)',
-              fontSize: 11,
-              marginTop: 4,
-            }}
-          >
-            PNG · JPG · SVG · MP4 · max 50 MB
-          </div>
+    <div className="de-gallery">
+      {widget ? (
+        <div className="de-gallery-widget">
+          {widget({ refresh, addToCanvas: onAddToCanvas })}
         </div>
-      </button>
+      ) : null}
 
-      <div style={{ marginTop: 24, flex: 1, overflowY: 'auto' }}>
+      {upload ? (
+        <React.Fragment>
+          <input
+            ref={fileInputRef}
+            accept="image/*,video/*"
+            onChange={(e) => void handleFileChange(e)}
+            style={{ display: 'none' }}
+            type="file"
+          />
+          <button
+            className="de-gallery-upload"
+            disabled={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+            type="button"
+          >
+            {isUploading ? (
+              <Loader2 className="de-spin" size={28} />
+            ) : (
+              <CloudUpload size={28} />
+            )}
+            <span className="de-gallery-upload-title">
+              {isUploading ? m.uploading : m.upload}
+            </span>
+            <span className="de-gallery-upload-hint">{m.hint}</span>
+          </button>
+        </React.Fragment>
+      ) : null}
+
+      <div className="de-gallery-list">
         {loading ? (
-          <div
-            style={{ display: 'flex', justifyContent: 'center', padding: 20 }}
-          >
-            <Loader2
-              className="animate-spin"
-              color="var(--de-color-text-muted)"
-              size={24}
-            />
+          <div className="de-gallery-empty">
+            <Loader2 className="de-spin" size={22} />
           </div>
-        ) : media.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: 20,
-              color: 'var(--de-color-text-muted)',
-              fontSize: 12,
-            }}
-          >
-            Uploaded files will appear here
-          </div>
+        ) : error ? (
+          <div className="de-gallery-empty">{error}</div>
+        ) : items.length === 0 ? (
+          <div className="de-gallery-empty">{m.empty}</div>
         ) : (
-          <div
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}
-          >
-            {media.map((item) => (
-              <div
-                key={item.id}
-                className="group"
-                style={{
-                  position: 'relative',
-                  aspectRatio: '1',
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  background: 'var(--de-color-bg-alt)',
-                  cursor: 'pointer',
-                  border:
-                    '1px solid color-mix(in srgb, var(--de-color-text) 10%, transparent)',
-                }}
-              >
-                {/* Image */}
-                <img
-                  alt="Upload"
-                  onClick={() => onUploadFile(item.url)}
-                  src={item.url}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-
-                {/* Delete button (shows on hover via CSS group logic usually, but here we can just use inline state or a simple hover trick. We'll add a simple button) */}
+          <div className="de-gallery-grid">
+            {items.map((item) => (
+              <div key={item.id} className="de-gallery-item">
                 <button
-                  title="Remove from uploads"
+                  aria-label={m.add(item.name ?? m.item)}
+                  className="de-gallery-add"
+                  onClick={() => onAddToCanvas(item.url)}
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void removeMedia(item.id);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: 4,
-                    right: 4,
-                    background: 'rgba(0,0,0,0.6)',
-                    border: 'none',
-                    borderRadius: 4,
-                    color: '#fff',
-                    padding: 4,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
                 >
-                  <Trash2 size={14} />
+                  <Preview fallbackName={m.item} item={item} />
                 </button>
+                {remove ? (
+                  <button
+                    aria-label={m.remove(item.name ?? m.item)}
+                    className="de-gallery-remove"
+                    onClick={() => void remove(item.id)}
+                    title={m.removeHint}
+                    type="button"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                ) : null}
               </div>
             ))}
           </div>

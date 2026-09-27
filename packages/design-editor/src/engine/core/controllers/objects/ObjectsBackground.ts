@@ -1,34 +1,24 @@
-import {
-  BackgroundImage,
-  StaticImage,
-} from '../../../objects';
-
+import { BackgroundImage, StaticImage } from '../../../objects';
 import { LayerType } from '../../../types';
-
 import { generateId } from '../../utils/id';
 import { loadImageFromURL } from '../../utils/image-loader';
 
 import type { ObjectsContext } from './ObjectsContext';
 
 export class ObjectsBackground {
-  constructor(
-    private readonly context: ObjectsContext,
-  ) {}
+  constructor(private readonly context: ObjectsContext) {}
 
   public unset = async (): Promise<StaticImage | null> => {
     const currentBackgroundImage = this.context.canvas
       .getObjects()
-      .find(
-        (object) =>
-          object.type === LayerType.BACKGROUND_IMAGE,
-      );
+      .find((object) => object.type === LayerType.BACKGROUND_IMAGE);
 
     if (!currentBackgroundImage) {
       return null;
     }
 
     const json = currentBackgroundImage.toObject(
-      this.context.config.propertiesToInclude,
+      this.context.config.propertiesToInclude
     ) as Record<string, any>;
 
     delete json.clipPath;
@@ -40,9 +30,7 @@ export class ObjectsBackground {
       id: generateId(),
     });
 
-    this.context.canvas.remove(
-      currentBackgroundImage,
-    );
+    this.context.canvas.remove(currentBackgroundImage);
 
     return nextImage;
   };
@@ -67,43 +55,30 @@ export class ObjectsBackground {
     }
 
     const objectJSON = refObject.toObject(
-      this.context.config.propertiesToInclude,
+      this.context.config.propertiesToInclude
     ) as Record<string, any>;
 
     delete objectJSON.clipPath;
 
-    const imageElement = await loadImageFromURL(
-      objectJSON.src,
-    );
+    const imageElement = await loadImageFromURL(objectJSON.src);
 
-    const backgroundImage = new BackgroundImage(
-      imageElement,
-      {
-        ...objectJSON,
-        id: generateId(),
-      },
-    );
+    const backgroundImage = new BackgroundImage(imageElement, {
+      ...objectJSON,
+      id: generateId(),
+    });
 
     this.context.canvas.add(backgroundImage);
 
-    backgroundImage.clipPath = frame as any;
+    backgroundImage.clipPath = frame;
 
     this.context.canvas.remove(refObject);
 
-    this.context.editor.objects.scale(
-      'fill',
-      backgroundImage.id,
-    );
+    this.context.editor.objects.scale('fill', backgroundImage.id);
 
-    this.context.canvas.moveObjectTo(
-      backgroundImage,
-      2,
-    );
+    this.context.canvas.moveObjectTo(backgroundImage, 2);
 
     if (previousBackground) {
-      this.context.editor.objects.sendToBack(
-        previousBackground.id,
-      );
+      this.context.editor.objects.sendToBack(previousBackground.id);
     }
 
     this.context.canvas.discardActiveObject();

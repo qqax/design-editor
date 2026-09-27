@@ -5,6 +5,12 @@ type SceneType = 'CUSTOMIZATION' | 'GRAPHIC' | 'PRESENTATION' | 'VIDEO';
 export interface SettingsType {
   showGrid: boolean;
   snapGrid: boolean;
+  showRulers: boolean;
+  snapToGuides: boolean;
+  /** Edges the rulers are attached to */
+  rulerSides: { horizontal: 'top' | 'bottom'; vertical: 'left' | 'right' };
+  /** Edges the rulers count from */
+  rulerOrigin: { x: 'left' | 'right'; y: 'top' | 'bottom' };
   railSide: 'left' | 'right';
 }
 

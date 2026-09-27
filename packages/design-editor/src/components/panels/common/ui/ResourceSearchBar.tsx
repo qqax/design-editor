@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
+import { Search } from 'lucide-react';
+
 interface Props {
   value: string;
   onChange: (next: string) => void;
@@ -38,22 +40,14 @@ export function ResourceSearchBar({
   }, [local, value, debounceMs, onChange]);
 
   return (
-    <div style={{ padding: '12px 12px 0 12px' }}>
+    <div className="de-panel-search">
+      <Search size={14} />
       <input
+        aria-label={placeholder}
         onChange={handleChange}
         placeholder={placeholder}
         type="search"
         value={local}
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          fontSize: 13,
-          border: '1px solid var(--de-color-border)',
-          borderRadius: 6,
-          background: 'var(--de-color-bg)',
-          color: 'var(--de-color-text)',
-          outline: 'none',
-        }}
       />
     </div>
   );

@@ -2,27 +2,60 @@
 
 import { useCallback, useState } from 'react';
 
-import type { Editor } from '../../../engine';
+import { defaultFrameOptions, useFrame } from '../../../engine';
 
-export const AD_SIZES = [
-  { label: '1920×1080 (Landscape)', value: '1920x1080' },
-  { label: '1080×1080 (Square)', value: '1080x1080' },
-  { label: '1080×1920 (Portrait)', value: '1080x1920' },
-  { label: '728×90 (Leaderboard)', value: '728x90' },
-  { label: '300×250 (Med Rect)', value: '300x250' },
-  { label: 'Custom…', value: 'custom' },
+import type { Editor } from '../../../engine';
+import type { EditorMessages } from '../../../messages';
+
+/**
+ * Built-in size presets. Values are `WIDTHxHEIGHT` in pixels; print sizes add
+ * `@DPI`, which becomes the document resolution when picked.
+ */
+export const defaultCanvasSizes = (m: EditorMessages['canvasSize']) => [
+  { label: m.landscape, value: '1920x1080' },
+  { label: m.square, value: '1080x1080' },
+  { label: m.portrait, value: '1080x1920' },
+  { label: m.leaderboard, value: '728x90' },
+  { label: m.mediumRectangle, value: '300x250' },
+  { label: m.a4, value: '2480x3508@300' },
+  { label: m.a5, value: '1748x2480@300' },
+  { label: m.letter, value: '2550x3300@300' },
+  { label: m.businessCard, value: '1004x650@300' },
+  { label: m.custom, value: 'custom' },
 ];
 
-export function useCanvasSize(editor: Editor | null) {
-  const [size, setSize] = useState('1920x1080');
+/** `"2480x3508@300"` → size and optional resolution */
+export function parseSizeValue(
+  value: string
+): { width: number; height: number; dpi?: number } | null {
+  const match = /^(\d+)x(\d+)(?:@(\d+))?$/.exec(value);
+  if (!match) return null;
+  return {
+    width: Number(match[1]),
+    height: Number(match[2]),
+    ...(match[3] && { dpi: Number(match[3]) }),
+  };
+}
+
+export function useCanvasSize(
+  editor: Editor | null,
+  onDpiChange: (dpi: number) => void
+) {
   const [customOpen, setCustomOpen] = useState(false);
-  const [customW, setCustomW] = useState(1920);
-  const [customH, setCustomH] = useState(1080);
+
+  const frame = useFrame() as { width?: number; height?: number } | null;
+  const width = frame?.width
+    ? Math.round(frame.width)
+    : defaultFrameOptions.width;
+  const height = frame?.height
+    ? Math.round(frame.height)
+    : defaultFrameOptions.height;
 
   const applySize = useCallback(
     (w: number, h: number) => {
       if (!editor) return;
       editor.frame.resize({ width: w, height: h });
+      editor.zoom.zoomToFit();
     },
     [editor]
   );
@@ -34,30 +67,20 @@ export function useCanvasSize(editor: Editor | null) {
         return;
       }
       setCustomOpen(false);
-      setSize(value);
-      const [w, h] = value.split('x').map(Number);
-      applySize(w, h);
+      const parsed = parseSizeValue(value);
+      if (!parsed) return;
+      if (parsed.dpi) onDpiChange(parsed.dpi);
+      applySize(parsed.width, parsed.height);
     },
-    [applySize]
+    [applySize, onDpiChange]
   );
 
-  const handleApplyCustom = useCallback(() => {
-    const w = Math.max(100, Math.min(8000, customW));
-    const h = Math.max(100, Math.min(8000, customH));
-    setCustomOpen(false);
-    setSize(`${w}×${h}`);
-    applySize(w, h);
-  }, [customW, customH, applySize]);
-
   return {
-    size,
+    size: `${width}x${height}`,
+    frame: { width, height },
     customOpen,
     setCustomOpen,
-    customW,
-    setCustomW,
-    customH,
-    setCustomH,
+    applySize,
     handleSizeChange,
-    handleApplyCustom,
   };
 }

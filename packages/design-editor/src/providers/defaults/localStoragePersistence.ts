@@ -13,15 +13,15 @@ export function createLocalStoragePersistence(
       const raw = localStorage.getItem(prefix + sceneKey);
       return raw ? (JSON.parse(raw) as IScene) : null;
     },
+    async remove(sceneKey) {
+      localStorage.removeItem(prefix + sceneKey);
+    },
     async list() {
-      const out: { sceneKey: string; updatedAt: number }[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key?.startsWith(prefix)) {
-          out.push({ sceneKey: key.slice(prefix.length), updatedAt: 0 });
-        }
-      }
-      return out;
+      return Array.from({ length: localStorage.length }, (_, i) =>
+        localStorage.key(i)
+      )
+        .filter((key): key is string => !!key?.startsWith(prefix))
+        .map((key) => ({ sceneKey: key.slice(prefix.length), updatedAt: 0 }));
     },
   };
 }

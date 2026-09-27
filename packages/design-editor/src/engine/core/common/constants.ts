@@ -17,11 +17,16 @@ export const PROPERTIES_TO_INCLUDE = [
   'fontURL',
   'duration',
   'preview',
+  'cornerRadius',
 ];
 
 export const defaultEditorConfig: EditorConfig = {
   railSide: 'left',
   showGrid: true,
+  showRulers: false,
+  snapToGuides: true,
+  rulerSides: { horizontal: 'top', vertical: 'left' },
+  rulerOrigin: { x: 'left', y: 'top' },
   snapGrid: true,
   id: 'random_id_12',
   clipToFrame: true,
@@ -49,35 +54,20 @@ export const defaultEditorConfig: EditorConfig = {
 };
 
 export const defaultFrameOptions = {
-  width: 1200,
-  height: 1200,
+  width: 1920,
+  height: 1080,
   id: 'frame',
   name: 'Initial Frame',
   fill: '#ffffff',
   hoverCursor: 'default',
 };
 
-export enum LayerType {
-  STATIC_VECTOR = 'StaticVector',
-  STATIC_GROUP = 'StaticGroup',
-  STATIC_PATH = 'StaticPath',
-  STATIC_IMAGE = 'StaticImage',
-  STATIC_VIDEO = 'StaticVideo',
-  STATIC_AUDIO = 'StaticAudio',
-  STATIC_TEXT = 'StaticText',
-  ACTIVE_SELECTION = 'activeSelection',
-  BACKGROUND = 'Background',
-  BACKGROUND_IMAGE = 'BackgroundImage',
-  FRAME = 'Frame',
-  GROUP = 'Group',
-}
-
 export const defaultBackgroundOptions = {
-  width: 1200,
-  height: 1200,
+  width: 1920,
+  height: 1080,
   fill: '#ffffff',
   id: 'background',
-  name: 'Initial Frame',
+  name: 'Background',
 };
 
 export const commonParams = {

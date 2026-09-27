@@ -1,8 +1,11 @@
 'use client';
 
 import * as React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
+import { useMessages } from '../../../../messages';
+import { MoreLink } from '../../../primitives';
 
 import type {
   DesignResource,
@@ -25,11 +28,12 @@ export function ResourceCategoryRow({
   onSelect,
   onSeeMore,
 }: Props) {
-  const [items, setItems] = React.useState<DesignResource[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState(false);
+  const m = useMessages();
+  const [items, setItems] = useState<DesignResource[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const fetchResources = React.useCallback(
+  const fetchResources = useCallback(
     async (signal: AbortSignal) =>
       provider.list({
         categoryId: category.id,
@@ -39,7 +43,7 @@ export function ResourceCategoryRow({
     [provider, category.id]
   );
 
-  const handleRetry = React.useCallback(() => {
+  const handleRetry = useCallback(() => {
     const controller = new AbortController();
 
     setLoading(true);
@@ -60,7 +64,7 @@ export function ResourceCategoryRow({
       });
   }, [fetchResources]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const controller = new AbortController();
 
     fetchResources(controller.signal)
@@ -83,90 +87,31 @@ export function ResourceCategoryRow({
   }, [fetchResources]);
 
   return (
-    <div style={{ padding: '12px 12px 4px 12px' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          marginBottom: 8,
-        }}
-      >
-        <h3
-          style={{
-            margin: 0,
-            fontSize: 14,
-            fontWeight: 600,
-            color: 'var(--de-color-text)',
-          }}
-        >
-          {category.name}
-        </h3>
-
-        <button
-          onClick={() => onSeeMore(category.id)}
-          type="button"
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: 12,
-            fontWeight: 600,
-            color: 'var(--de-color-primary)',
-          }}
-        >
-          See more
-        </button>
+    <div className="de-section">
+      <div className="de-section-header">
+        <h3 className="de-section-title">{category.name}</h3>
+        <MoreLink onClick={() => onSeeMore(category.id)}>
+          {m.panel.seeAll}
+        </MoreLink>
       </div>
 
       {error ? (
-        <div style={{ fontSize: 12 }}>
-          Failed to load —{' '}
-          <button
-            onClick={handleRetry}
-            type="button"
-            style={{
-              all: 'unset',
-              cursor: 'pointer',
-              color: 'var(--de-color-primary)',
-            }}
-          >
-            Retry
+        <div className="de-form-hint">
+          {m.panel.loadFailed}
+          <button className="de-link-btn" onClick={handleRetry} type="button">
+            {m.panel.retry}
           </button>
         </div>
       ) : loading ? (
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+        <div className="de-resource-row">
           {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              style={{
-                flex: '0 0 130px',
-                aspectRatio: '1 / 1',
-                background: 'var(--de-color-surface)',
-                borderRadius: 6,
-              }}
-            />
+            <div key={i} className="de-resource-skeleton" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div
-          style={{
-            fontSize: 12,
-            color: 'var(--de-color-text-muted)',
-          }}
-        >
-          No resources yet
-        </div>
+        <div className="de-form-hint">{m.panel.noResources}</div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridAutoFlow: 'column',
-            gridAutoColumns: '130px',
-            gap: 8,
-            overflowX: 'auto',
-            paddingBottom: 4,
-          }}
-        >
+        <div className="de-resource-row scrollbar-hide">
           {items.map((resource) => (
             <ResourceThumbnail
               key={resource.id}

@@ -1,7 +1,7 @@
 import throttle from 'lodash/throttle';
 
 import Base from './Base';
-import { LayerType } from '../common/constants';
+import { LayerType } from '../../types';
 
 /**
  * Undo / Redo — Full-canvas JSON snapshot approach
@@ -30,9 +30,11 @@ class History extends Base {
 
   // ── capture a deep-copy snapshot of the canvas ────────────────────────
   private captureState = (): string => {
-    const json = (this.canvas as any).toJSON(
-      this.config.propertiesToInclude as any
-    );
+    // NB: must be toObject(), not toJSON() — Fabric's canvas toJSON() takes no
+    // arguments (it is just `toObject()`), so passing propertiesToInclude to it
+    // silently dropped id/name/src/metadata/fontURL from every snapshot and
+    // undo/redo restored objects stripped of them.
+    const json = this.canvas.toObject(this.config.propertiesToInclude);
     // Strip clipPath from every object. Our custom fromObject() methods
     // bypass Fabric's internal clipPath enliven pipeline, so clipPath
     // survives as a plain JSON object → _drawClipPath() crashes calling

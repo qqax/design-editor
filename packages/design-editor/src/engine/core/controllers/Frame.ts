@@ -1,29 +1,52 @@
-import Base from './Base';
+import { Shadow } from 'fabric';
 
+import Base from './Base';
 import { Background as BackgroundObject } from '../../objects/Background';
 import { Frame as FrameObject } from '../../objects/Frame';
-
+import { LayerType } from '../../types';
 import {
   defaultBackgroundOptions,
   defaultFrameOptions,
-  LayerType,
 } from '../common/constants';
-
+import { checkerCellSize, createCheckerPattern } from '../utils/checkerboard';
 import setObjectGradient from '../utils/fabric';
 
 import type { FabricObject } from 'fabric';
-import type { ILayer } from '../../types';
 
+import type { ILayer } from '../../types';
 import type {
+  CanvasBackground,
   ControllerOptions,
   Dimension,
-  GradientOptions,
+  GradientFill,
 } from '../common/interfaces';
 
 class Frame extends Base {
+  // Simple event emitter map
+  private listeners = new Map<string, Set<() => void>>();
+
+  private gradient: GradientFill | null = null;
+
+  private checkerCell = 0;
+
   constructor(props: ControllerOptions) {
     super(props);
     this.initialize();
+  }
+
+  public on(event: string, callback: () => void) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)?.add(callback);
+  }
+
+  public off(event: string, callback: () => void) {
+    this.listeners.get(event)?.delete(callback);
+  }
+
+  private emit(event: string) {
+    this.listeners.get(event)?.forEach((cb) => cb());
   }
 
   initialize() {
@@ -32,15 +55,16 @@ class Frame extends Base {
       originX: 'left',
       originY: 'top',
       absolutePositioned: this.config.clipToFrame,
+      shadow: new Shadow({ affectStroke: false, ...this.config.shadow }),
     } as any);
 
     const background = new BackgroundObject({
       ...defaultBackgroundOptions,
       originX: 'left',
       originY: 'top',
-      shadow: this.config.shadow,
     } as any);
 
+    this.updateChecker(frame);
     this.canvas.add(frame, background);
 
     this.canvas.centerObject(frame);
@@ -50,13 +74,9 @@ class Frame extends Base {
     background.setCoords();
 
     this.state.setFrame({
-      height: defaultFrameOptions.width,
-      width: defaultFrameOptions.height,
+      width: defaultFrameOptions.width,
+      height: defaultFrameOptions.height,
     });
-
-    console.trace(
-      '[EDITOR DEBUG] Frame.resize -> zoomToFit',
-    );
 
     setTimeout(() => {
       this.editor.zoom.zoomToFit();
@@ -67,9 +87,7 @@ class Frame extends Base {
   get frame(): FabricObject {
     const frame = this.canvas
       .getObjects()
-      .find(
-        (object) => object.type === LayerType.FRAME,
-      );
+      .find((object) => object.type === LayerType.FRAME);
 
     if (!frame) {
       throw new Error('Frame object not found');
@@ -81,32 +99,17 @@ class Frame extends Base {
   get background(): FabricObject | undefined {
     return this.canvas
       .getObjects()
-      .find(
-        (object) => object.type === LayerType.BACKGROUND,
-      );
+      .find((object) => object.type === LayerType.BACKGROUND);
   }
 
   get options(): Required<ILayer> {
     return this.frame.toObject(
-      this.config.propertiesToInclude,
-    ) as unknown as Required<ILayer>;
+      this.config.propertiesToInclude
+    ) as Required<ILayer>;
   }
 
   public resize({ height, width }: Dimension) {
     const { frame, background } = this;
-
-    console.log('[EDITOR DEBUG] FRAME.RESIZE BEFORE', {
-      requested: {
-        width,
-        height,
-      },
-      frame: {
-        left: frame.left,
-        top: frame.top,
-        width: frame.width,
-        height: frame.height,
-      },
-    });
 
     this.state.setFrame({
       height,
@@ -117,6 +120,7 @@ class Frame extends Base {
       width,
       height,
     });
+    this.updateChecker(frame);
 
     (this.canvas as any).centerObject(frame);
     frame.setCoords();
@@ -129,28 +133,26 @@ class Frame extends Base {
 
       (this.canvas as any).centerObject(background);
       background.setCoords();
+
+      if (this.gradient) {
+        setObjectGradient(background, this.gradient);
+      }
     }
 
-    console.log('[EDITOR DEBUG] FRAME.RESIZE AFTER', {
-      frame: {
-        left: frame.left,
-        top: frame.top,
-        width: frame.width,
-        height: frame.height,
-      },
-      background: background
-        ? {
-          left: background.left,
-          top: background.top,
-          width: background.width,
-          height: background.height,
-        }
-        : null,
-    });
+    // Trigger the modified event
+    this.emit('modified');
+  }
+
+  /** The frame shows through a (semi-)transparent background */
+  private updateChecker(frame: FabricObject) {
+    const cell = checkerCellSize(frame.width, frame.height);
+    if (cell === this.checkerCell) return;
+    this.checkerCell = cell;
+    frame.set({ fill: createCheckerPattern(cell), dirty: true });
   }
 
   public setHoverCursor = (cursor: string) => {
-    const background = this.background;
+    const { background } = this;
 
     if (background) {
       background.set('hoverCursor', cursor);
@@ -158,11 +160,12 @@ class Frame extends Base {
   };
 
   public setBackgroundColor = (color: string) => {
-    let background = this.background;
+    this.gradient = null;
+    let { background } = this;
 
     if (!background) {
       background = new BackgroundObject({
-        name: 'Initial Frame',
+        name: 'Background',
         fill: color,
         id: 'background',
         selectable: false,
@@ -178,8 +181,7 @@ class Frame extends Base {
         top: this.frame.top,
         originX: this.frame.originX,
         originY: this.frame.originY,
-        shadow: this.config.shadow,
-      } as any);
+      });
 
       this.canvas.insertAt(1, background);
     } else {
@@ -192,17 +194,24 @@ class Frame extends Base {
 
     this.canvas.requestRenderAll();
     this.editor.history.save();
+    this.emit('modified');
   };
 
-  public setBackgroundGradient = ({
-                                    angle,
-                                    colors,
-                                  }: GradientOptions) => {
-    let background = this.background;
+  public setBackground = (background: CanvasBackground) => {
+    if (typeof background === 'string') {
+      this.setBackgroundColor(background);
+    } else {
+      this.setBackgroundGradient(background);
+    }
+  };
+
+  public setBackgroundGradient = (gradient: GradientFill) => {
+    this.gradient = gradient;
+    let { background } = this;
 
     if (!background) {
       background = new BackgroundObject({
-        name: 'Initial Frame',
+        name: 'Background',
         fill: '#ffffff',
         id: 'background',
         selectable: false,
@@ -218,22 +227,18 @@ class Frame extends Base {
         top: this.frame.top,
         originX: this.frame.originX,
         originY: this.frame.originY,
-        shadow: this.config.shadow,
-      } as any);
+      });
 
       this.canvas.insertAt(1, background);
     }
 
-    setObjectGradient(
-      background,
-      angle,
-      colors,
-    );
+    setObjectGradient(background, gradient);
 
     background.set('dirty', true);
 
     this.canvas.requestRenderAll();
     this.editor.history.save();
+    this.emit('modified');
   };
 
   public getBoundingClientRect() {
@@ -241,45 +246,24 @@ class Frame extends Base {
   }
 
   get fitRatio() {
-    const frame = this.frame;
+    const { frame } = this;
 
-    const canvasWidth =
-      this.canvas.width -
-      this.config.frameMargin;
+    const canvasWidth = this.canvas.width - this.config.frameMargin;
 
-    const canvasHeight =
-      this.canvas.height -
-      this.config.frameMargin;
+    const canvasHeight = this.canvas.height - this.config.frameMargin;
 
-    let scaleX =
-      canvasWidth /
-      (frame.width ?? 1);
+    let scaleX = canvasWidth / (frame.width ?? 1);
 
-    const scaleY =
-      canvasHeight /
-      (frame.height ?? 1);
+    const scaleY = canvasHeight / (frame.height ?? 1);
 
-    if (
-      (frame.height ?? 0) >=
-      (frame.width ?? 0)
-    ) {
+    if ((frame.height ?? 0) >= (frame.width ?? 0)) {
       scaleX = scaleY;
 
-      if (
-        canvasWidth <
-        (frame.width ?? 0) * scaleX
-      ) {
-        scaleX *=
-          canvasWidth /
-          ((frame.width ?? 0) * scaleX);
+      if (canvasWidth < (frame.width ?? 0) * scaleX) {
+        scaleX *= canvasWidth / ((frame.width ?? 0) * scaleX);
       }
-    } else if (
-      canvasHeight <
-      (frame.height ?? 0) * scaleX
-    ) {
-      scaleX *=
-        canvasHeight /
-        ((frame.height ?? 0) * scaleX);
+    } else if (canvasHeight < (frame.height ?? 0) * scaleX) {
+      scaleX *= canvasHeight / ((frame.height ?? 0) * scaleX);
     }
 
     return scaleX;

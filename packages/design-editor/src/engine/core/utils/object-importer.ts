@@ -1,20 +1,29 @@
-import type {Object as FabricObject} from 'fabric';
-import {Group, loadSVGFromURL} from 'fabric';
+import { Group, loadSVGFromURL } from 'fabric';
 
-import {updateObjectBounds, updateObjectShadow} from './fabric';
-import {generateId} from './id';
-import {loadImageFromURL} from './image-loader';
-import {createVideoElement} from './video-loader';
-import {Background} from '../../objects/Background';
-import {BackgroundImage} from '../../objects/BackgroundImage';
-import {StaticAudio} from '../../objects/StaticAudio';
-import {StaticImage} from '../../objects/StaticImage';
-import {StaticText} from '../../objects/StaticText';
-import {StaticPath} from '../../objects/StaticPath';
-import {StaticVector} from '../../objects/StaticVector';
-import {StaticVideo} from '../../objects/StaticVideo';
+import { updateObjectBounds, updateObjectShadow } from './fabric';
+import { reviveFill } from './gradient';
+import { generateId } from './id';
+import { loadImageFromURL } from './image-loader';
+import { createLayerName } from './layer-name';
+import { createVideoElement } from './video-loader';
+import {
+  Background,
+  BackgroundImage,
+  StaticAudio,
+  StaticImage,
+  StaticPath,
+  StaticText,
+  StaticVector,
+  StaticVideo,
+} from '../../objects';
+import { LayerType } from '../../types';
 
-import {LayerType} from '../common/constants';
+import type {
+  FabricObject,
+  TComplexPathData,
+  TOriginX,
+  TOriginY,
+} from 'fabric';
 
 import type {
   IBackground,
@@ -28,11 +37,30 @@ import type {
   IStaticVector,
   IStaticVideo,
 } from '../../types';
-import type {Editor} from '../editor';
-
+import type { Editor } from '../editor';
 
 class ObjectImporter {
   constructor(public editor: Editor) {}
+
+  private takenNames: Set<string> | null = null;
+
+  private uniqueName(type: string, name: string | undefined): string {
+    const labels = this.editor.layerLabels;
+    if (type === LayerType.BACKGROUND) return labels.background;
+    if (!this.takenNames) {
+      const collect = (objects: FabricObject[]): string[] =>
+        objects.flatMap((object) => [
+          ...(typeof object.name === 'string' ? [object.name] : []),
+          ...(object instanceof Group ? collect(object.getObjects()) : []),
+        ]);
+      this.takenNames = new Set(
+        collect(this.editor.canvas.canvas.getObjects())
+      );
+    }
+    const unique = createLayerName(type, name, this.takenNames, labels);
+    this.takenNames.add(unique);
+    return unique;
+  }
 
   async import(
     item: ILayer,
@@ -45,18 +73,15 @@ class ObjectImporter {
         object = await this.staticText(item, options, inGroup);
         break;
       case LayerType.STATIC_IMAGE:
-        // @ts-ignore
         object = await this.staticImage(item, options, inGroup);
         break;
       case LayerType.BACKGROUND_IMAGE:
-        // @ts-ignore
         object = await this.backgroundImage(item, options, inGroup);
         break;
       case LayerType.STATIC_VIDEO:
         object = await this.staticVideo(item, options, inGroup);
         break;
       case LayerType.STATIC_VECTOR:
-        // @ts-ignore
         object = await this.staticVector(item, options, inGroup);
         break;
       case LayerType.STATIC_PATH:
@@ -71,6 +96,14 @@ class ObjectImporter {
       case LayerType.STATIC_AUDIO:
         object = await this.staticAudio(item, options, inGroup);
         break;
+      case LayerType.STATIC_GROUP:
+      case LayerType.DYNAMIC_GROUP:
+      case LayerType.DYNAMIC_PATH:
+      case LayerType.DYNAMIC_IMAGE:
+      case LayerType.DYNAMIC_TEXT:
+      case LayerType.FRAME:
+      case LayerType.ACTIVE_SELECTION:
+      case LayerType.PRINT_ITEM:
       default:
         object = await this.background(item, options, inGroup);
     }
@@ -82,6 +115,8 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticText> {
+    await this.editor.fonts.ensure(item);
+
     return new Promise((resolve, reject) => {
       try {
         const baseOptions = this.getBaseOptions(item, options, inGroup);
@@ -92,6 +127,8 @@ class ObjectImporter {
           textAlign,
           fontFamily,
           fontSize,
+          fontWeight,
+          fontStyle,
           charSpacing,
           lineHeight,
           text,
@@ -106,15 +143,16 @@ class ObjectImporter {
           width: baseOptions.width ? baseOptions.width : 240,
           fill: fill || '#333333',
           text: text || 'Empty Text',
-          ...(textAlign && { textAlign }),
+          ...(textAlign && { textAlign: textAlign as any }),
           ...(fontFamily && { fontFamily }),
           ...(fontSize && { fontSize }),
+          ...(fontWeight && { fontWeight }),
+          ...(fontStyle && { fontStyle: fontStyle as any }),
           ...(charSpacing && { charSpacing }),
           ...(lineHeight && { lineHeight }),
           metadata,
           fontURL,
         };
-        // @ts-ignore
         const element = new StaticText(textOptions);
         updateObjectBounds(element, options);
         updateObjectShadow(element, item.shadow);
@@ -131,33 +169,28 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticImage> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { src, cropX, cropY } = item as IStaticImage;
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, cropX, cropY, cornerRadius } = item as IStaticImage;
 
-        const image: any = await loadImageFromURL(src);
+    const image: any = await loadImageFromURL(src);
 
-        const { width, height } = baseOptions;
-        if (!width || !height) {
-          baseOptions.width = image.width;
-          baseOptions.height = image.height;
-        }
+    const { width, height } = baseOptions;
+    if (!width || !height) {
+      baseOptions.width = image.width;
+      baseOptions.height = image.height;
+    }
 
-        const element = new StaticImage(image, {
-          ...baseOptions,
-          cropX: cropX || 0,
-          cropY: cropY || 0,
-        });
-
-        updateObjectBounds(element, options);
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const element = new StaticImage(image, {
+      ...baseOptions,
+      cropX: cropX || 0,
+      cropY: cropY || 0,
+      cornerRadius: cornerRadius ?? 0,
     });
+
+    updateObjectBounds(element, options);
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async backgroundImage(
@@ -165,33 +198,27 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<BackgroundImage> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { src, cropX, cropY } = item as IBackgroundImage;
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, cropX, cropY } = item as IBackgroundImage;
 
-        const image: any = await loadImageFromURL(src);
+    const image: any = await loadImageFromURL(src);
 
-        const { width, height } = baseOptions;
-        if (!width || !height) {
-          baseOptions.width = image.width;
-          baseOptions.height = image.height;
-        }
+    const { width, height } = baseOptions;
+    if (!width || !height) {
+      baseOptions.width = image.width;
+      baseOptions.height = image.height;
+    }
 
-        const element = new BackgroundImage(image, {
-          ...baseOptions,
-          cropX: cropX || 0,
-          cropY: cropY || 0,
-        });
-
-        updateObjectBounds(element, options);
-        // updateObjectShadow(element, item.shadow)
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const element = new BackgroundImage(image, {
+      ...baseOptions,
+      cropX: cropX || 0,
+      cropY: cropY || 0,
     });
+
+    updateObjectBounds(element, options);
+    // updateObjectShadow(element, item.shadow)
+
+    return element;
   }
 
   public async staticVideo(
@@ -199,33 +226,27 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<FabricObject> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { src } = item as IStaticVideo;
-        const { id } = item;
-        const videoElement = await createVideoElement(id, src);
-        const { width, height } = baseOptions;
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src } = item as IStaticVideo;
+    const { id } = item;
+    const videoElement = await createVideoElement(id, src);
+    const { width, height } = baseOptions;
 
-        if (!width || !height) {
-          baseOptions.width = videoElement.videoWidth;
-          baseOptions.height = videoElement.videoHeight;
-        }
+    if (!width || !height) {
+      baseOptions.width = videoElement.videoWidth;
+      baseOptions.height = videoElement.videoHeight;
+    }
 
-        const element = new StaticVideo(videoElement, {
-          ...baseOptions,
-          src,
-          duration: videoElement.duration,
-          totalDuration: videoElement.duration,
-        }) as unknown as any;
+    const element = new StaticVideo(videoElement, {
+      ...baseOptions,
+      src,
+      duration: videoElement.duration,
+      totalDuration: videoElement.duration,
+    }) as unknown as any;
 
-        element.set('time', 10);
-        videoElement.currentTime = 10;
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    element.set('time', 10);
+    videoElement.currentTime = 10;
+    return element as FabricObject;
   }
 
   public async staticAudio(
@@ -233,19 +254,11 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticAudio> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { src } = item as IStaticAudio;
-        // @ts-ignore
-        const element = new StaticAudio({
-          ...baseOptions,
-          src,
-        });
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src } = item as IStaticAudio;
+    return new StaticAudio({
+      ...baseOptions,
+      src,
     });
   }
 
@@ -254,26 +267,19 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticPath> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { path, fill } = item as IStaticPath;
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { path, fill } = item as IStaticPath;
 
-        const element = new StaticPath({
-          ...baseOptions,
-          // @ts-ignore
-          path,
-          fill,
-        });
-
-        updateObjectBounds(element, options);
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const element = new StaticPath({
+      ...baseOptions,
+      path: path as unknown as TComplexPathData,
+      fill,
     });
+
+    updateObjectBounds(element, options);
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async group(
@@ -281,29 +287,22 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<Group> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        let objects: FabricObject[] = [];
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const objects = await Promise.all(
+      (item as IGroup).objects.map(async (object) =>
+        this.import(object, options, true)
+      )
+    );
 
-        for (const object of (item as IGroup).objects) {
-          // @ts-ignore
-          objects = objects.concat(await this.import(object, options, true));
-        }
-        // @ts-ignore
-        const element = new Group(objects, {
-          ...baseOptions,
-          subTargetCheck: true,
-        });
-
-        updateObjectBounds(element, options);
-        updateObjectShadow(element, item.shadow);
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const element = new Group(objects, {
+      ...baseOptions,
+      subTargetCheck: true,
     });
+
+    updateObjectBounds(element, options);
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public async background(
@@ -311,22 +310,12 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<Background> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { fill } = item as IBackground;
-        // @ts-ignore
-        const element = new Background({
-          ...baseOptions,
-          fill,
-          // @ts-ignore
-          shadow: item.shadow,
-        });
-
-        resolve(element);
-      } catch (err) {
-        reject(err);
-      }
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const fill = reviveFill((item as IBackground).fill);
+    return new Background({
+      ...baseOptions,
+      fill,
+      shadow: item.shadow as any,
     });
   }
 
@@ -335,38 +324,28 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticVector> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const baseOptions = this.getBaseOptions(item, options, inGroup);
-        const { src, colorMap = {} } = item as IStaticVector;
+    const baseOptions = this.getBaseOptions(item, options, inGroup);
+    const { src, colorMap = {} } = item as IStaticVector;
 
-        loadSVGFromURL(src)
-          .then(({ objects, options: opts }) => {
-            const { width, height } = baseOptions;
-            if (!width || !height) {
-              baseOptions.width = opts.width;
-              baseOptions.height = opts.height;
-              baseOptions.top = options.top;
-              baseOptions.left = options.left;
-            }
+    const { objects, options: opts } = await loadSVGFromURL(src);
+    const { width, height } = baseOptions;
+    if (!width || !height) {
+      baseOptions.width = opts.width;
+      baseOptions.height = opts.height;
+      baseOptions.top = options.top;
+      baseOptions.left = options.left;
+    }
 
-            // @ts-ignore
-            const element = new StaticVector(objects, opts, {
-              ...baseOptions,
-              src,
-              colorMap,
-            });
-
-            updateObjectBounds(element, options);
-            updateObjectShadow(element, item.shadow);
-
-            resolve(element);
-          })
-          .catch(reject);
-      } catch (err) {
-        reject(err);
-      }
+    const element = new StaticVector(objects, opts, {
+      ...baseOptions,
+      src,
+      colorMap,
     });
+
+    updateObjectBounds(element, options);
+    updateObjectShadow(element, item.shadow);
+
+    return element;
   }
 
   public getBaseOptions(
@@ -394,7 +373,6 @@ class ObjectImporter {
       originX,
       originY,
       type,
-      shadow,
       preview,
     } = item as Required<ILayer>;
 
@@ -408,26 +386,26 @@ class ObjectImporter {
 
       if (options.originY === 'center')
         frameTop -= (options.height * (options.scaleY || 1)) / 2;
-      else if (options.originY === 'right')
+      else if (options.originY === 'bottom')
         frameTop -= options.height * (options.scaleY || 1);
     }
 
     const metadata = item.metadata ? item.metadata : {};
-    const { fill } = metadata;
-    const baseOptions = {
+    const { fill } = metadata as { fill?: string };
+    return {
       id: id || generateId(),
-      name: name || type,
+      name: this.uniqueName(type, name),
       angle: angle || 0,
       top: inGroup ? top : frameTop + top,
       left: inGroup ? left : frameLeft + left,
       width,
       height,
-      originX: originX || 'left',
-      originY: originY || 'top',
+      originX: (originX || 'left') as TOriginX,
+      originY: (originY || 'top') as TOriginY,
       scaleX: scaleX || 1,
       scaleY: scaleY || 1,
       fill: fill || '#000000',
-      opacity: opacity || 1,
+      opacity: opacity ?? 1,
       flipX: flipX || false,
       flipY: flipY || false,
       skewX: skewX || 0,
@@ -435,15 +413,18 @@ class ObjectImporter {
       ...(stroke && { stroke }),
       strokeWidth: strokeWidth || 0,
       strokeDashArray: item.strokeDashArray ? item.strokeDashArray : null,
-      strokeLineCap: item.strokeLineCap ? item.strokeLineCap : 'butt',
-      strokeLineJoin: item.strokeLineJoin ? item.strokeLineJoin : 'miter',
+      strokeLineCap: (item.strokeLineCap
+        ? item.strokeLineCap
+        : 'butt') as CanvasLineCap,
+      strokeLineJoin: (item.strokeLineJoin
+        ? item.strokeLineJoin
+        : 'miter') as CanvasLineJoin,
       strokeUniform: item.strokeUniform || false,
       strokeMiterLimit: item.strokeMiterLimit ? item.strokeMiterLimit : 4,
       strokeDashOffset: item.strokeDashOffset ? item.strokeMiterLimit : 0,
       metadata,
       preview,
     };
-    return baseOptions;
   }
 }
 

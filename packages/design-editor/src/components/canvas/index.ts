@@ -1,1 +1,1 @@
-export { CanvasArea } from './ui';
+export { CanvasArea, Rulers } from './ui';

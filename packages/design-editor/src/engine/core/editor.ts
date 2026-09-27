@@ -3,6 +3,7 @@ import { defaultEditorConfig } from './common/constants';
 import Events from './controllers/Events';
 import Frame from './controllers/Frame';
 import Guidelines from './controllers/Guidelines';
+import Guides from './controllers/Guides';
 import History from './controllers/History';
 import { Objects } from './controllers/objects';
 import Personalization from './controllers/Personalization';
@@ -11,9 +12,13 @@ import Scene from './controllers/Scene';
 import Zoom from './controllers/Zoom';
 import EventManager from './event-manager';
 import State from './state';
+import { FontLoader } from './utils/font-loader';
+import { DEFAULT_LAYER_LABELS, resolveLayerLabels } from './utils/layer-name';
 
 import type { EditorConfig } from '../types';
 import type { EditorState } from './common/interfaces';
+import type { FontResolver } from './utils/font-loader';
+import type { LayerLabels } from './utils/layer-name';
 
 export class Editor extends EventManager {
   public canvas: Canvas;
@@ -21,6 +26,8 @@ export class Editor extends EventManager {
   public frame: Frame;
 
   public zoom: Zoom;
+
+  public guides: Guides;
 
   public history: History;
 
@@ -36,6 +43,12 @@ export class Editor extends EventManager {
 
   public canvasId: string;
 
+  /** Fonts this editor has made ready; resolved through its own provider */
+  public readonly fonts = new FontLoader();
+
+  /** Names given to new layers ("Text 1") */
+  public layerLabels: LayerLabels = DEFAULT_LAYER_LABELS;
+
   protected events: Events;
 
   protected personalization: Personalization;
@@ -46,12 +59,19 @@ export class Editor extends EventManager {
     id,
     state,
     config,
+    fontResolver,
+    layerLabels,
   }: {
     id: string;
     state?: EditorState;
     config: Partial<EditorConfig>;
+    /** Loads a family that has no `fontURL`, e.g. via the host's font provider */
+    fontResolver?: FontResolver;
+    layerLabels?: Partial<LayerLabels>;
   }) {
     super();
+    this.fonts.setResolver(fontResolver ?? null);
+    this.setLayerLabels(layerLabels);
     this.state = state || new State();
     this.config = {
       ...defaultEditorConfig,
@@ -81,14 +101,19 @@ export class Editor extends EventManager {
     };
     this.frame = new Frame(options);
     this.zoom = new Zoom(options);
+    this.guides = new Guides(options);
     this.history = new History(options);
     this.objects = new Objects(options);
     this.events = new Events(options);
     this.personalization = new Personalization(options);
     this.scene = new Scene(options);
     this.guidelines = new Guidelines(options);
-    this.renderer = new Renderer();
+    this.renderer = new Renderer(this.fonts);
   };
+
+  public setLayerLabels(labels: Partial<LayerLabels> | null | undefined) {
+    this.layerLabels = resolveLayerLabels(labels);
+  }
 
   public destroy() {
     this.canvas.destroy();

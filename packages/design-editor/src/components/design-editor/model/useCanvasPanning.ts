@@ -4,7 +4,7 @@ import { Point } from 'fabric';
 
 import { DEFAULT_VPT } from './constants';
 
-import type { FabricObject, TMat2D } from 'fabric';
+import type { FabricObject, TMat2D, TPointerEventInfo } from 'fabric';
 import type React from 'react';
 
 import type { Editor } from '../../../engine';
@@ -70,11 +70,11 @@ export function useCanvasPanning(editor: Editor | null) {
   useEffect(() => {
     if (!canvasInstance) return;
 
-    const handleCanvasWheel = (opt: any) => {
+    const handleCanvasWheel = (opt: TPointerEventInfo<WheelEvent>) => {
       const currentCanvas = editorRef.current?.canvas?.canvas;
       if (!currentCanvas) return;
 
-      const evt = opt.e as WheelEvent;
+      const evt = opt.e;
       evt.preventDefault();
       evt.stopPropagation();
 

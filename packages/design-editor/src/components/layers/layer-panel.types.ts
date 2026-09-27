@@ -21,19 +21,6 @@ export const TYPE_ICONS: Record<string, React.ReactNode> = {
   Group: React.createElement(Folder, { size: 14 }),
 };
 
-export const ICON_BTN: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  padding: 4,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'var(--de-color-text)',
-  borderRadius: 4,
-  transition: 'background 0.1s',
-};
-
 export interface LayerCallbacks {
   onSelect: (id: string, multi: boolean) => void;
   onVisibilityChange: (id: string, visible: boolean) => void;

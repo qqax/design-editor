@@ -2,44 +2,41 @@
 
 import * as React from 'react';
 
-export const PBtn = React.forwardRef<HTMLButtonElement, any>(
-  ({ active, danger, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        {...props}
-        style={{
-          width: 30,
-          height: 30,
-          padding: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: danger
-            ? 'rgba(239, 68, 68, 0.1)'
-            : active
-              ? 'rgba(37, 99, 235, 0.15)'
-              : 'transparent',
-          color: danger
-            ? '#ef4444'
-            : active
-              ? 'var(--de-color-primary, #2563eb)'
-              : 'inherit',
-          border: 'none',
-          borderRadius: 6,
-          cursor: 'pointer',
-          transition: 'all 0.15s ease',
-          ...props.style,
-        }}
-      />
-    );
-  }
+import { clsx } from 'clsx';
+
+export interface PBtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  active?: boolean;
+  danger?: boolean;
+}
+
+/** Square icon button used in toolbars and the properties bar. */
+export const PBtn = React.forwardRef<HTMLButtonElement, PBtnProps>(
+  (
+    { active = false, danger = false, className, type = 'button', ...props },
+    ref
+  ) => (
+    <button
+      ref={ref}
+      className={clsx('de-icon-btn', className)}
+      data-active={active}
+      data-danger={danger}
+      // eslint-disable-next-line react/button-has-type -- forwarded from props, defaults to "button"
+      type={type}
+      {...props}
+    />
+  )
 );
 PBtn.displayName = 'PBtn';
 
-export function PDivider(props: any) {
-  return <hr {...props} />;
+/** Vertical separator between groups of controls. */
+export function PDivider({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={clsx('de-divider-v', className)}
+      role="presentation"
+    />
+  );
 }
-export function HDivider(props: any) {
-  return <hr {...props} />;
-}
+
+export const HDivider = PDivider;

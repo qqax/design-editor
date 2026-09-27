@@ -3,7 +3,7 @@ import {
   Group,
 } from 'fabric';
 
-import type { Object as FabricObject } from 'fabric';
+import type { FabricObject } from 'fabric';
 
 import { LayerType } from '../../../types';
 import { generateId } from '../../utils/id';

@@ -7,14 +7,14 @@ import { LayerRow } from './LayerRow';
 import type { LayerCallbacks, LayerItem } from './layer-panel.types';
 
 interface LayerChildrenProps extends LayerCallbacks {
-  children: LayerItem[];
+  items: LayerItem[];
   depth: number;
   selectedIds: Set<string>;
   activeId: string | null;
 }
 
 export function LayerChildren({
-  children,
+  items,
   depth,
   selectedIds,
   activeId,
@@ -22,7 +22,7 @@ export function LayerChildren({
 }: LayerChildrenProps) {
   return (
     <React.Fragment>
-      {children.map((child) => (
+      {items.map((child) => (
         <LayerRow
           key={child.id}
           activeId={activeId}

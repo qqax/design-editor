@@ -2,119 +2,136 @@ import React from 'react';
 
 import { Settings } from 'lucide-react';
 
-import { TOOL_BTN } from '../../panels/color-picker';
-import { Popover, Switch } from '../../primitives';
+import { useMessages } from '../../../messages';
+import { Popover, Segmented, Switch } from '../../primitives';
 
-import type { SettingsType } from '../../../engine';
+import type { PageOffsets, SettingsType } from '../../../engine';
 
 interface SettingsProps {
   settings: SettingsType;
   onSettings: (s: Partial<SettingsType>) => void;
+  offsets: PageOffsets;
+  onOffsetsChange: (offsets: PageOffsets) => void;
+  theme?: 'dark' | 'light';
+  onThemeChange?: (theme: 'dark' | 'light') => void;
 }
 
-const SettingsContent = ({ settings, onSettings }: SettingsProps) => (
-  <div
-    style={{
-      width: 230,
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 14,
-      boxShadow: '0 10px 30px var(--shadow-color)',
-    }}
-  >
-    <div
-      style={{
-        fontWeight: 700,
-        fontSize: 12,
-        color: 'var(--de-color-primary)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.08em',
-      }}
-    >
-      Editor Settings
-    </div>
-    {[
-      { label: 'Grid overlay', key: 'showGrid' as const },
-      // { label: 'Snap to grid', key: 'snapGrid' as const },
-    ].map(({ label, key }) => (
-      <div
-        key={key}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span style={{ fontSize: 13, color: 'var(--de-color-text)' }}>
-          {label}
-        </span>
-        <Switch
-          checked={settings[key]}
-          onCheckedChange={(v) => onSettings({ [key]: v })}
+const EDGES = ['top', 'right', 'bottom', 'left'] as const;
+
+const TOGGLES = [
+  { message: 'grid', key: 'showGrid' },
+  { message: 'rulers', key: 'showRulers' },
+  { message: 'snapToGuides', key: 'snapToGuides' },
+] as const;
+
+const SettingsContent = ({
+  settings,
+  onSettings,
+  offsets,
+  onOffsetsChange,
+  theme,
+  onThemeChange,
+}: SettingsProps) => {
+  const m = useMessages().settings;
+  return (
+    <div className="de-form" style={{ width: 232 }}>
+      <div className="de-popover-title">{m.title}</div>
+      {theme && onThemeChange ? (
+        <Segmented
+          label={m.theme}
+          onChange={onThemeChange}
+          value={theme}
+          options={[
+            ['dark', m.dark],
+            ['light', m.light],
+          ]}
+        />
+      ) : null}
+      {TOGGLES.map(({ message, key }) => (
+        <div key={key} className="de-form-row">
+          <span className="de-form-label">{m[message]}</span>
+          <Switch
+            aria-label={m[message]}
+            checked={settings[key]}
+            onCheckedChange={(v) => onSettings({ [key]: v })}
+          />
+        </div>
+      ))}
+      <div className="de-form-section">
+        <div className="de-form-section-title">{m.rulersFrom}</div>
+        <Segmented
+          label={m.horizontalOrigin}
+          value={settings.rulerOrigin.x}
+          onChange={(x) =>
+            onSettings({ rulerOrigin: { ...settings.rulerOrigin, x } })
+          }
+          options={[
+            ['left', m.edges.left],
+            ['right', m.edges.right],
+          ]}
+        />
+        <Segmented
+          label={m.verticalOrigin}
+          value={settings.rulerOrigin.y}
+          onChange={(y) =>
+            onSettings({ rulerOrigin: { ...settings.rulerOrigin, y } })
+          }
+          options={[
+            ['top', m.edges.top],
+            ['bottom', m.edges.bottom],
+          ]}
         />
       </div>
-    ))}
-    {/* <div */}
-    {/*  style={{ */}
-    {/*    borderTop: '1px solid var(--de-color-border)', */}
-    {/*    paddingTop: 12, */}
-    {/*  }} */}
-    {/* > */}
-    {/*  <div */}
-    {/*    style={{ */}
-    {/*      fontSize: 11, */}
-    {/*      color: 'var(--de-color-text-muted)', */}
-    {/*      marginBottom: 8, */}
-    {/*      textTransform: 'uppercase', */}
-    {/*      letterSpacing: '0.06em', */}
-    {/*    }} */}
-    {/*  > */}
-    {/*    Panel Rail */}
-    {/*  </div> */}
-    {/*  <div style={{ display: 'flex', gap: 6 }}> */}
-    {/*    {(['left', 'right'] as const).map((side) => ( */}
-    {/*      <button */}
-    {/*        key={side} */}
-    {/*        onClick={() => onSettings({ railSide: side })} */}
-    {/*        type="button" */}
-    {/*        style={{ */}
-    {/*          flex: 1, */}
-    {/*          padding: '7px 0', */}
-    {/*          borderRadius: 8, */}
-    {/*          cursor: 'pointer', */}
-    {/*          border: */}
-    {/*            settings.railSide === side */}
-    {/*              ? '1.5px solid var(--de-color-primary)' */}
-    {/*              : '1px solid var(--de-color-border)', */}
-    {/*          background: */}
-    {/*            settings.railSide === side */}
-    {/*              ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)' */}
-    {/*              : 'color-mix(in srgb, var(--de-color-text) 3%, transparent)', */}
-    {/*          color: */}
-    {/*            settings.railSide === side */}
-    {/*              ? 'var(--de-color-primary)' */}
-    {/*              : 'var(--de-color-text-muted)', */}
-    {/*          fontSize: 12, */}
-    {/*          fontWeight: 700, */}
-    {/*          textTransform: 'capitalize', */}
-    {/*          outline: 'none', */}
-    {/*        }} */}
-    {/*      > */}
-    {/*        {side} */}
-    {/*      </button> */}
-    {/*    ))} */}
-    {/*  </div> */}
-    {/* </div> */}
-  </div>
-);
+      <div className="de-form-section">
+        <div className="de-form-section-title">{m.pageOffsets}</div>
+        <div className="de-form-grid">
+          {EDGES.map((edge) => (
+            <div key={edge} className="de-form-row">
+              <span className="de-form-label">{m.edges[edge]}</span>
+              <input
+                aria-label={m.offset(m.edges[edge])}
+                className="de-num-input"
+                min={0}
+                type="number"
+                value={offsets[edge]}
+                onChange={(e) =>
+                  onOffsetsChange({
+                    ...offsets,
+                    [edge]: Math.max(
+                      0,
+                      Math.round(Number(e.target.value) || 0)
+                    ),
+                  })
+                }
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Panel rail side, disabled for now:
+    <div className="de-form-section">
+      <div className="de-form-section-title">Panel Rail</div>
+      <Segmented
+        label="Panel rail side"
+        value={settings.railSide}
+        onChange={(railSide) => onSettings({ railSide })}
+        options={[
+          ['left', 'Left'],
+          ['right', 'Right'],
+        ]}
+      />
+    </div> */}
+    </div>
+  );
+};
 
-export const CanvasSettings = ({ settings, onSettings }: SettingsProps) => (
-  <Popover
-    content={<SettingsContent onSettings={onSettings} settings={settings} />}
-    placement="bottom"
-  >
-    <button style={TOOL_BTN} type="button">
-      <Settings size={18} />
-    </button>
-  </Popover>
-);
+export const CanvasSettings = (props: SettingsProps) => {
+  const m = useMessages().toolbar;
+  return (
+    <Popover content={<SettingsContent {...props} />} placement="bottom">
+      <button aria-label={m.settings} className="de-tool-btn" type="button">
+        <Settings size={18} />
+      </button>
+    </Popover>
+  );
+};
