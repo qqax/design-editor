@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { config, StaticCanvas } from 'fabric';
 
-import { fontLoader } from '../utils/font-loader';
+import { FontLoader } from '../utils/font-loader';
 import ObjectImporter from '../utils/object-importer-render';
 
 import type { ILayer, IScene } from '../../types';
@@ -26,6 +26,9 @@ function collectFontPaths(
 }
 
 class Renderer {
+  /** A standalone renderer gets its own loader (without a font provider) */
+  constructor(private readonly fonts: FontLoader = new FontLoader()) {}
+
   public async render(template: IScene) {
     return this.toDataURL(template, {});
   }
@@ -130,9 +133,9 @@ class Renderer {
     this.setDimensions(staticCanvas, frame);
 
     // Text is measured as it is built, so every face must be ready up front.
-    await fontLoader.ensure(template);
+    await this.fonts.ensure(template);
 
-    const objectImporter = new ObjectImporter();
+    const objectImporter = new ObjectImporter(this.fonts);
 
     // Imports finish in any order; adding them afterwards keeps the z-order.
     const elements = await Promise.all(

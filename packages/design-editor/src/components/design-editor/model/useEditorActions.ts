@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { exportScene, fontLoader, StaticImage } from '../../../engine';
+import { collectFonts, exportScene, StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
 import { useMessages } from '../../../messages';
@@ -255,7 +255,7 @@ export function useEditorActions(
         const svgCss =
           options.format === 'svg'
             ? svgFontCss(
-                fontLoader.collect(scene).map((ref) => ref.family),
+                collectFonts(scene).map((ref) => ref.family),
                 await fontProvider.list().catch(() => [])
               )
             : undefined;

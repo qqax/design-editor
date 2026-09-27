@@ -1,6 +1,7 @@
+// Checked and updated by Claude (Claude Code).
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { fontLoader } from '../core/utils/font-loader';
+import { collectFonts, FontLoader } from '../core/utils/font-loader';
 import { LayerType } from '../types';
 
 import type { IScene } from '../types';
@@ -24,24 +25,33 @@ function scene(layers: any[]): IScene {
 }
 
 function text(fontFamily: string, extra: Record<string, unknown> = {}) {
-  return { id: 't', type: LayerType.STATIC_TEXT, text: 'hi', fontFamily, ...extra };
+  return {
+    id: 't',
+    type: LayerType.STATIC_TEXT,
+    text: 'hi',
+    fontFamily,
+    ...extra,
+  };
 }
 
-describe('fontLoader.collect', () => {
+describe('collectFonts', () => {
   it('finds each distinct family a scene references', () => {
-    const refs = fontLoader.collect(
+    const refs = collectFonts(
       scene([text('Lato'), text('Anton'), text('Lato')])
     );
     expect(refs.map((r) => r.family).sort()).toEqual(['Anton', 'Lato']);
   });
 
   it('recurses into groups', () => {
-    const refs = fontLoader.collect(
+    const refs = collectFonts(
       scene([
         {
           id: 'g',
           type: LayerType.GROUP,
-          objects: [text('Oswald'), { id: 'g2', type: LayerType.GROUP, objects: [text('Pacifico')] }],
+          objects: [
+            text('Oswald'),
+            { id: 'g2', type: LayerType.GROUP, objects: [text('Pacifico')] },
+          ],
         },
       ])
     );
@@ -49,33 +59,34 @@ describe('fontLoader.collect', () => {
   });
 
   it('ignores layers that carry no text', () => {
-    const refs = fontLoader.collect(
+    const refs = collectFonts(
       scene([{ id: 'i', type: LayerType.STATIC_IMAGE, src: 'a.png' }])
     );
     expect(refs).toEqual([]);
   });
 
   it('reduces a font stack to the first family', () => {
-    const refs = fontLoader.collect(scene([text("'Open Sans', sans-serif")]));
+    const refs = collectFonts(scene([text("'Open Sans', sans-serif")]));
     expect(refs).toEqual([{ family: 'Open Sans' }]);
   });
 
   it('keeps an embedded fontURL over a bare name for the same family', () => {
-    const refs = fontLoader.collect(
+    const refs = collectFonts(
       scene([text('Custom'), text('Custom', { fontURL: 'https://x/f.woff2' })])
     );
     expect(refs).toEqual([{ family: 'Custom', url: 'https://x/f.woff2' }]);
   });
 
   it('accepts a single layer as well as a scene', () => {
-    expect(fontLoader.collect(text('Roboto'))).toEqual([{ family: 'Roboto' }]);
+    expect(collectFonts(text('Roboto'))).toEqual([{ family: 'Roboto' }]);
   });
 });
 
-describe('fontLoader.ensure', () => {
+describe('FontLoader.ensure', () => {
+  let fontLoader: FontLoader;
+
   beforeEach(() => {
-    fontLoader.invalidate();
-    fontLoader.setResolver(null);
+    fontLoader = new FontLoader();
   });
 
   it('resolves every family through the registered resolver', async () => {
@@ -85,7 +96,8 @@ describe('fontLoader.ensure', () => {
 
     await fontLoader.ensure(scene([text('Lato'), text('Anton')]));
 
-    expect(resolver.mock.calls.map(([f]) => f).sort()).toEqual([
+    const families = resolver.mock.calls.map(([family]) => String(family));
+    expect(families.sort((a, b) => a.localeCompare(b))).toEqual([
       'Anton',
       'Lato',
     ]);
@@ -141,5 +153,23 @@ describe('fontLoader.ensure', () => {
     const fontsLoad = stubFontsApi();
     await fontLoader.ensure(scene([]));
     expect(fontsLoad).not.toHaveBeenCalled();
+  });
+});
+
+describe('FontLoader instances', () => {
+  it('keep their own resolver and cache', async () => {
+    stubFontsApi();
+    const first = vi.fn().mockResolvedValue(undefined);
+    const second = vi.fn().mockResolvedValue(undefined);
+    const a = new FontLoader();
+    const b = new FontLoader();
+    a.setResolver(first);
+    b.setResolver(second);
+
+    await a.ensureFamily('Lato');
+    await b.ensureFamily('Lato');
+
+    expect(first).toHaveBeenCalledWith('Lato');
+    expect(second).toHaveBeenCalledWith('Lato');
   });
 });

@@ -56,15 +56,25 @@ function collectInto(layers: LayerLike[], refs: Map<string, FontRef>): void {
   });
 }
 
+/** Walks layers (groups included) and returns each distinct font they need. */
+export function collectFonts(
+  source: IScene | LayerLike[] | LayerLike
+): FontRef[] {
+  const refs = new Map<string, FontRef>();
+  collectInto(toLayers(source), refs);
+  return [...refs.values()];
+}
+
 /**
  * Detects the fonts a scene, layer or thumbnail needs and guarantees they are
- * usable before anything is measured or drawn.
+ * usable before anything is measured or drawn. Each editor owns one, so its
+ * resolver (the host's font provider) never leaks into another editor.
  *
  * Fabric measures glyphs as a text object is constructed, so a face that
  * arrives afterwards yields both the wrong typeface and the wrong layout.
  * Every import path funnels through here first.
  */
-class FontLoader {
+export class FontLoader {
   private resolver: FontResolver | null = null;
 
   private readonly settled = new Set<string>();
@@ -75,12 +85,9 @@ class FontLoader {
     this.resolver = resolver;
   }
 
-  /** Walks layers (groups included) and returns each distinct font they need. */
-  // eslint-disable-next-line class-methods-use-this
+  // eslint-disable-next-line class-methods-use-this -- kept on the instance for callers holding a loader
   public collect(source: IScene | LayerLike[] | LayerLike): FontRef[] {
-    const refs = new Map<string, FontRef>();
-    collectInto(toLayers(source), refs);
-    return [...refs.values()];
+    return collectFonts(source);
   }
 
   /** Resolves once every font the scene references is ready to render. */
@@ -145,5 +152,3 @@ class FontLoader {
     await document.fonts.load(`1em "${family}"`);
   }
 }
-
-export const fontLoader = new FontLoader();

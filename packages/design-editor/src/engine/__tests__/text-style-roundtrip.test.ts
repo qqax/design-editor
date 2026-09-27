@@ -1,10 +1,12 @@
 // Created by Claude (Claude Code).
 import { describe, expect, it } from 'vitest';
 
-import { StaticText } from '../objects';
+import { FontLoader } from '../core/utils/font-loader';
+import { DEFAULT_LAYER_LABELS } from '../core/utils/layer-name';
 import ObjectExporter from '../core/utils/object-exporter';
 import ObjectImporter from '../core/utils/object-importer';
 import RenderObjectImporter from '../core/utils/object-importer-render';
+import { StaticText } from '../objects';
 
 import type { Editor } from '../core/editor';
 import type { ILayer, IStaticText } from '../types';
@@ -20,6 +22,8 @@ const frame = {
 
 const editor = {
   canvas: { canvas: { getObjects: () => [] } },
+  fonts: new FontLoader(),
+  layerLabels: DEFAULT_LAYER_LABELS,
 } as unknown as Editor;
 
 const layer = (overrides: Partial<IStaticText> = {}) =>
@@ -45,7 +49,7 @@ describe('text style round trip', () => {
       fontStyle: 'italic',
     });
     const exported = new ObjectExporter().export(
-      text.toObject() as unknown as ILayer,
+      text.toObject(),
       frame
     ) as IStaticText;
 
@@ -65,7 +69,9 @@ describe('text style round trip', () => {
   });
 
   it('imports fontWeight and fontStyle for thumbnails', async () => {
-    const text = await new RenderObjectImporter().staticText(layer());
+    const text = await new RenderObjectImporter(new FontLoader()).staticText(
+      layer()
+    );
 
     expect(text.fontWeight).toBe('bold');
     expect(text.fontStyle).toBe('italic');

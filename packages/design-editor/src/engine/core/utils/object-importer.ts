@@ -1,7 +1,6 @@
 import { Group, loadSVGFromURL } from 'fabric';
 
 import { updateObjectBounds, updateObjectShadow } from './fabric';
-import { fontLoader } from './font-loader';
 import { reviveFill } from './gradient';
 import { generateId } from './id';
 import { loadImageFromURL } from './image-loader';
@@ -46,7 +45,8 @@ class ObjectImporter {
   private takenNames: Set<string> | null = null;
 
   private uniqueName(type: string, name: string | undefined): string {
-    if (type === LayerType.BACKGROUND) return 'Background';
+    const labels = this.editor.layerLabels;
+    if (type === LayerType.BACKGROUND) return labels.background;
     if (!this.takenNames) {
       const collect = (objects: FabricObject[]): string[] =>
         objects.flatMap((object) => [
@@ -57,7 +57,7 @@ class ObjectImporter {
         collect(this.editor.canvas.canvas.getObjects())
       );
     }
-    const unique = createLayerName(type, name, this.takenNames);
+    const unique = createLayerName(type, name, this.takenNames, labels);
     this.takenNames.add(unique);
     return unique;
   }
@@ -115,7 +115,7 @@ class ObjectImporter {
     options: Required<ILayer>,
     inGroup: boolean
   ): Promise<StaticText> {
-    await fontLoader.ensure(item);
+    await this.editor.fonts.ensure(item);
 
     return new Promise((resolve, reject) => {
       try {

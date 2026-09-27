@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { DesignEditorInner } from './DesignEditorInner';
-import { EXPORT_FORMATS, fontLoader, setLayerLabels } from '../../../engine';
+import { EXPORT_FORMATS } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
 import { en, mergeMessages, MessagesProvider } from '../../../messages';
 import {
@@ -86,14 +86,6 @@ export function DesignEditor({
   const galleryProvider =
     innerConfig.upload.provider ?? DEFAULT_GALLERY_PROVIDER;
   const galleryWidget = innerConfig.upload.widget;
-
-  // Registered during render rather than in an effect: child effects (the
-  // initial scene import) run before parent effects and would beat it. There
-  // is deliberately no unmount teardown — StrictMode's simulated unmount would
-  // clear the resolver after this call and leave it null. A later editor
-  // overwrites it here instead.
-  fontLoader.setResolver(async (family) => fontProvider.load(family));
-  setLayerLabels(messages.layers.names);
 
   // Keyed by content: a new array with the same formats keeps the context.
   const formatsKey = exportFormats?.join(',') ?? '';

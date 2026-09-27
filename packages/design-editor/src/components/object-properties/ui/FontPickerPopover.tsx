@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronDown, Upload } from 'lucide-react';
 
-import { fontLoader } from '../../../engine';
+import { useEditor } from '../../../engine';
 import { useMessages } from '../../../messages';
 import { useEditorContext } from '../../EditorContext';
 import { Input, Popover } from '../../primitives';
@@ -27,6 +27,7 @@ export function FontPickerPopover({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { fontProvider } = useEditorContext();
+  const editorFonts = useEditor()?.fonts;
 
   // Subscribe to provider changes (e.g. upload)
   useEffect(() => {
@@ -45,14 +46,14 @@ export function FontPickerPopover({
           setFonts(list);
           // Fire-and-forget: load each font for preview rendering
           list.forEach((f) => {
-            void fontLoader.ensureFamily(f.family);
+            void editorFonts?.ensureFamily(f.family);
           });
         });
       } else {
         setSearch('');
       }
     },
-    [fontProvider]
+    [fontProvider, editorFonts]
   );
 
   const filtered = fonts.filter((f) =>
@@ -61,12 +62,12 @@ export function FontPickerPopover({
 
   const handleSelect = useCallback(
     async (family: string) => {
-      await fontLoader.ensureFamily(family);
+      await editorFonts?.ensureFamily(family);
       onChange(family);
       setOpen(false);
       setSearch('');
     },
-    [onChange]
+    [onChange, editorFonts]
   );
 
   const handleUpload = useCallback(
@@ -76,14 +77,14 @@ export function FontPickerPopover({
       try {
         const uploaded = await fontProvider.upload(file);
         // Drop any cached miss from before this face existed.
-        fontLoader.invalidate(uploaded.family);
+        editorFonts?.invalidate(uploaded.family);
         // onChange subscriber will refresh the list
       } catch {
         // Upload failed — silently ignore; list stays unchanged
       }
       e.target.value = '';
     },
-    [fontProvider]
+    [fontProvider, editorFonts]
   );
 
   const trigger = (

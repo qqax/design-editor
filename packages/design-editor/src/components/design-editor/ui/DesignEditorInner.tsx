@@ -19,6 +19,7 @@ import {
 } from '../../../hooks/useAutoSave';
 import { useStudioExport } from '../../../hooks/useStudioExport';
 import { useToast } from '../../../hooks/useToast';
+import { useMessages } from '../../../messages';
 import { CanvasArea, Rulers } from '../../canvas';
 import { useEditorContext } from '../../EditorContext';
 import { IconRail } from '../../icon-reail';
@@ -106,6 +107,17 @@ export function DesignEditorInner({
     sceneKey,
     onBack,
   } = useEditorContext();
+
+  const messages = useMessages();
+
+  // Before the scene import below: effects run in declaration order.
+  useEffect(() => {
+    editor?.fonts.setResolver(async (family) => fontProvider.load(family));
+  }, [editor, fontProvider]);
+
+  useEffect(() => {
+    editor?.setLayerLabels(messages.layers.names);
+  }, [editor, messages]);
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);

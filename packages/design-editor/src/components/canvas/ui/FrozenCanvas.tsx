@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useId, useRef } from 'react';
 
 import { Editor } from '../../../engine';
 import { applyEditorSettings } from '../lib';
@@ -16,6 +16,8 @@ export const FrozenCanvas = memo(
     contextRef: React.RefObject<any>;
     canvasBg: CanvasBackground;
   }) => {
+    // Fabric finds the element by id, so two editors on a page need two ids.
+    const canvasId = `${CANVAS_ID}_${useId().replace(/[^\w-]/g, '')}`;
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<InstanceType<typeof Editor> | null>(null);
 
@@ -33,7 +35,7 @@ export const FrozenCanvas = memo(
 
         try {
           editor = new Editor({
-            id: CANVAS_ID,
+            id: canvasId,
             config: {
               ...config,
               size: { width: w, height: h },
@@ -120,7 +122,7 @@ export const FrozenCanvas = memo(
           ref={containerRef}
           style={{ width: '100%', height: '100%', position: 'relative' }}
         >
-          <canvas id={CANVAS_ID} />
+          <canvas id={canvasId} />
         </div>
       </div>
     );

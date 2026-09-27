@@ -13,7 +13,7 @@ export interface LayerLabels {
   layer: string;
 }
 
-const DEFAULT_LABELS: LayerLabels = {
+export const DEFAULT_LAYER_LABELS: LayerLabels = {
   text: 'Text',
   image: 'Image',
   backgroundImage: 'Background image',
@@ -43,33 +43,36 @@ const LABEL_BY_TYPE: Record<string, keyof LayerLabels> = {
   [LayerType.BACKGROUND]: 'background',
 };
 
-let labels: LayerLabels = DEFAULT_LABELS;
-
-/** Localizes the names given to new layers ("Text 1" → "Текст 1") */
-export function setLayerLabels(next: Partial<LayerLabels> | null): void {
-  const known = Object.keys(DEFAULT_LABELS) as (keyof LayerLabels)[];
-  labels = Object.fromEntries(
-    known.map((key) => [key, next?.[key] || DEFAULT_LABELS[key]])
+/** Fills gaps with English and drops keys that are not layer labels */
+export function resolveLayerLabels(
+  partial: Partial<LayerLabels> | null | undefined
+): LayerLabels {
+  const known = Object.keys(DEFAULT_LAYER_LABELS) as (keyof LayerLabels)[];
+  return Object.fromEntries(
+    known.map((key) => [key, partial?.[key] || DEFAULT_LAYER_LABELS[key]])
   ) as unknown as LayerLabels;
 }
 
-/** Type names and labels in any language set so far are all "generic" */
-const genericNames = new Set(
+const TYPE_NAMES = new Set(
   [...Object.keys(LABEL_BY_TYPE), ...Object.values(LayerType)].map((name) =>
     name.toLowerCase()
   )
 );
 
-const isGenericName = (name: string) => {
+/** Type names and labels in English or the current language are "generic" */
+function isGenericName(name: string, labels: LayerLabels): boolean {
   const lower = name.toLowerCase();
+  const matches = (set: LayerLabels) =>
+    Object.values(set).some((label) => label.toLowerCase() === lower);
   return (
-    genericNames.has(lower) ||
-    Object.values(DEFAULT_LABELS).some((l) => l.toLowerCase() === lower) ||
-    Object.values(labels).some((l) => l.toLowerCase() === lower)
+    TYPE_NAMES.has(lower) || matches(DEFAULT_LAYER_LABELS) || matches(labels)
   );
-};
+}
 
-export function getLayerLabel(type: string | undefined): string {
+export function getLayerLabel(
+  type: string | undefined,
+  labels: LayerLabels = DEFAULT_LAYER_LABELS
+): string {
   const key = type ? LABEL_BY_TYPE[type] : undefined;
   return labels[key ?? 'layer'];
 }
@@ -82,16 +85,17 @@ export function getLayerLabel(type: string | undefined): string {
 export function createLayerName(
   type: string | undefined,
   name: string | undefined,
-  taken: ReadonlySet<string>
+  taken: ReadonlySet<string>,
+  labels: LayerLabels = DEFAULT_LAYER_LABELS
 ): string {
   const trimmed = name?.trim() ?? '';
-  const isGeneric = !trimmed || isGenericName(trimmed);
+  const isGeneric = !trimmed || isGenericName(trimmed, labels);
 
   if (!isGeneric && !taken.has(trimmed)) return trimmed;
 
   const base = isGeneric
-    ? getLayerLabel(type)
-    : trimmed.replace(/\s+\d+$/, '') || getLayerLabel(type);
+    ? getLayerLabel(type, labels)
+    : trimmed.replace(/\s+\d+$/, '') || getLayerLabel(type, labels);
 
   let ordinal = 1;
   while (taken.has(`${base} ${ordinal}`)) ordinal += 1;

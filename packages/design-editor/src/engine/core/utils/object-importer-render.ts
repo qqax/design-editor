@@ -1,7 +1,6 @@
 import { Group, loadSVGFromURL } from 'fabric';
 
 import { updateObjectShadow } from './fabric';
-import { fontLoader } from './font-loader';
 import { reviveFill } from './gradient';
 import { loadImageFromURL } from './image-loader';
 import {
@@ -21,6 +20,7 @@ import type {
   TOriginY,
 } from 'fabric';
 
+import type { FontLoader } from './font-loader';
 import type {
   IBackground,
   IBackgroundImage,
@@ -33,6 +33,8 @@ import type {
 } from '../../types';
 
 class ObjectImporter {
+  constructor(private readonly fonts: FontLoader) {}
+
   async import(item: any, params: any): Promise<FabricObject> {
     let object;
     switch (item.type) {
@@ -65,7 +67,7 @@ class ObjectImporter {
   }
 
   public async staticText(item: ILayer): Promise<StaticText> {
-    await fontLoader.ensure(item);
+    await this.fonts.ensure(item);
 
     return new Promise((resolve, reject) => {
       try {

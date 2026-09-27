@@ -3,7 +3,6 @@ import { Group as FabricGroup } from 'fabric';
 import Base from './Base';
 import { LayerType } from '../../types';
 import parseSVG from '../parser';
-import { fontLoader } from '../utils/font-loader';
 import { getSelectionType } from '../utils/get-selection-type';
 import { generateId } from '../utils/id';
 import ObjectExporter from '../utils/object-exporter';
@@ -217,7 +216,7 @@ class Scene extends Base {
 
     const frame = this.editor.frame.frame as any;
 
-    await fontLoader.ensure(template);
+    await this.editor.fonts.ensure(template);
     if (isStale()) return;
 
     const objectImporter = new ObjectImporter(this.editor);
