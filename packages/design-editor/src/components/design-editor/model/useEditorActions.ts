@@ -177,7 +177,7 @@ export function useEditorActions(
             }
           }
           if (template.workspaceBg) setWorkspaceBg(template.workspaceBg);
-          clearAutosave(sceneKey);
+          void clearAutosave(sceneKey);
           setHasUnsavedChanges(false);
           setTimeout(() => {
             editor.history.initialize();
@@ -242,7 +242,7 @@ export function useEditorActions(
       const blob = await (await fetch(dataUrl)).blob();
       if (await exportToLibrary(blob, `design-${Date.now()}.png`, scene)) {
         setHasUnsavedChanges(false);
-        clearAutosave(sceneKey);
+        void clearAutosave(sceneKey);
       }
     } catch {
       message.error('Failed to export');

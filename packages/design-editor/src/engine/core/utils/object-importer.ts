@@ -46,6 +46,7 @@ class ObjectImporter {
   private takenNames: Set<string> | null = null;
 
   private uniqueName(type: string, name: string | undefined): string {
+    if (type === LayerType.BACKGROUND) return 'Background';
     if (!this.takenNames) {
       const collect = (objects: FabricObject[]): string[] =>
         objects.flatMap((object) => [

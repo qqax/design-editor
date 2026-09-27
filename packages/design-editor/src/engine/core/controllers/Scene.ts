@@ -10,7 +10,33 @@ import ObjectExporter from '../utils/object-exporter';
 import ObjectImporter from '../utils/object-importer';
 import { base64ImageToFile } from '../utils/parser';
 
-import type { ILayer, IScene } from '../../types';
+import type { ILayer, IScene, IStaticVideo } from '../../types';
+
+export type ExportedComponent = Omit<ILayer, 'metadata'> & {
+  metadata: Record<string, unknown> & {
+    category: 'mixed' | 'single';
+    types: string[];
+  };
+};
+
+export interface ExportedLayerResource {
+  id?: string;
+  type: 'StaticVideo' | 'StaticImage';
+  url: string;
+  duration: number;
+  display: { from: number; to: number };
+  cut: { from: number; to: number };
+  position: {
+    x?: number;
+    y?: number;
+    zIndex: number;
+    width?: number;
+    height?: number;
+    scaleX?: number;
+    scaleY?: number;
+  };
+  objectId?: string;
+}
 
 class Scene extends Base {
   private id = '';
@@ -53,7 +79,9 @@ class Scene extends Base {
     return template;
   }
 
-  public exportAsComponent = async () => {
+  public exportAsComponent = async (): Promise<
+    ExportedComponent | undefined
+  > => {
     const activeObject = this.canvas.getActiveObject();
     const selectionType = getSelectionType(activeObject);
     const frame = this.editor.frame.options;
@@ -62,30 +90,31 @@ class Scene extends Base {
     if (activeObject && selectionType) {
       const isMixed = selectionType.length > 1;
 
-      const propertiesToInclude = this.editor.config.propertiesToInclude as any;
+      const propertiesToInclude = (this.editor.config.propertiesToInclude ??
+        []) as never[];
 
       if (
         activeObject.type === 'activeSelection' ||
         activeObject.type === 'group'
       ) {
         const objects =
-          (activeObject as any)._objects ||
-          (activeObject as any).getObjects?.() ||
-          [];
-        const clonedObjects: any[] = [];
-
-        for (const object of objects) {
-          const cloned = await object.clone();
-          cloned.clipPath = undefined;
-          clonedObjects.push(cloned);
-        }
+          activeObject instanceof FabricGroup ? activeObject.getObjects() : [];
+        const clonedObjects = await Promise.all(
+          objects.map(async (object) => {
+            const cloned = await object.clone();
+            cloned.clipPath = undefined;
+            return cloned;
+          })
+        );
 
         const group = new FabricGroup(clonedObjects);
 
-        const groupData = group.toObject(propertiesToInclude) as any;
+        const groupData = group.toObject(
+          propertiesToInclude
+        ) as unknown as ILayer;
 
-        const component = objectExporter.export(groupData, frame) as any;
-        const metadata = component.metadata ? component.metadata : {};
+        const component = objectExporter.export(groupData, frame);
+        const metadata = component.metadata ?? {};
 
         return {
           ...component,
@@ -99,10 +128,12 @@ class Scene extends Base {
         };
       }
 
-      const activeObjectData = activeObject.toObject(propertiesToInclude);
+      const activeObjectData = activeObject.toObject(
+        propertiesToInclude
+      ) as ILayer;
 
-      const component = objectExporter.export(activeObjectData, frame) as any;
-      const metadata = component.metadata ? component.metadata : {};
+      const component = objectExporter.export(activeObjectData, frame);
+      const metadata = component.metadata ?? {};
 
       return {
         ...component,
@@ -121,24 +152,27 @@ class Scene extends Base {
    * Export Canvas objects to be loaded as resources by PIXI loader
    * @returns
    */
-  public exportLayers = async (template: IScene) => {
-    let elements: any[] = [];
-    for (const [index, layer] of template.layers.entries()) {
-      if (layer.type === 'StaticVideo') {
-        elements = elements.concat({
+  public exportLayers = async (
+    template: IScene
+  ): Promise<ExportedLayerResource[]> =>
+    Promise.all(
+      template.layers.map(async (layer, index) => {
+        const isVideo = layer.type === LayerType.STATIC_VIDEO;
+        const url = isVideo
+          ? (layer as IStaticVideo).src
+          : base64ImageToFile(
+              await this.editor.renderer.renderLayer(
+                layer as Required<ILayer>,
+                {}
+              )
+            );
+        return {
           id: layer.id,
-          type: 'StaticVideo',
-          // @ts-ignore
-          url: layer.src,
+          type: isVideo ? 'StaticVideo' : 'StaticImage',
+          url,
           duration: 5000,
-          display: {
-            from: 0,
-            to: 5000,
-          },
-          cut: {
-            from: 0,
-            to: 0,
-          },
+          display: { from: 0, to: 5000 },
+          cut: { from: 0, to: 0 },
           position: {
             x: layer.left,
             y: layer.top,
@@ -149,39 +183,9 @@ class Scene extends Base {
             scaleY: layer.scaleY,
           },
           objectId: layer.id,
-        });
-      } else {
-        // @ts-ignore
-        const preview = await this.editor.renderer.renderLayer(layer, {});
-        const objectURL = base64ImageToFile(preview);
-        elements = elements.concat({
-          id: layer.id,
-          type: 'StaticImage',
-          url: objectURL,
-          duration: 5000,
-          display: {
-            from: 0,
-            to: 5000,
-          },
-          cut: {
-            from: 0,
-            to: 0,
-          },
-          position: {
-            x: layer.left,
-            y: layer.top,
-            zIndex: index,
-            width: layer.width,
-            height: layer.height,
-            scaleX: layer.scaleX,
-            scaleY: layer.scaleY,
-          },
-          objectId: layer.id,
-        });
-      }
-    }
-    return elements;
-  };
+        };
+      })
+    );
 
   /**
    * Monotonic token identifying the newest import. `importFromJSON` clears the
@@ -226,19 +230,26 @@ class Scene extends Base {
       }
       return layer;
     });
-    for (const layer of updatedTemplateLayers as Required<ILayer[]>) {
-      // eslint-disable-next-line no-await-in-loop -- layers must be added in order
-      const element = await objectImporter.import(layer, frame);
-      if (isStale()) return;
-      if (element) {
+    await (updatedTemplateLayers as Required<ILayer>[]).reduce(
+      async (previous, layer) => {
+        await previous;
+        if (isStale()) return;
+        const element = await objectImporter.import(layer, frame);
+        if (isStale() || !element) return;
         if (this.config.clipToFrame) {
           element.clipPath = frame;
         }
+        if (element.type === LayerType.BACKGROUND) {
+          this.canvas
+            .getObjects()
+            .filter((object) => object.type === LayerType.BACKGROUND)
+            .forEach((object) => this.canvas.remove(object));
+        }
         this.canvas.add(element);
-      } else {
-        console.log('UNABLE TO LOAD OBJECT: ', layer);
-      }
-    }
+      },
+      Promise.resolve()
+    );
+    if (isStale()) return;
     this.editor.zoom.zoomToFit();
     this.editor.objects.updateContextObjects();
     this.editor.history.save();
@@ -247,8 +258,7 @@ class Scene extends Base {
 
   public async importFromSVG(url: string) {
     const design = await parseSVG(url);
-    // @ts-ignore
-    this.importFromJSON(design);
+    await this.importFromJSON(design as IScene);
   }
 }
 export default Scene;

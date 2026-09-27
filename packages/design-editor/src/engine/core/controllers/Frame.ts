@@ -150,7 +150,7 @@ class Frame extends Base {
 
     if (!background) {
       background = new BackgroundObject({
-        name: 'Initial Frame',
+        name: 'Background',
         fill: color,
         id: 'background',
         selectable: false,
@@ -197,7 +197,7 @@ class Frame extends Base {
 
     if (!background) {
       background = new BackgroundObject({
-        name: 'Initial Frame',
+        name: 'Background',
         fill: '#ffffff',
         id: 'background',
         selectable: false,

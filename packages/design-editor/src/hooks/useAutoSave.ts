@@ -2,18 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { autosaveStore } from './autosaveStore';
+
+import type { AutosavePayload, AutosaveViewport } from './autosaveStore';
 import type { CanvasBackground, Editor } from '../engine';
+
+export type { AutosavePayload, AutosaveViewport } from './autosaveStore';
 
 export const AUTOSAVE_KEY_PREFIX = 'design_autosave';
 export const getAutosaveKey = (sceneKey?: string) =>
   sceneKey ? `${AUTOSAVE_KEY_PREFIX}_${sceneKey}` : AUTOSAVE_KEY_PREFIX;
-
-/** x, y: scene point at the canvas centre, relative to the frame centre */
-export interface AutosaveViewport {
-  zoom: number;
-  x: number;
-  y: number;
-}
 
 export function getViewport(editor: Editor): AutosaveViewport | undefined {
   try {
@@ -80,13 +78,14 @@ export function useAutoSave(
       timerRef.current = setTimeout(() => {
         if (!editor) return;
         try {
-          const payload = {
-            scene: editor.scene.exportToJSON(),
-            canvasBg,
-            workspaceBg,
-            viewport: getViewport(editor),
-          };
-          localStorage.setItem(key, JSON.stringify(payload));
+          void autosaveStore
+            .save(key, {
+              scene: editor.scene.exportToJSON(),
+              canvasBg,
+              workspaceBg,
+              viewport: getViewport(editor),
+            })
+            .catch(() => {});
         } catch {
           /* empty */
         }
@@ -131,15 +130,8 @@ export function useAutoSave(
     if (!editor) return;
 
     const saveViewport = () => {
-      try {
-        const raw = localStorage.getItem(key);
-        if (!raw) return;
-        const payload = JSON.parse(raw) as Record<string, unknown>;
-        payload.viewport = getViewport(editor);
-        localStorage.setItem(key, JSON.stringify(payload));
-      } catch {
-        /* empty */
-      }
+      const viewport = getViewport(editor);
+      if (viewport) autosaveStore.saveViewport(key, viewport);
     };
 
     window.addEventListener('pagehide', saveViewport);
@@ -162,15 +154,12 @@ export function useAutoSave(
   return { hasUnsavedChanges, setHasUnsavedChanges };
 }
 
-export function loadAutosave(sceneKey?: string): any {
-  try {
-    const raw = localStorage.getItem(getAutosaveKey(sceneKey));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+export async function loadAutosave(
+  sceneKey?: string
+): Promise<AutosavePayload | null> {
+  return autosaveStore.load(getAutosaveKey(sceneKey)).catch(() => null);
 }
 
-export function clearAutosave(sceneKey?: string) {
-  localStorage.removeItem(getAutosaveKey(sceneKey));
+export async function clearAutosave(sceneKey?: string): Promise<void> {
+  return autosaveStore.clear(getAutosaveKey(sceneKey)).catch(() => {});
 }

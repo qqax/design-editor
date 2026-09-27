@@ -66,7 +66,7 @@ export const defaultBackgroundOptions = {
   height: 1080,
   fill: '#ffffff',
   id: 'background',
-  name: 'Initial Frame',
+  name: 'Background',
 };
 
 export const commonParams = {

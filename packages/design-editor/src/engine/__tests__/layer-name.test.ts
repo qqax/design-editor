@@ -85,4 +85,20 @@ describe('ObjectImporter layer names', () => {
 
     expect(text.name).toBe('Text 2');
   });
+
+  it('always names the page background "Background"', async () => {
+    const importer = new ObjectImporter(editorWith([]));
+    const background = await importer.background(
+      {
+        id: 'bg',
+        type: 'Background',
+        name: 'Initial Frame',
+        fill: '#fff',
+      } as unknown as Required<ILayer>,
+      frame,
+      false
+    );
+
+    expect(background.name).toBe('Background');
+  });
 });

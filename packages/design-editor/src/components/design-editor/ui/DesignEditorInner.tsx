@@ -30,9 +30,11 @@ import type { FabricImage } from 'fabric';
 import type {
   CanvasBackground,
   Guide,
+  IScene,
   PageOffsets,
   SettingsType,
 } from '../../../engine';
+import type { AutosaveViewport } from '../../../hooks/useAutoSave';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { SelectOptions } from '../../primitives';
@@ -47,6 +49,12 @@ interface DesignEditorInnerProps {
   title?: React.ReactNode;
   adSizes?: SelectOptions;
   panelsConfig?: PanelsConfigType;
+}
+
+interface RestoreSource {
+  canvasBg?: CanvasBackground;
+  workspaceBg?: string;
+  viewport?: AutosaveViewport;
 }
 
 export function DesignEditorInner({
@@ -181,16 +189,15 @@ export function DesignEditorInner({
     // while the canvas still rendered the old one.
     let cancelled = false;
 
-    const saved = loadAutosave(sceneKey);
-    const processScene = (sceneData: any, bgSrc: any) => {
+    const processScene = (scene: IScene, source: RestoreSource) => {
       void editor.scene
-        .importFromJSON(sceneData)
+        .importFromJSON(scene)
         .catch(() => {})
         .then(() => {
           if (cancelled) return;
-          if (bgSrc?.canvasBg) {
+          if (source.canvasBg) {
             try {
-              editor.frame.setBackground(bgSrc.canvasBg as CanvasBackground);
+              editor.frame.setBackground(source.canvasBg);
             } catch {
               /* empty */
             }
@@ -198,7 +205,7 @@ export function DesignEditorInner({
           // After the zoomToFit calls in importFromJSON and Frame.initialize
           setTimeout(() => {
             if (cancelled) return;
-            if (bgSrc?.viewport) restoreViewport(editor, bgSrc.viewport);
+            if (source.viewport) restoreViewport(editor, source.viewport);
             editor.history.reset();
             editor.history.initialize();
             setHasUnsavedChanges(false);
@@ -206,17 +213,21 @@ export function DesignEditorInner({
         });
     };
 
-    if (saved && Object.keys(saved).length > 0) {
-      if (saved.scene) processScene(saved.scene, saved);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (saved.canvasBg) setCanvasBg(saved.canvasBg);
-      if (saved.workspaceBg) setWorkspaceBg(saved.workspaceBg);
-    } else if (initialScene) {
-      const scene = initialScene.scene || initialScene;
-      processScene(scene, initialScene);
-      if (initialScene.canvasBg) setCanvasBg(initialScene.canvasBg);
-      if (initialScene.workspaceBg) setWorkspaceBg(initialScene.workspaceBg);
-    }
+    const restore = (scene: IScene, source: RestoreSource) => {
+      processScene(scene, source);
+      if (source.canvasBg) setCanvasBg(source.canvasBg);
+      if (source.workspaceBg) setWorkspaceBg(source.workspaceBg);
+    };
+
+    void loadAutosave(sceneKey).then((saved) => {
+      if (cancelled) return;
+      if (saved) {
+        restore(saved.scene, saved);
+      } else if (initialScene) {
+        const source = initialScene as RestoreSource & { scene?: IScene };
+        restore(source.scene ?? (initialScene as IScene), source);
+      }
+    });
 
     const handleChange = () => setHasUnsavedChanges(true);
     editor.on('history:changed', handleChange);
@@ -269,7 +280,7 @@ export function DesignEditorInner({
           onBack={
             onBack
               ? () => {
-                  clearAutosave(sceneKey);
+                  void clearAutosave(sceneKey);
                   onBack();
                 }
               : undefined
