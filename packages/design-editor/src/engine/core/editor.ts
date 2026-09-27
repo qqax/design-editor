@@ -3,6 +3,7 @@ import { defaultEditorConfig } from './common/constants';
 import Events from './controllers/Events';
 import Frame from './controllers/Frame';
 import Guidelines from './controllers/Guidelines';
+import Guides from './controllers/Guides';
 import History from './controllers/History';
 import { Objects } from './controllers/objects';
 import Personalization from './controllers/Personalization';
@@ -21,6 +22,8 @@ export class Editor extends EventManager {
   public frame: Frame;
 
   public zoom: Zoom;
+
+  public guides: Guides;
 
   public history: History;
 
@@ -81,6 +84,7 @@ export class Editor extends EventManager {
     };
     this.frame = new Frame(options);
     this.zoom = new Zoom(options);
+    this.guides = new Guides(options);
     this.history = new History(options);
     this.objects = new Objects(options);
     this.events = new Events(options);

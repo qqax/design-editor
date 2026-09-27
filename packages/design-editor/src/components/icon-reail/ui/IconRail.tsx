@@ -21,6 +21,7 @@ export const IconRail = ({
   side = 'left',
 }: Props) => (
   <div
+    data-canvas-overlay
     className="z-10 flex h-16.5 w-full shrink-0 flex-row items-center gap-1 overflow-x-auto px-3 py-1 md:h-auto md:w-16 md:flex-col md:overflow-visible md:px-0 md:py-3"
     style={{
       background:

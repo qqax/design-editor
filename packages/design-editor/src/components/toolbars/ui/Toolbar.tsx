@@ -17,7 +17,11 @@ import { HDivider, Tooltip } from '../../primitives';
 
 import type { CSSProperties } from 'react';
 
-import type { CanvasBackground, SettingsType } from '../../../engine';
+import type {
+  CanvasBackground,
+  PageOffsets,
+  SettingsType,
+} from '../../../engine';
 import type { SelectOptions } from '../../primitives';
 
 interface Props {
@@ -30,6 +34,8 @@ interface Props {
   onBack?: () => void;
   settings: SettingsType;
   onSettings: (patch: Partial<SettingsType>) => void;
+  offsets: PageOffsets;
+  onOffsetsChange: (offsets: PageOffsets) => void;
   canvasBg: CanvasBackground;
   onBgChange: (background: CanvasBackground) => void;
   workspaceBg: string;
@@ -56,6 +62,8 @@ export function Toolbar({
   onBack,
   settings,
   onSettings,
+  offsets,
+  onOffsetsChange,
   canvasBg,
   onBgChange,
   workspaceBg,
@@ -129,7 +137,12 @@ export function Toolbar({
 
       <HDivider />
 
-      <CanvasSettings onSettings={onSettings} settings={settings} />
+      <CanvasSettings
+        offsets={offsets}
+        onOffsetsChange={onOffsetsChange}
+        onSettings={onSettings}
+        settings={settings}
+      />
 
       {/* Layers toggle */}
       <Tooltip placement="bottom" title="Toggle layers panel">

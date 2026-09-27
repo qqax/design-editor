@@ -14,10 +14,7 @@ import {
 
 import type { PanelKey } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
-import type {
-  DesignResource,
-  ResourceProvider,
-} from '../../panels/common/provider';
+import type { DesignResource } from '../../panels/common/provider';
 
 interface EditorSidebarProps {
   activePanel: PanelKey | null;
@@ -50,6 +47,7 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
   return (
     <div
+      data-canvas-overlay
       style={{
         position: 'absolute',
         top: 0,

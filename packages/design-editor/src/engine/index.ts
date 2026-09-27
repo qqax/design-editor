@@ -76,6 +76,18 @@ export * from './core/parser';
 // utils
 export * from './core/utils/font-loader';
 export { gradientToCss, isGradientFill } from './core/utils/gradient';
+export {
+  NO_OFFSETS,
+  OFFSET_GUIDE_PREFIX,
+  offsetGuides,
+  snapOffset,
+} from './core/utils/guides';
+export type {
+  Guide,
+  GuideAxis,
+  GuideRect,
+  PageOffsets,
+} from './core/utils/guides';
 export * from './core/utils/image-loader';
 export * from './core/utils/object-exporter';
 export * from './core/utils/object-importer';

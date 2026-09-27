@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { DevelopmentBadge } from './DevelopmentBadge';
 import { EditorSidebar } from './EditorSidebar';
-import { useActiveObject, useEditor, useZoomRatio } from '../../../engine';
+import {
+  NO_OFFSETS,
+  useActiveObject,
+  useEditor,
+  useZoomRatio,
+} from '../../../engine';
 import {
   clearAutosave,
   loadAutosave,
@@ -11,7 +16,7 @@ import {
 } from '../../../hooks/useAutoSave';
 import { useStudioExport } from '../../../hooks/useStudioExport';
 import { useToast } from '../../../hooks/useToast';
-import { CanvasArea } from '../../canvas';
+import { CanvasArea, Rulers } from '../../canvas';
 import { useEditorContext } from '../../EditorContext';
 import { IconRail } from '../../icon-reail';
 import { LayerPanel } from '../../layers';
@@ -22,7 +27,12 @@ import { useCanvasDrop, useCanvasPanning, useEditorActions } from '../model';
 
 import type { FabricImage } from 'fabric';
 
-import type { CanvasBackground, SettingsType } from '../../../engine';
+import type {
+  CanvasBackground,
+  Guide,
+  PageOffsets,
+  SettingsType,
+} from '../../../engine';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { SelectOptions } from '../../primitives';
@@ -69,17 +79,43 @@ export function DesignEditorInner({
         getStorageSafe<string>('studio_workspaceBg', '#f5f5f5')) as string
   );
 
-  const [settings, setSettings] = useState<SettingsType>(() =>
-    getStorageSafe('studio_settings', {
-      showGrid: false,
-      snapGrid: false,
-      railSide: 'left',
-    })
-  );
+  const [settings, setSettings] = useState<SettingsType>(() => ({
+    showGrid: false,
+    snapGrid: false,
+    showRulers: false,
+    snapToGuides: true,
+    rulerSides: { horizontal: 'top', vertical: 'left' },
+    rulerOrigin: { x: 'left', y: 'top' },
+    railSide: 'left',
+    ...getStorageSafe<Partial<SettingsType>>('studio_settings', {}),
+  }));
 
   useEffect(() => {
     setStorageSafe('studio_settings', settings);
   }, [settings]);
+
+  const rulersKey = sceneKey ? `studio_rulers_${sceneKey}` : 'studio_rulers';
+  const [rulers, setRulers] = useState<{
+    guides: Guide[];
+    offsets: PageOffsets;
+  }>(() => ({
+    guides: [],
+    offsets: NO_OFFSETS,
+    ...getStorageSafe<Partial<{ guides: Guide[]; offsets: PageOffsets }>>(
+      rulersKey,
+      {}
+    ),
+  }));
+
+  useEffect(() => {
+    setStorageSafe(rulersKey, rulers);
+    editor?.guides.setGuides(rulers.guides);
+    editor?.guides.setOffsets(rulers.offsets);
+  }, [editor, rulers, rulersKey]);
+
+  useEffect(() => {
+    editor?.guides.setSnapping(settings.snapToGuides);
+  }, [editor, settings.snapToGuides]);
 
   const canvasWrapRef = useRef<HTMLDivElement>(null);
   const { hasUnsavedChanges, setHasUnsavedChanges } = useAutoSave(
@@ -220,6 +256,7 @@ export function DesignEditorInner({
           exporting={exporting}
           hasUnsavedChanges={hasUnsavedChanges}
           layerPanelOpen={layerPanelOpen}
+          offsets={rulers.offsets}
           onBgChange={setCanvasBg}
           onExport={handleExport}
           onSettings={(patch) => setSettings((p) => ({ ...p, ...patch }))}
@@ -236,6 +273,9 @@ export function DesignEditorInner({
                   onBack();
                 }
               : undefined
+          }
+          onOffsetsChange={(offsets) =>
+            setRulers((prev) => ({ ...prev, offsets }))
           }
         />
 
@@ -313,6 +353,22 @@ export function DesignEditorInner({
                 setDragOver(true);
               }}
             />
+
+            {editor ? (
+              <Rulers
+                editor={editor}
+                guides={rulers.guides}
+                layoutKey={`${settings.railSide}-${activePanel ?? ''}`}
+                offsets={rulers.offsets}
+                settings={settings}
+                onGuidesChange={(guides) =>
+                  setRulers((prev) => ({ ...prev, guides }))
+                }
+                onSidesChange={(rulerSides) =>
+                  setSettings((prev) => ({ ...prev, rulerSides }))
+                }
+              />
+            ) : null}
 
             {removingBg && shimmerRect ? (
               <div

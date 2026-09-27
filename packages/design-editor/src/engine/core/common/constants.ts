@@ -22,6 +22,10 @@ export const PROPERTIES_TO_INCLUDE = [
 export const defaultEditorConfig: EditorConfig = {
   railSide: 'left',
   showGrid: true,
+  showRulers: false,
+  snapToGuides: true,
+  rulerSides: { horizontal: 'top', vertical: 'left' },
+  rulerOrigin: { x: 'left', y: 'top' },
   snapGrid: true,
   id: 'random_id_12',
   clipToFrame: true,
