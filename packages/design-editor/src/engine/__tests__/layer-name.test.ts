@@ -2,7 +2,11 @@
 import { describe, expect, it } from 'vitest';
 
 import { StaticText } from '../objects';
-import { createLayerName, getLayerLabel } from '../core/utils/layer-name';
+import {
+  createLayerName,
+  getLayerLabel,
+  setLayerLabels,
+} from '../core/utils/layer-name';
 import ObjectImporter from '../core/utils/object-importer';
 
 import type { FabricObject } from 'fabric';
@@ -100,5 +104,19 @@ describe('ObjectImporter layer names', () => {
     );
 
     expect(background.name).toBe('Background');
+  });
+});
+
+describe('setLayerLabels', () => {
+  it('localizes new names and still treats English labels as generic', () => {
+    setLayerLabels({ text: 'Текст', shape: 'Фигура' });
+    try {
+      expect(createLayerName('StaticText', undefined, new Set())).toBe('Текст 1');
+      expect(createLayerName('StaticPath', 'Shape', new Set())).toBe('Фигура 1');
+      expect(createLayerName('StaticImage', undefined, new Set())).toBe('Image 1');
+    } finally {
+      setLayerLabels(null);
+    }
+    expect(getLayerLabel('StaticText')).toBe('Text');
   });
 });

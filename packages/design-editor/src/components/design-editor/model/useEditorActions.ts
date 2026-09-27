@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { exportScene, fontLoader, StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
+import { useMessages } from '../../../messages';
 import { exportFileName } from '../../toolbars/model';
 import { downloadBlob } from '../lib/download';
 import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
@@ -23,6 +24,7 @@ import type {
   FontProvider,
   PersistenceProvider,
 } from '../../../providers';
+import type { TextPreset } from '../../panels';
 import type { DesignResource } from '../../panels/common/provider';
 import type { toastApi } from '../../primitives/Toast';
 import type { ExportTarget } from '../../toolbars/model';
@@ -63,6 +65,7 @@ export function useEditorActions(
   persistenceProvider: PersistenceProvider,
   fontProvider: FontProvider
 ) {
+  const m = useMessages();
   const [removingBg, setRemovingBg] = useState(false);
   const [shimmerRect, setShimmerRect] = useState<{
     top: number;
@@ -84,10 +87,10 @@ export function useEditorActions(
           metadata: { source: 'qqax' },
         });
       } catch {
-        message.error('Failed to add media');
+        message.error(m.gallery.addFailed);
       }
     },
-    [editor, message]
+    [editor, message, m]
   );
 
   const addImageToCanvas = useCallback(
@@ -114,29 +117,30 @@ export function useEditorActions(
         });
       };
       img.onerror = () => {
-        message.error('Failed to load image.');
+        message.error(m.gallery.loadImageFailed);
       };
     },
-    [editor, message]
+    [editor, message, m]
   );
 
   const handleAddText = useCallback(
-    async (text: string, fontSize: number) => {
+    async ({ text, fontSize, fontWeight }: TextPreset) => {
       if (!editor) return;
       try {
         await editor.objects.add({
           type: 'StaticText',
           text,
           fontSize,
+          fontWeight: String(fontWeight),
           fill: '#1a1a1a',
           top: 100,
           left: 100,
         });
       } catch {
-        message.error('Failed to add text');
+        message.error(m.textDesigns.addTextFailed);
       }
     },
-    [editor, message]
+    [editor, message, m]
   );
 
   const handleApplyTextDesign = useCallback(
@@ -146,7 +150,8 @@ export function useEditorActions(
       const layers = buildTextDesignLayers(
         design,
         { width, height },
-        generateId
+        generateId,
+        m.layers.names.backdrop
       );
 
       void layers
@@ -163,10 +168,10 @@ export function useEditorActions(
           );
         })
         .catch(() => {
-          message.error('Failed to add text design');
+          message.error(m.textDesigns.addFailed);
         });
     },
-    [editor, message]
+    [editor, message, m]
   );
 
   const handleApplyTemplate = useCallback(
@@ -175,7 +180,7 @@ export function useEditorActions(
       void editor.scene
         .importFromJSON(template.scene)
         .catch(() => {
-          message.error('Failed to apply template');
+          message.error(m.templates.applyFailed);
         })
         .then(() => {
           if (template.canvasBg) {
@@ -200,6 +205,7 @@ export function useEditorActions(
       setHasUnsavedChanges,
       message,
       persistenceProvider,
+      m,
     ]
   );
 
@@ -211,7 +217,7 @@ export function useEditorActions(
 
     setShimmerRect(toScreenRect(editor, image));
     setRemovingBg(true);
-    message.info('Removing background...');
+    message.info(m.image.removingBackground);
     try {
       const blob = await backgroundRemovalProvider.remove(src);
       const dataUrl = await blobToDataUrl(blob);
@@ -228,16 +234,18 @@ export function useEditorActions(
       image.setCoords();
       editor.canvas.requestRenderAll();
       editor.history.save();
-      message.success('Background removed');
+      message.success(m.image.backgroundRemoved);
     } catch (err) {
       message.error(
-        `Failed to remove background: ${err instanceof Error ? err.message : 'unknown error'}`
+        m.image.removeFailed(
+          err instanceof Error ? err.message : m.image.unknownError
+        )
       );
     } finally {
       setRemovingBg(false);
       setShimmerRect(null);
     }
-  }, [editor, activeObj, backgroundRemovalProvider, message]);
+  }, [editor, activeObj, backgroundRemovalProvider, message, m]);
 
   const handleExport = useCallback(
     async (options: ExportOptions, target: ExportTarget): Promise<boolean> => {
@@ -264,7 +272,7 @@ export function useEditorActions(
         void clearAutosave(persistenceProvider, sceneKey);
         return true;
       } catch {
-        message.error('Failed to export');
+        message.error(m.export.failed);
         return false;
       }
     },
@@ -276,6 +284,7 @@ export function useEditorActions(
       message,
       persistenceProvider,
       fontProvider,
+      m,
     ]
   );
 

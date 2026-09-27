@@ -15,6 +15,7 @@ export function IconRailButton({
 }) {
   return (
     <button
+      aria-label={label}
       aria-pressed={active}
       className="de-rail-btn"
       data-active={active}

@@ -2,6 +2,7 @@ import type React from 'react';
 
 import type { EditorAppearance, EditorTheme } from './appearance';
 import type { ExportFormat, IScene } from '../../../engine';
+import type { EditorMessagesOverride } from '../../../messages';
 import type {
   BackgroundRemovalProvider,
   FontProvider,
@@ -39,6 +40,12 @@ export interface DesignEditorProps {
   theme?: EditorTheme;
   /** UI colors and fonts; with `colors` the Dark/Light switcher is hidden. */
   appearance?: EditorAppearance;
+  /**
+   * UI texts. Any subset of the English `defaultMessages`; missing entries
+   * fall back to English. Functions receive the values they interpolate.
+   * A complete Russian set is exported as `ruMessages`.
+   */
+  messages?: EditorMessagesOverride;
   /** Optional title to display in the toolbar. Defaults to "Design Studio". */
   title?: React.ReactNode;
   adSizes?: SelectOptions;

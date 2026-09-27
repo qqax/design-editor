@@ -3,6 +3,7 @@ import React from 'react';
 import { FlipHorizontal, FlipVertical, Scissors } from 'lucide-react';
 
 import { ImageMoreContent } from './ImageMoreContent';
+import { useMessages } from '../../../messages';
 import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useImageControls } from '../model/useImageControls';
 
@@ -25,20 +26,23 @@ export const ImageControls = ({
   onRemoveBg,
   activeObj,
 }: Props) => {
+  const m = useMessages().image;
   const { borderRadius, setBorderRadius, shadowEnabled, setShadowEnabled } =
     useImageControls({ activeObj });
 
   return (
     <React.Fragment>
-      <Tooltip placement="top" title="Flip horizontal">
+      <Tooltip placement="top" title={m.flipHorizontal}>
         <PBtn
+          aria-label={m.flipHorizontal}
           onClick={() => editor?.objects.update({ flipX: !activeObj?.flipX })}
         >
           <FlipHorizontal size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Flip vertical">
+      <Tooltip placement="top" title={m.flipVertical}>
         <PBtn
+          aria-label={m.flipVertical}
           onClick={() => editor?.objects.update({ flipY: !activeObj?.flipY })}
         >
           <FlipVertical size={14} />
@@ -51,11 +55,11 @@ export const ImageControls = ({
         data-variant="secondary"
         disabled={removingBg}
         onClick={onRemoveBg}
-        title="Remove image background"
+        title={m.removeBackgroundHint}
         type="button"
       >
         <Scissors size={13} />
-        {removingBg ? 'Removing…' : 'Remove BG'}
+        {removingBg ? m.removing : m.removeBackground}
       </button>
       <PDivider />
       {/* Image More options */}
@@ -73,7 +77,7 @@ export const ImageControls = ({
           />
         }
       >
-        <MoreButton label="More image options" />
+        <MoreButton label={m.more} />
       </Popover>
     </React.Fragment>
   );

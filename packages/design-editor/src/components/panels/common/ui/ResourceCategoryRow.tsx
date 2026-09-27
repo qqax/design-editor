@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
+import { useMessages } from '../../../../messages';
 import { MoreLink } from '../../../primitives';
 
 import type {
@@ -27,6 +28,7 @@ export function ResourceCategoryRow({
   onSelect,
   onSeeMore,
 }: Props) {
+  const m = useMessages();
   const [items, setItems] = useState<DesignResource[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -105,22 +107,16 @@ export function ResourceCategoryRow({
           {category.name}
         </h3>
 
-        <MoreLink onClick={() => onSeeMore(category.id)}>See all</MoreLink>
+        <MoreLink onClick={() => onSeeMore(category.id)}>
+          {m.panel.seeAll}
+        </MoreLink>
       </div>
 
       {error ? (
-        <div style={{ fontSize: 12 }}>
-          Failed to load —{' '}
-          <button
-            onClick={handleRetry}
-            type="button"
-            style={{
-              all: 'unset',
-              cursor: 'pointer',
-              color: 'var(--de-color-primary)',
-            }}
-          >
-            Retry
+        <div className="de-form-hint">
+          {m.panel.loadFailed}
+          <button className="de-link-btn" onClick={handleRetry} type="button">
+            {m.panel.retry}
           </button>
         </div>
       ) : loading ? (
@@ -138,14 +134,7 @@ export function ResourceCategoryRow({
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div
-          style={{
-            fontSize: 12,
-            color: 'var(--de-color-text-muted)',
-          }}
-        >
-          No resources yet
-        </div>
+        <div className="de-form-hint">{m.panel.noResources}</div>
       ) : (
         <div
           style={{

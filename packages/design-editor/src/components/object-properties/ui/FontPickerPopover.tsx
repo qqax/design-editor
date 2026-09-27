@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronDown, Upload } from 'lucide-react';
 
 import { fontLoader } from '../../../engine';
+import { useMessages } from '../../../messages';
 import { useEditorContext } from '../../EditorContext';
 import { Input, Popover } from '../../primitives';
 
@@ -19,6 +20,7 @@ export function FontPickerPopover({
   currentFamily,
   onChange,
 }: FontPickerPopoverProps) {
+  const m = useMessages().text;
   const [open, setOpen] = useState(false);
   const [fonts, setFonts] = useState<FontDescriptor[]>([]);
   const [search, setSearch] = useState('');
@@ -86,6 +88,8 @@ export function FontPickerPopover({
 
   const trigger = (
     <button
+      aria-label={m.font}
+      title={m.font}
       type="button"
       style={{
         display: 'flex',
@@ -109,7 +113,7 @@ export function FontPickerPopover({
       }}
     >
       <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-        {currentFamily ?? 'Default'}
+        {currentFamily ?? m.defaultFont}
       </span>
       <ChevronDown size={12} style={{ flexShrink: 0 }} />
     </button>
@@ -123,8 +127,9 @@ export function FontPickerPopover({
       <div style={{ padding: '8px 8px 4px' }}>
         <Input
           autoFocus
+          aria-label={m.searchFonts}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search fonts…"
+          placeholder={m.searchFonts}
           style={{ width: '100%', fontSize: 12 }}
           value={search}
         />
@@ -179,7 +184,7 @@ export function FontPickerPopover({
                     color: 'var(--de-color-primary)',
                   }}
                 >
-                  Custom
+                  {m.customFont}
                 </span>
               )}
             </span>
@@ -204,7 +209,7 @@ export function FontPickerPopover({
               textAlign: 'center',
             }}
           >
-            No fonts found
+            {m.noFonts}
           </div>
         )}
       </div>
@@ -239,7 +244,7 @@ export function FontPickerPopover({
           }}
         >
           <Upload size={14} />
-          Upload font
+          {m.uploadFont}
         </button>
         <input
           ref={fileInputRef}

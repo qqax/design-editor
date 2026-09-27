@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 
 import { RowTile } from './RowTile';
+import { useMessages } from '../../../../messages';
 
 import type { ScrollRowType } from '../model';
 
@@ -10,6 +11,7 @@ export function ScrollRow<
   T extends ScrollRowType<CategoryT>,
   CategoryT extends string,
 >({ items, onAddItem }: { items: T[]; onAddItem: (src: string) => void }) {
+  const m = useMessages();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -39,7 +41,7 @@ export function ScrollRow<
 
       {canScrollRight ? (
         <button
-          aria-label="Scroll right"
+          aria-label={m.panel.scrollRight}
           className="de-scroll-row-next"
           type="button"
           onClick={() =>

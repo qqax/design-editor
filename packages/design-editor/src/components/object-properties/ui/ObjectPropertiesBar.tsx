@@ -4,6 +4,7 @@ import React from 'react';
 
 import { BringToFront, Copy, SendToBack, Trash2 } from 'lucide-react';
 
+import { useMessages } from '../../../messages';
 import { PBtn, PDivider, Tooltip } from '../../primitives';
 import { useObjectPropertiesBar } from '../model';
 import { ImageControls } from './ImageControls';
@@ -26,6 +27,7 @@ export function ObjectPropertiesBar({
   removingBg,
   onRemoveBg,
 }: Props) {
+  const m = useMessages().properties;
   const {
     posStyle,
     kind,
@@ -44,11 +46,7 @@ export function ObjectPropertiesBar({
       className="de-props-bar scrollbar-hide"
       style={{ ...posStyle, zIndex: 30 }}
     >
-      <div
-        className="de-props-grip"
-        onMouseDown={onDragStart}
-        title="Drag to move"
-      >
+      <div className="de-props-grip" onMouseDown={onDragStart} title={m.drag}>
         ⠿
       </div>
       <div className="de-props-badge">{label}</div>
@@ -94,24 +92,37 @@ export function ObjectPropertiesBar({
 
       {/* ── Z-order + duplicate + delete — all types ── */}
       <PDivider />
-      <Tooltip placement="top" title="Bring forward">
-        <PBtn onClick={() => editor?.objects.bringForward()}>
+      <Tooltip placement="top" title={m.bringForward}>
+        <PBtn
+          aria-label={m.bringForward}
+          onClick={() => editor?.objects.bringForward()}
+        >
           <BringToFront size={16} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Send backward">
-        <PBtn onClick={() => editor?.objects.sendBackwards()}>
+      <Tooltip placement="top" title={m.sendBackward}>
+        <PBtn
+          aria-label={m.sendBackward}
+          onClick={() => editor?.objects.sendBackwards()}
+        >
           <SendToBack size={16} />
         </PBtn>
       </Tooltip>
       <PDivider />
-      <Tooltip placement="top" title="Duplicate">
-        <PBtn onClick={async () => editor?.objects.clone()}>
+      <Tooltip placement="top" title={m.duplicate}>
+        <PBtn
+          aria-label={m.duplicate}
+          onClick={async () => editor?.objects.clone()}
+        >
           <Copy size={16} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Delete (Del)">
-        <PBtn danger onClick={() => editor?.objects.remove()}>
+      <Tooltip placement="top" title={m.delete}>
+        <PBtn
+          danger
+          aria-label={m.delete}
+          onClick={() => editor?.objects.remove()}
+        >
           <Trash2 size={16} />
         </PBtn>
       </Tooltip>

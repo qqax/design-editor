@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useMessages } from '../../../../messages';
 import { useSceneThumbnail } from '../model';
 
 import type { DesignResource } from '../provider';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function ResourceThumbnail({ resource, onClick }: Props) {
+  const m = useMessages();
   const ref = React.useRef<HTMLButtonElement>(null);
   const { src, loading } = useSceneThumbnail(
     {
@@ -60,7 +62,7 @@ export function ResourceThumbnail({ resource, onClick }: Props) {
         />
       ) : (
         <div
-          aria-label={loading ? 'Loading thumbnail' : 'No preview available'}
+          aria-label={loading ? m.panel.loadingThumbnail : m.panel.noPreview}
           style={{
             width: '100%',
             height: '100%',

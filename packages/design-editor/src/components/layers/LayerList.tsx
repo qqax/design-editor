@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { LayerRow } from './LayerRow';
+import { useMessages } from '../../messages';
 
 import type { LayerCallbacks, LayerItem } from './layer-panel.types';
 
@@ -18,12 +19,13 @@ export function LayerList({
   selectedIds,
   ...callbacks
 }: LayerListProps) {
+  const m = useMessages().layers;
   if (layers.length === 0) {
     return (
       <div className="de-panel-empty">
-        No layers yet.
+        {m.empty}
         <br />
-        Add content to the canvas.
+        {m.emptyHint}
       </div>
     );
   }

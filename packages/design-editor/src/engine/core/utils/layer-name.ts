@@ -1,30 +1,74 @@
 import { LayerType } from '../../types';
 
-const LABELS: Record<string, string> = {
-  [LayerType.STATIC_TEXT]: 'Text',
-  [LayerType.DYNAMIC_TEXT]: 'Text',
-  [LayerType.STATIC_IMAGE]: 'Image',
-  [LayerType.DYNAMIC_IMAGE]: 'Image',
-  [LayerType.BACKGROUND_IMAGE]: 'Background image',
-  [LayerType.STATIC_VIDEO]: 'Video',
-  [LayerType.STATIC_AUDIO]: 'Audio',
-  [LayerType.STATIC_PATH]: 'Shape',
-  [LayerType.DYNAMIC_PATH]: 'Shape',
-  [LayerType.STATIC_VECTOR]: 'Vector',
-  [LayerType.STATIC_GROUP]: 'Group',
-  [LayerType.DYNAMIC_GROUP]: 'Group',
-  [LayerType.GROUP]: 'Group',
-  [LayerType.BACKGROUND]: 'Background',
+export interface LayerLabels {
+  text: string;
+  image: string;
+  backgroundImage: string;
+  video: string;
+  audio: string;
+  shape: string;
+  vector: string;
+  group: string;
+  background: string;
+  layer: string;
+}
+
+const DEFAULT_LABELS: LayerLabels = {
+  text: 'Text',
+  image: 'Image',
+  backgroundImage: 'Background image',
+  video: 'Video',
+  audio: 'Audio',
+  shape: 'Shape',
+  vector: 'Vector',
+  group: 'Group',
+  background: 'Background',
+  layer: 'Layer',
 };
 
-const GENERIC_NAMES = new Set(
-  [...Object.keys(LABELS), ...Object.values(LayerType)].map((name) =>
+const LABEL_BY_TYPE: Record<string, keyof LayerLabels> = {
+  [LayerType.STATIC_TEXT]: 'text',
+  [LayerType.DYNAMIC_TEXT]: 'text',
+  [LayerType.STATIC_IMAGE]: 'image',
+  [LayerType.DYNAMIC_IMAGE]: 'image',
+  [LayerType.BACKGROUND_IMAGE]: 'backgroundImage',
+  [LayerType.STATIC_VIDEO]: 'video',
+  [LayerType.STATIC_AUDIO]: 'audio',
+  [LayerType.STATIC_PATH]: 'shape',
+  [LayerType.DYNAMIC_PATH]: 'shape',
+  [LayerType.STATIC_VECTOR]: 'vector',
+  [LayerType.STATIC_GROUP]: 'group',
+  [LayerType.DYNAMIC_GROUP]: 'group',
+  [LayerType.GROUP]: 'group',
+  [LayerType.BACKGROUND]: 'background',
+};
+
+let labels: LayerLabels = DEFAULT_LABELS;
+
+/** Localizes the names given to new layers ("Text 1" → "Текст 1") */
+export function setLayerLabels(next: Partial<LayerLabels> | null): void {
+  labels = { ...DEFAULT_LABELS, ...next };
+}
+
+/** Type names and labels in any language set so far are all "generic" */
+const genericNames = new Set(
+  [...Object.keys(LABEL_BY_TYPE), ...Object.values(LayerType)].map((name) =>
     name.toLowerCase()
   )
 );
 
+const isGenericName = (name: string) => {
+  const lower = name.toLowerCase();
+  return (
+    genericNames.has(lower) ||
+    Object.values(DEFAULT_LABELS).some((l) => l.toLowerCase() === lower) ||
+    Object.values(labels).some((l) => l.toLowerCase() === lower)
+  );
+};
+
 export function getLayerLabel(type: string | undefined): string {
-  return (type && LABELS[type]) ?? 'Layer';
+  const key = type ? LABEL_BY_TYPE[type] : undefined;
+  return labels[key ?? 'layer'];
 }
 
 /**
@@ -38,7 +82,7 @@ export function createLayerName(
   taken: ReadonlySet<string>
 ): string {
   const trimmed = name?.trim() ?? '';
-  const isGeneric = !trimmed || GENERIC_NAMES.has(trimmed.toLowerCase());
+  const isGeneric = !trimmed || isGenericName(trimmed);
 
   if (!isGeneric && !taken.has(trimmed)) return trimmed;
 

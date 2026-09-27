@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { GradientEditor } from './GradientEditor';
 import { gradientToCss } from '../../../../engine';
+import { useMessages } from '../../../../messages';
 import { Popover, Tooltip } from '../../../primitives';
 import { solidLayer } from '../lib';
 import { SWATCHES } from '../model';
@@ -27,11 +28,7 @@ interface UnifiedColorPickerProps {
 
 type FillMode = 'solid' | GradientFill['type'];
 
-const MODES: { value: FillMode; label: string }[] = [
-  { value: 'solid', label: 'Solid' },
-  { value: 'linear', label: 'Linear' },
-  { value: 'radial', label: 'Radial' },
-];
+const MODES: readonly FillMode[] = ['solid', 'linear', 'radial'];
 
 export function UnifiedColorPicker({
   color,
@@ -45,6 +42,7 @@ export function UnifiedColorPicker({
   gradient = null,
   emptySwatch = 'transparent',
 }: UnifiedColorPickerProps) {
+  const m = useMessages().color;
   const [open, setOpen] = useState(false);
   const [prevActiveObjId, setPrevActiveObjId] = useState(activeObjId);
 
@@ -99,14 +97,14 @@ export function UnifiedColorPicker({
       <div className="de-segmented" role="tablist">
         {MODES.map((option) => (
           <button
-            key={option.value}
-            aria-selected={mode === option.value}
+            key={option}
+            aria-selected={mode === option}
             className="de-segment"
-            onClick={() => selectMode(option.value)}
+            onClick={() => selectMode(option)}
             role="tab"
             type="button"
           >
-            {option.label}
+            {m[option]}
           </button>
         ))}
       </div>
@@ -135,7 +133,7 @@ export function UnifiedColorPicker({
         <Tooltip placement={placement} title={tooltip}>
           {variant === 'property-bar' ? (
             <button
-              aria-label={label || 'Color picker'}
+              aria-label={label || m.picker}
               className="de-swatch-btn"
               data-active={open}
               type="button"
@@ -144,7 +142,7 @@ export function UnifiedColorPicker({
             </button>
           ) : (
             <button
-              aria-label={label || 'Select color'}
+              aria-label={label || m.select}
               className="de-tool-btn"
               data-active={open}
               type="button"

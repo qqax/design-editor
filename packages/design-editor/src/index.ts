@@ -12,6 +12,12 @@
 export const VERSION = '1.0.0-beta.10';
 
 export * from './providers';
+export { en as defaultMessages, ru as ruMessages } from './messages';
+export type {
+  DeepPartial,
+  EditorMessages,
+  EditorMessagesOverride,
+} from './messages';
 export * from './components/design-editor';
 
 /** Re-export the engine's public types for consumers who need to interact with scenes/layers. */

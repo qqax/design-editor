@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react';
 
 import { Folder, X } from 'lucide-react';
 
+import { useMessages } from '../../messages';
 import { Tooltip } from '../primitives';
 import { LayerList } from './LayerList';
 import { useLayerPanel } from './useLayerPanel';
@@ -14,6 +15,7 @@ interface LayerPanelProps {
 }
 
 export function LayerPanel({ editor, onClose }: LayerPanelProps) {
+  const m = useMessages().layers;
   const { layers, activeId } = useLayerPanel();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -90,12 +92,12 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
     >
       {/* Header */}
       <div className="de-sidebar-header">
-        <span>Layers</span>
+        <span>{m.title}</span>
         <div style={{ display: 'flex', gap: 2 }}>
           {selectedIds.size >= 2 && (
-            <Tooltip title="Group selected layers">
+            <Tooltip title={m.group}>
               <button
-                aria-label="Group selected layers"
+                aria-label={m.group}
                 className="de-icon-btn"
                 onClick={handleGroup}
                 type="button"
@@ -104,9 +106,9 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
               </button>
             </Tooltip>
           )}
-          <Tooltip title="Close layers panel">
+          <Tooltip title={m.close}>
             <button
-              aria-label="Close layers panel"
+              aria-label={m.close}
               className="de-icon-btn"
               onClick={onClose}
               type="button"
@@ -131,9 +133,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
         />
       </div>
 
-      <div className="de-panel-hint">
-        Click to select · Shift-click to multi-select · Double-click to rename
-      </div>
+      <div className="de-panel-hint">{m.hint}</div>
     </div>
   );
 }

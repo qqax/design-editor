@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { RowTile } from './RowTile';
 import { ScrollRow } from './ScrollRow';
+import { useMessages } from '../../../../messages';
 import { MoreLink } from '../../../primitives';
 
 import type { ScrollRowType } from '../model';
@@ -18,6 +19,7 @@ export function Category<
   items: T[];
   onAddItem: (src: string) => void;
 }) {
+  const m = useMessages();
   const [expanded, setExpanded] = useState(false);
 
   if (items.length === 0) return null;
@@ -27,7 +29,7 @@ export function Category<
       <div className="de-section-header">
         <h3 className="de-section-title">{title}</h3>
         <MoreLink expanded={expanded} onClick={() => setExpanded(!expanded)}>
-          {expanded ? 'Show less' : `Show all (${items.length})`}
+          {expanded ? m.panel.showLess : m.panel.showAll(items.length)}
         </MoreLink>
       </div>
 

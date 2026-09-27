@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
+import { useMessages } from '../../../../messages';
 
 import type {
   DesignResource,
@@ -28,6 +29,7 @@ export function ResourceDesignGrid({
   errorMessage,
   errorLoadMoreMessage,
 }: Props) {
+  const m = useMessages();
   const [items, setItems] = useState<DesignResource[]>([]);
   const [cursor, setCursor] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
@@ -93,50 +95,27 @@ export function ResourceDesignGrid({
   }, []);
 
   if (loading) {
-    return <div style={{ padding: 16 }}>Loading...</div>;
+    return <div className="de-panel-empty">{m.panel.loading}</div>;
   }
 
   if (error) {
     return (
-      <div style={{ padding: 16 }}>
-        {error} —{' '}
-        <button
-          onClick={handleRetry}
-          type="button"
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            color: 'var(--de-color-primary)',
-          }}
-        >
-          Retry
+      <div className="de-panel-empty">
+        {error}
+        <button className="de-link-btn" onClick={handleRetry} type="button">
+          {m.panel.retry}
         </button>
       </div>
     );
   }
 
   if (items.length === 0) {
-    return (
-      <div
-        style={{
-          padding: 16,
-          color: 'var(--de-color-text-muted)',
-        }}
-      >
-        {emptyMessage}
-      </div>
-    );
+    return <div className="de-panel-empty">{emptyMessage}</div>;
   }
 
   return (
-    <div style={{ padding: 12 }}>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 10,
-        }}
-      >
+    <div className="de-resource-grid-wrap">
+      <div className="de-resource-grid">
         {items.map((resource) => (
           <ResourceThumbnail
             key={resource.id}
@@ -147,29 +126,17 @@ export function ResourceDesignGrid({
       </div>
 
       {cursor ? (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 12,
-          }}
+        <button
+          className="de-btn"
+          data-size="sm"
+          data-variant="secondary"
+          disabled={loadingMore}
+          onClick={loadMore}
+          style={{ alignSelf: 'center' }}
+          type="button"
         >
-          <button
-            disabled={loadingMore}
-            onClick={loadMore}
-            type="button"
-            style={{
-              padding: '6px 14px',
-              borderRadius: 6,
-              border: '1px solid var(--de-color-border)',
-              background: 'transparent',
-              color: 'var(--de-color-text)',
-              cursor: loadingMore ? 'default' : 'pointer',
-            }}
-          >
-            {loadingMore ? 'Loading...' : 'Load more'}
-          </button>
-        </div>
+          {loadingMore ? m.panel.loading : m.panel.loadMore}
+        </button>
       ) : null}
     </div>
   );

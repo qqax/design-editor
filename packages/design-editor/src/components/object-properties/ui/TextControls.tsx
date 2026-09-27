@@ -4,6 +4,7 @@ import { AlignCenter, AlignLeft, AlignRight, Bold, Italic } from 'lucide-react';
 
 import { FontPickerPopover } from './FontPickerPopover';
 import { TextMoreContent } from './TextMoreContent';
+import { useMessages } from '../../../messages';
 import { UnifiedColorPicker } from '../../panels';
 import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useTextControls } from '../model';
@@ -25,6 +26,7 @@ export const TextControls = ({
   opacity,
   setOpacity,
 }: TextControlsProps) => {
+  const m = useMessages().text;
   const {
     isEditingText,
     selStyle,
@@ -52,24 +54,16 @@ export const TextControls = ({
       <PDivider />
       <input
         key={`${activeObj?.id}-fs`}
+        aria-label={m.fontSize}
+        className="de-num-input"
         max={500}
         min={6}
-        title="Font size"
+        style={{ width: 48, textAlign: 'center' }}
+        title={m.fontSize}
         type="number"
         onChange={(e) =>
           editor?.objects.update({ fontSize: Number(e.target.value) })
         }
-        style={{
-          width: 46,
-          background: 'var(--de-color-bg)',
-          border: '1px solid var(--de-color-border)',
-          borderRadius: 6,
-          color: 'var(--de-color-text)',
-          fontSize: 12,
-          padding: '4px 4px',
-          textAlign: 'center',
-          outline: 'none',
-        }}
         value={
           isEditingText && selStyle.fontSize != null
             ? selStyle.fontSize
@@ -81,7 +75,7 @@ export const TextControls = ({
       <UnifiedColorPicker
         activeObjId={activeObj?.id}
         onChange={(c) => editor?.objects.update({ fill: c })}
-        tooltip="Text color"
+        tooltip={m.color}
         variant="property-bar"
         color={
           isEditingText && typeof selStyle.fill === 'string'
@@ -92,8 +86,9 @@ export const TextControls = ({
         }
       />
       <PDivider />
-      <Tooltip placement="top" title="Bold">
+      <Tooltip placement="top" title={m.bold}>
         <PBtn
+          aria-label={m.bold}
           active={
             (isEditingText ? selStyle.fontWeight : activeObj?.fontWeight) ===
             'bold'
@@ -112,9 +107,10 @@ export const TextControls = ({
           <Bold size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Italic">
+      <Tooltip placement="top" title={m.italic}>
         <PBtn
           active={activeObj?.fontStyle === 'italic'}
+          aria-label={m.italic}
           onClick={() =>
             editor?.objects.update({
               fontStyle:
@@ -126,25 +122,28 @@ export const TextControls = ({
         </PBtn>
       </Tooltip>
       <PDivider />
-      <Tooltip placement="top" title="Align left">
+      <Tooltip placement="top" title={m.alignLeft}>
         <PBtn
           active={activeObj?.textAlign === 'left'}
+          aria-label={m.alignLeft}
           onClick={() => editor?.objects.update({ textAlign: 'left' })}
         >
           <AlignLeft size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Align center">
+      <Tooltip placement="top" title={m.alignCenter}>
         <PBtn
           active={activeObj?.textAlign === 'center'}
+          aria-label={m.alignCenter}
           onClick={() => editor?.objects.update({ textAlign: 'center' })}
         >
           <AlignCenter size={14} />
         </PBtn>
       </Tooltip>
-      <Tooltip placement="top" title="Align right">
+      <Tooltip placement="top" title={m.alignRight}>
         <PBtn
           active={activeObj?.textAlign === 'right'}
+          aria-label={m.alignRight}
           onClick={() => editor?.objects.update({ textAlign: 'right' })}
         >
           <AlignRight size={14} />
@@ -169,7 +168,7 @@ export const TextControls = ({
           />
         }
       >
-        <MoreButton label="More text options" />
+        <MoreButton label={m.more} />
       </Popover>
     </React.Fragment>
   );

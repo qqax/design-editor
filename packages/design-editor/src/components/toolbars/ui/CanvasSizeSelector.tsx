@@ -1,7 +1,8 @@
 import React from 'react';
 
+import { useMessages } from '../../../messages';
 import { Button, Popover, Select } from '../../primitives';
-import { AD_SIZES, useCanvasSize } from '../model';
+import { defaultCanvasSizes, useCanvasSize } from '../model';
 
 import type { Editor } from '../../../engine';
 import type { SelectOption, SelectOptions } from '../../primitives';
@@ -13,8 +14,13 @@ interface CanvasSizeSelectorProps {
 
 export const CanvasSizeSelector = ({
   editor,
-  adSizes = AD_SIZES,
+  adSizes: adSizesProp,
 }: CanvasSizeSelectorProps) => {
+  const m = useMessages().canvasSize;
+  const adSizes = React.useMemo(
+    () => adSizesProp ?? defaultCanvasSizes(m),
+    [adSizesProp, m]
+  );
   const {
     size,
     customOpen,
@@ -38,8 +44,11 @@ export const CanvasSizeSelector = ({
       return adSizes;
     }
     const [width, height] = size.split('x');
-    return [{ label: `${width}×${height} (Custom)`, value: size }, ...adSizes];
-  }, [adSizes, size]);
+    return [
+      { label: m.current(Number(width), Number(height)), value: size },
+      ...adSizes,
+    ];
+  }, [adSizes, size, m]);
 
   return (
     <Popover
@@ -65,16 +74,17 @@ export const CanvasSizeSelector = ({
               letterSpacing: '0.07em',
             }}
           >
-            Custom Canvas Size
+            {m.customTitle}
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <div className="de-size-field">
               <input
+                aria-label={m.width}
                 className="de-size-input"
                 max={8000}
                 min={100}
                 onChange={(e) => setCustomW(Number(e.target.value) || 100)}
-                placeholder="Width"
+                placeholder={m.width}
                 type="number"
                 value={customW}
               />
@@ -87,11 +97,12 @@ export const CanvasSizeSelector = ({
             </span>
             <div className="de-size-field">
               <input
+                aria-label={m.height}
                 className="de-size-input"
                 max={8000}
                 min={100}
                 onChange={(e) => setCustomH(Number(e.target.value) || 100)}
-                placeholder="Height"
+                placeholder={m.height}
                 type="number"
                 value={customH}
               />
@@ -104,12 +115,13 @@ export const CanvasSizeSelector = ({
             style={{ width: '100%' }}
             variant="primary"
           >
-            Apply
+            {m.apply}
           </Button>
         </div>
       }
     >
       <Select
+        aria-label={m.label}
         onValueChange={handleSizeChange}
         options={options}
         style={{ width: 'auto', minWidth: 160, maxWidth: 220 }}

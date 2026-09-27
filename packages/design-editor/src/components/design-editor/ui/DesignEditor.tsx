@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 
 import { DesignEditorInner } from './DesignEditorInner';
-import { fontLoader } from '../../../engine';
+import { fontLoader, setLayerLabels } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
+import { en, mergeMessages, MessagesProvider } from '../../../messages';
 import {
   createDefaultFontProvider,
   createImglyBackgroundRemoval,
@@ -40,7 +41,7 @@ export function DesignEditor({
   onBack,
   onExport,
 
-  fontProvider = createDefaultFontProvider(),
+  fontProvider: fontProviderProp,
   backgroundRemovalProvider,
   persistenceProvider,
 
@@ -52,9 +53,20 @@ export function DesignEditor({
   className,
   theme = 'dark',
   appearance,
+  messages: messagesProp,
 }: DesignEditorProps) {
-  const resolvedBackgroundRemovalProvider =
-    backgroundRemovalProvider ?? createImglyBackgroundRemoval();
+  const fontProvider = useMemo(
+    () => fontProviderProp ?? createDefaultFontProvider(),
+    [fontProviderProp]
+  );
+  const resolvedBackgroundRemovalProvider = useMemo(
+    () => backgroundRemovalProvider ?? createImglyBackgroundRemoval(),
+    [backgroundRemovalProvider]
+  );
+  const messages = useMemo(
+    () => mergeMessages(en, messagesProp),
+    [messagesProp]
+  );
   const innerConfig: PanelsConfigType = {
     templates: {
       ...DEFAULT_PANELS_CONFIG.templates,
@@ -79,6 +91,7 @@ export function DesignEditor({
   // clear the resolver after this call and leave it null. A later editor
   // overwrites it here instead.
   fontLoader.setResolver(async (family) => fontProvider.load(family));
+  setLayerLabels(messages.layers.names);
 
   const persistence = useMemo(
     () => persistenceProvider ?? createIndexedDBPersistence(),
@@ -113,20 +126,22 @@ export function DesignEditor({
   );
 
   return (
-    <EngineProvider>
-      <EditorContextProvider value={ctx}>
-        <DesignEditorInner
-          adSizes={adSizes}
-          appearance={appearance}
-          className={className}
-          initialScene={initialScene}
-          libraryPanel={libraryPanel}
-          panelsConfig={innerConfig}
-          templatesPanel={templatesPanel}
-          theme={theme}
-          title={title}
-        />
-      </EditorContextProvider>
-    </EngineProvider>
+    <MessagesProvider value={messages}>
+      <EngineProvider>
+        <EditorContextProvider value={ctx}>
+          <DesignEditorInner
+            adSizes={adSizes}
+            appearance={appearance}
+            className={className}
+            initialScene={initialScene}
+            libraryPanel={libraryPanel}
+            panelsConfig={innerConfig}
+            templatesPanel={templatesPanel}
+            theme={theme}
+            title={title}
+          />
+        </EditorContextProvider>
+      </EngineProvider>
+    </MessagesProvider>
   );
 }

@@ -24,7 +24,8 @@ const isVisibleColor = (color: string | undefined): color is string => {
 export function buildTextDesignLayers(
   design: Pick<DesignResource, 'scene' | 'canvasBg'>,
   page: Size,
-  createId: () => string
+  createId: () => string,
+  backdropName = 'Backdrop'
 ): Partial<ILayer>[] {
   const { frame, layers } = design.scene;
   const dx = (page.width - frame.width) / 2;
@@ -54,7 +55,7 @@ export function buildTextDesignLayers(
   const { width, height } = frame;
   const backdrop: IStaticPath = {
     id: createId(),
-    name: 'Backdrop',
+    name: backdropName,
     type: LayerType.STATIC_PATH,
     left: dx,
     top: dy,

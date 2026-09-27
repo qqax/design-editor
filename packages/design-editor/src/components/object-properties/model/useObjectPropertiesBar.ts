@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { useMessages } from '../../../messages';
+
 interface UseObjectPropertiesBarOptions {
   activeObj: any;
 }
@@ -32,18 +34,10 @@ const getObjectKind = (obj: any): ObjectKind | null => {
   return 'object';
 };
 
-const LABELS: Record<ObjectKind, string> = {
-  text: 'Text',
-  image: 'Image',
-  shape: 'Shape',
-  group: 'Group',
-  selection: 'Selection',
-  object: 'Object',
-};
-
 export const useObjectPropertiesBar = ({
   activeObj,
 }: UseObjectPropertiesBarOptions) => {
+  const m = useMessages();
   const kind = getObjectKind(activeObj);
   const selected: any[] = isActiveSelection(activeObj)
     ? activeObj.getObjects()
@@ -107,9 +101,10 @@ export const useObjectPropertiesBar = ({
     window.addEventListener('mouseup', onUp);
   }, []);
 
-  const label = kind
-    ? `${LABELS[kind]}${multiple ? ` ×${selected.length}` : ''}`
-    : '';
+  const kindLabel = kind ? m.properties.kinds[kind] : '';
+  const label = multiple
+    ? m.properties.count(kindLabel, selected.length)
+    : kindLabel;
 
   const posStyle: React.CSSProperties = isMobile
     ? {

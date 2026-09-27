@@ -5,14 +5,20 @@ import { useCallback, useState } from 'react';
 import { defaultFrameOptions, useFrame } from '../../../engine';
 
 import type { Editor } from '../../../engine';
+import type { EditorMessages } from '../../../messages';
 
-export const AD_SIZES = [
-  { label: '1920×1080 (Landscape)', value: '1920x1080' },
-  { label: '1080×1080 (Square)', value: '1080x1080' },
-  { label: '1080×1920 (Portrait)', value: '1080x1920' },
-  { label: '728×90 (Leaderboard)', value: '728x90' },
-  { label: '300×250 (Med Rect)', value: '300x250' },
-  { label: 'Custom…', value: 'custom' },
+/** Built-in size presets; values are `WIDTHxHEIGHT` in pixels */
+export const defaultCanvasSizes = (m: EditorMessages['canvasSize']) => [
+  { label: m.landscape, value: '1920x1080' },
+  { label: m.square, value: '1080x1080' },
+  { label: m.portrait, value: '1080x1920' },
+  { label: m.leaderboard, value: '728x90' },
+  { label: m.mediumRectangle, value: '300x250' },
+  { label: m.a4, value: '2480x3508' },
+  { label: m.a5, value: '1748x2480' },
+  { label: m.letter, value: '2550x3300' },
+  { label: m.businessCard, value: '1004x650' },
+  { label: m.custom, value: 'custom' },
 ];
 
 export function useCanvasSize(editor: Editor | null) {

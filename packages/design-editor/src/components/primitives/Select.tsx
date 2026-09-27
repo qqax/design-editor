@@ -26,6 +26,7 @@ export interface SelectProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
+  'aria-label'?: string;
 }
 
 const isGroupedOptions = (options: SelectOptions): options is SelectGroup[] => {
@@ -82,6 +83,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       placeholder,
       className,
       style,
+      'aria-label': ariaLabel,
     },
     ref
   ) => {
@@ -94,6 +96,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       >
         <RadixSelect.Trigger
           ref={ref}
+          aria-label={ariaLabel}
           className={clsx('de-select-trigger', className)}
           style={style}
         >

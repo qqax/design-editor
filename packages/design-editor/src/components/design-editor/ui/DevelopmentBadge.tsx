@@ -1,8 +1,13 @@
 import React from 'react';
 
-export const DevelopmentBadge: React.FC = () => (
-  <div className="de-dev-badge">
-    <span className="de-dev-badge-dot" />
-    In Development
-  </div>
-);
+import { useMessages } from '../../../messages';
+
+export const DevelopmentBadge: React.FC = () => {
+  const m = useMessages();
+  return (
+    <div className="de-dev-badge">
+      <span className="de-dev-badge-dot" />
+      {m.badge}
+    </div>
+  );
+};

@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 
 import { createRoot } from 'react-dom/client';
-import { DesignEditor } from '@qqax/design-editor';
+import { DesignEditor, ruMessages } from '@qqax/design-editor';
 import '@qqax/design-editor/theme.css';
 
 function download(data: Blob | string, filename: string) {
@@ -17,10 +17,17 @@ function download(data: Blob | string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+// ?lang=ru switches the UI texts
+const messages =
+  new URLSearchParams(window.location.search).get('lang') === 'ru'
+    ? ruMessages
+    : undefined;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <div style={{ height: '100vh' }}>
       <DesignEditor
+        messages={messages}
         onExport={(blob, format, scene) => {
           const id = Date.now();
           download(blob, `design-${id}.${format}`);

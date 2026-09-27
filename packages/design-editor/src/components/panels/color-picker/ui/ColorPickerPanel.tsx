@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useMessages } from '../../../../messages';
 import {
   hslToRgb,
   parseHexInput,
@@ -25,6 +26,7 @@ export function ColorPickerPanel({
   swatches,
   alpha = false,
 }: ColorPickerPanelProps) {
+  const m = useMessages().color;
   const parts = splitAlpha(color);
   const displayHex = (value: string) =>
     (alpha ? value : splitAlpha(value).hex).replace(/^#/, '');
@@ -57,7 +59,7 @@ export function ColorPickerPanel({
   return (
     <div className="de-color-panel">
       <div
-        aria-label="Pick hue"
+        aria-label={m.hue}
         className="de-color-hue"
         role="button"
         tabIndex={0}
@@ -75,7 +77,7 @@ export function ColorPickerPanel({
         {swatches.map((sw) => (
           <button
             key={sw}
-            aria-label={`Select color ${sw}`}
+            aria-label={m.swatch(sw)}
             className="de-color-swatch"
             data-selected={parts.hex === sw.toLowerCase()}
             onClick={() => emitHex(sw.toLowerCase())}
@@ -89,7 +91,7 @@ export function ColorPickerPanel({
       {alpha ? (
         <div className="de-color-alpha">
           <input
-            aria-label="Opacity"
+            aria-label={m.opacity}
             className="de-alpha-slider"
             max={100}
             min={0}
@@ -116,7 +118,7 @@ export function ColorPickerPanel({
           }}
         >
           <input
-            aria-label="Open system color picker"
+            aria-label={m.systemPicker}
             onChange={(e) => emitHex(e.target.value)}
             type="color"
             value={parts.hex}
@@ -125,7 +127,7 @@ export function ColorPickerPanel({
         <div className="de-color-hex">
           <span>#</span>
           <input
-            aria-label="Hex color"
+            aria-label={m.hex}
             maxLength={alpha ? 8 : 6}
             onBlur={(e) => commitDraft(e.target.value)}
             onChange={(e) => setDraft(e.target.value)}

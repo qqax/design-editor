@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useMessages } from '../../../messages';
+
 import type { Editor } from '../../../engine';
 
 interface Props {
@@ -8,34 +10,18 @@ interface Props {
   editor: Editor | null;
 }
 
-export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
-  <div
-    style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}
-  >
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <span style={{ fontSize: 12, color: 'var(--de-color-text-muted)' }}>
-          Opacity
-        </span>
-        <span
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            color: 'var(--de-color-text)',
-            minWidth: 36,
-            textAlign: 'right',
-          }}
-        >
-          {opacity}%
-        </span>
+/** Opacity section of the "More" popovers */
+export const Opacity = ({ opacity, setOpacity, editor }: Props) => {
+  const m = useMessages().properties;
+  return (
+    <div className="de-form-section">
+      <div className="de-form-row">
+        <span className="de-form-label">{m.opacity}</span>
+        <span className="de-form-value">{opacity}%</span>
       </div>
       <input
+        aria-label={m.opacity}
+        className="de-range"
         max={100}
         min={0}
         type="range"
@@ -45,12 +31,7 @@ export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
           setOpacity(v);
           editor?.objects.update({ opacity: v / 100 });
         }}
-        style={{
-          width: '100%',
-          accentColor: 'var(--de-color-primary)',
-          cursor: 'pointer',
-        }}
       />
     </div>
-  </div>
-);
+  );
+};

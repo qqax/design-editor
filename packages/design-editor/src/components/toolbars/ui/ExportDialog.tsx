@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import { Download, Loader2 } from 'lucide-react';
 
+import { useMessages } from '../../../messages';
 import { getStorageSafe, setStorageSafe } from '../../design-editor/lib';
 import {
   Dialog,
@@ -41,14 +42,6 @@ const FORMATS: readonly (readonly [ExportFormat, string])[] = [
   ['svg', 'SVG'],
 ];
 
-const FORMAT_HINTS: Record<ExportFormat, string> = {
-  png: 'Lossless, keeps transparency.',
-  jpg: 'Smallest files; transparent areas become white.',
-  webp: 'Small files, keeps transparency.',
-  pdf: 'Print-ready page with a physical size, optional trim box and crop marks.',
-  svg: 'Vector. Fonts are linked by URL and images by their source, so they must stay reachable.',
-};
-
 interface ExportDialogProps {
   editor: Editor | null;
   offsets: PageOffsets;
@@ -63,6 +56,7 @@ export function ExportDialog({
   canSaveToLibrary,
   onExport,
 }: ExportDialogProps) {
+  const m = useMessages().export;
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<ExportTarget | null>(null);
   const [settings, setSettings] = useState<ExportSettings>(() =>
@@ -103,7 +97,7 @@ export function ExportDialog({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <button
-          aria-label="Export"
+          aria-label={m.title}
           className="de-btn"
           data-size="md"
           data-variant="primary"
@@ -111,29 +105,29 @@ export function ExportDialog({
           type="button"
         >
           <Download size={15} />
-          <span className="de-hide-mobile">Export</span>
+          <span className="de-hide-mobile">{m.title}</span>
         </button>
       </DialogTrigger>
       <DialogContent className="de-export-dialog">
-        <DialogTitle>Export</DialogTitle>
+        <DialogTitle>{m.title}</DialogTitle>
         <div className="de-form">
           <Segmented
-            label="Format"
+            label={m.format}
             onChange={(next) => update({ format: next })}
             options={FORMATS}
             value={format}
           />
           <DialogDescription className="de-form-hint">
-            {FORMAT_HINTS[format]}
+            {m.hints[format]}
           </DialogDescription>
 
           {isRaster ? (
             <div className="de-form-section">
               <div className="de-form-section-title">
-                {format === 'pdf' ? 'Image resolution' : 'Size'}
+                {format === 'pdf' ? m.imageResolution : m.size}
               </div>
               <Segmented
-                label="Scale"
+                label={m.scale}
                 onChange={(next) => update({ scale: Number(next) })}
                 value={String(settings.scale)}
                 options={EXPORT_SCALES.map(
@@ -142,9 +136,9 @@ export function ExportDialog({
               />
               {usesQuality ? (
                 <div className="de-form-row">
-                  <span className="de-form-label">Quality</span>
+                  <span className="de-form-label">{m.quality}</span>
                   <input
-                    aria-label="Quality"
+                    aria-label={m.quality}
                     className="de-range"
                     max={100}
                     min={10}
@@ -164,54 +158,61 @@ export function ExportDialog({
 
           {format === 'pdf' ? (
             <div className="de-form-section">
-              <div className="de-form-section-title">Print</div>
+              <div className="de-form-section-title">{m.print}</div>
               <Segmented
-                label="Page resolution"
+                label={m.pageResolution}
                 onChange={(next) => update({ dpi: Number(next) })}
                 value={String(settings.dpi)}
                 options={EXPORT_DPIS.map(
-                  (dpi) => [String(dpi), `${dpi} dpi`] as const
+                  (dpi) => [String(dpi), m.dpi(dpi)] as const
                 )}
               />
               <Segmented
-                label="Image compression"
+                label={m.compression}
                 onChange={(pdfImage) => update({ pdfImage })}
                 value={settings.pdfImage}
                 options={[
-                  ['lossless', 'Lossless'],
-                  ['jpeg', 'JPEG'],
+                  ['lossless', m.lossless],
+                  ['jpeg', m.jpeg],
                 ]}
               />
               <div className="de-form-row">
-                <span className="de-form-label">Trim at page offsets</span>
+                <span className="de-form-label">{m.trimAtOffsets}</span>
                 <Switch
-                  aria-label="Trim at page offsets"
+                  aria-label={m.trimAtOffsets}
                   checked={settings.trimAtOffsets ? hasOffsets(offsets) : false}
                   disabled={!hasOffsets(offsets)}
                   onCheckedChange={(trimAtOffsets) => update({ trimAtOffsets })}
                 />
               </div>
               <div className="de-form-row">
-                <span className="de-form-label">Crop marks</span>
+                <span className="de-form-label">{m.cropMarks}</span>
                 <Switch
-                  aria-label="Crop marks"
+                  aria-label={m.cropMarks}
                   checked={settings.cropMarks}
                   onCheckedChange={(cropMarks) => update({ cropMarks })}
                 />
               </div>
               {hasOffsets(offsets) ? null : (
-                <div className="de-form-hint">
-                  Set page offsets in Settings to mark the bleed: the trim box
-                  then sits at the offset guides.
-                </div>
+                <div className="de-form-hint">{m.offsetsHint}</div>
               )}
             </div>
           ) : null}
 
           <div className="de-export-summary">
-            <span>{summary.pixels}</span>
-            {summary.page ? <span>Page {summary.page}</span> : null}
-            {summary.trim ? <span>Trim {summary.trim}</span> : null}
+            <span>{m.pixels(summary.width, summary.height)}</span>
+            {summary.page ? (
+              <span>
+                {m.page(
+                  summary.page.width,
+                  summary.page.height,
+                  summary.page.dpi
+                )}
+              </span>
+            ) : null}
+            {summary.trim ? (
+              <span>{m.trim(summary.trim.width, summary.trim.height)}</span>
+            ) : null}
           </div>
         </div>
 
@@ -229,7 +230,7 @@ export function ExportDialog({
             ) : (
               <Download size={15} />
             )}
-            Download
+            {m.download}
           </button>
           {canSaveToLibrary ? (
             <button
@@ -243,7 +244,7 @@ export function ExportDialog({
               {busy === 'library' ? (
                 <Loader2 className="de-spin" size={15} />
               ) : null}
-              Save to library
+              {m.saveToLibrary}
             </button>
           ) : null}
         </div>

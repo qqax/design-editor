@@ -9,19 +9,14 @@ import {
 
 import type { PanelKey, PanelsConfigType } from '../../panels';
 
-export const ICONS: { key: PanelKey; icon: React.ReactNode; label: string }[] =
-  [
-    // { key: 'elements', icon: <Component size={20} />, label: 'Elements' },
-    { key: 'upload', icon: <Upload size={20} />, label: 'Upload' },
-    { key: 'text', icon: <Type size={20} />, label: 'Text' },
-    { key: 'shapes', icon: <Shapes size={20} />, label: 'Shapes' },
-    { key: 'stickers', icon: <Smile size={20} />, label: 'Stickers' },
-    {
-      key: 'templates',
-      icon: <LayoutTemplate size={20} />,
-      label: 'Templates',
-    },
-  ];
+/** Rail order; labels come from `messages.rail` */
+export const ICONS: { key: PanelKey; icon: React.ReactNode }[] = [
+  { key: 'upload', icon: <Upload size={20} /> },
+  { key: 'text', icon: <Type size={20} /> },
+  { key: 'shapes', icon: <Shapes size={20} /> },
+  { key: 'stickers', icon: <Smile size={20} /> },
+  { key: 'templates', icon: <LayoutTemplate size={20} /> },
+];
 
 export const DEFAULT_GALLERY_PROVIDER = createLocalGalleryProvider();
 

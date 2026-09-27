@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 
 import { CanvasContextBridge } from './CanvasContextBridge';
+import { useMessages } from '../../../messages';
 
 import type { CanvasBackground, EditorConfig } from '../../../engine';
 
@@ -24,6 +25,7 @@ export const CanvasArea = memo(
     workspaceBg?: string;
     settings: Partial<EditorConfig>;
   }) => {
+    const m = useMessages().canvas;
     return (
       <div
         onDragLeave={onDragLeave}
@@ -66,7 +68,7 @@ export const CanvasArea = memo(
                 '0 4px 24px color-mix(in srgb, var(--de-color-primary) 50%, transparent)',
             }}
           >
-            Drop to add to canvas
+            {m.drop}
           </div>
         ) : null}
       </div>

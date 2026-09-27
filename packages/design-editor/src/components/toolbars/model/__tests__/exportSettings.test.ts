@@ -51,7 +51,7 @@ describe('describeOutput', () => {
   it('reports pixels for raster output', () => {
     expect(
       describeOutput({ ...DEFAULT_EXPORT_SETTINGS, scale: 2 }, a4, NONE)
-    ).toEqual({ pixels: '4960 × 7016 px' });
+    ).toEqual({ width: 4960, height: 7016 });
   });
 
   it('reports the physical page and trim for PDF', () => {
@@ -60,8 +60,8 @@ describe('describeOutput', () => {
       { width: 2550, height: 3578 },
       BLEED
     );
-    expect(summary.page).toBe('215.9 × 302.9 mm at 300 dpi');
-    expect(summary.trim).toBe('210 × 297 mm');
+    expect(summary.page).toEqual({ width: 215.9, height: 302.9, dpi: 300 });
+    expect(summary.trim).toEqual({ width: 210, height: 297 });
   });
 });
 

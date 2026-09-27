@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { offsetGuides } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
+import { useMessages } from '../../../messages';
 import {
   drawRuler,
   placeRulers,
@@ -111,6 +112,7 @@ function RulerCanvas({
   style,
   onPointerDown,
 }: RulerCanvasProps) {
+  const m = useMessages().canvas;
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -136,7 +138,7 @@ function RulerCanvas({
   return (
     <canvas
       ref={ref}
-      aria-label={axis === 'x' ? 'Horizontal ruler' : 'Vertical ruler'}
+      aria-label={axis === 'x' ? m.horizontalRuler : m.verticalRuler}
       onPointerDown={onPointerDown}
       style={{
         position: 'absolute',
@@ -175,6 +177,7 @@ export function Rulers({
   onGuidesChange,
   onSidesChange,
 }: RulersProps) {
+  const m = useMessages().canvas;
   const { showRulers, rulerSides, rulerOrigin } = settings;
   const viewport = useViewport(editor);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -312,9 +315,13 @@ export function Rulers({
     return (
       <div
         key={guide.id}
-        aria-label={`${permanent ? 'Offset' : vertical ? 'Vertical' : 'Horizontal'} guide at ${rulerValue(guide)}`}
         onPointerDown={permanent ? undefined : dragGuide(guide)}
         role="separator"
+        aria-label={(permanent
+          ? m.offsetGuide
+          : vertical
+            ? m.verticalGuide
+            : m.horizontalGuide)(rulerValue(guide))}
         onDoubleClick={
           permanent
             ? undefined
@@ -413,11 +420,11 @@ export function Rulers({
             }
           />
           <div
-            aria-label="Move rulers"
+            aria-label={m.moveRulers}
             onPointerDown={dragCorner}
             role="button"
             tabIndex={-1}
-            title="Drag to another corner to move the rulers"
+            title={m.moveRulersHint}
             style={{
               position: 'absolute',
               left: placement.left,

@@ -3,6 +3,7 @@
 import { Plus, X } from 'lucide-react';
 
 import { gradientToCss } from '../../../../engine';
+import { useMessages } from '../../../../messages';
 import { solidLayer, splitAlpha, withAlpha } from '../lib';
 
 import type { GradientFill, GradientStop } from '../../../../engine';
@@ -19,6 +20,7 @@ export function GradientEditor({
   onChange,
   alpha = false,
 }: GradientEditorProps) {
+  const m = useMessages().color;
   const { type, angle, stops } = gradient;
 
   const setStops = (next: GradientStop[]) =>
@@ -49,16 +51,16 @@ export function GradientEditor({
   return (
     <div className="de-gradient-editor">
       <div
-        aria-label="Gradient preview"
+        aria-label={m.gradientPreview}
         className="de-gradient-preview"
         style={{ background: `${gradientToCss(gradient)}, var(--de-checker)` }}
       />
 
       {type === 'linear' && (
         <div className="de-gradient-row">
-          <span className="de-gradient-label">Angle</span>
+          <span className="de-gradient-label">{m.angle}</span>
           <input
-            aria-label="Gradient angle"
+            aria-label={m.gradientAngle}
             className="de-range"
             max={360}
             min={0}
@@ -74,10 +76,10 @@ export function GradientEditor({
 
       <div className="de-gradient-row">
         <span className="de-gradient-label" style={{ flex: 1 }}>
-          Color stops
+          {m.stops}
         </span>
         <button
-          aria-label="Add color stop"
+          aria-label={m.addStop}
           className="de-icon-btn de-icon-btn-sm"
           onClick={addStop}
           type="button"
@@ -101,7 +103,7 @@ export function GradientEditor({
               }}
             >
               <input
-                aria-label={`Stop ${index + 1} color`}
+                aria-label={m.stopColor(index + 1)}
                 type="color"
                 value={parts.hex}
                 onChange={(e) =>
@@ -112,7 +114,7 @@ export function GradientEditor({
               />
             </span>
             <input
-              aria-label={`Stop ${index + 1} position`}
+              aria-label={m.stopPosition(index + 1)}
               className="de-range"
               max={100}
               min={0}
@@ -127,11 +129,11 @@ export function GradientEditor({
             </span>
             {alpha ? (
               <input
-                aria-label={`Stop ${index + 1} opacity`}
+                aria-label={m.stopOpacity(index + 1)}
                 className="de-num-input"
                 max={100}
                 min={0}
-                title="Opacity, %"
+                title={m.opacityPercent}
                 type="number"
                 value={Math.round(parts.alpha * 100)}
                 onChange={(e) =>
@@ -142,7 +144,7 @@ export function GradientEditor({
               />
             ) : null}
             <button
-              aria-label={`Remove stop ${index + 1}`}
+              aria-label={m.removeStop(index + 1)}
               className="de-icon-btn de-icon-btn-sm"
               disabled={stops.length <= 2}
               onClick={() => setStops(stops.filter((_, i) => i !== index))}

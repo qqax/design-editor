@@ -5,6 +5,7 @@ import React, { useRef, useState } from 'react';
 import { CloudUpload, Loader2, Trash2 } from 'lucide-react';
 
 import { useToast } from '../../../../hooks/useToast';
+import { useMessages } from '../../../../messages';
 import { useGallery } from '../model';
 
 import type {
@@ -21,13 +22,19 @@ interface Props {
   onAddToCanvas: (url: string) => void;
 }
 
-function Preview({ item }: { item: GalleryItem }) {
+function Preview({
+  item,
+  fallbackName,
+}: {
+  item: GalleryItem;
+  fallbackName: string;
+}) {
   const src = item.thumbnailUrl ?? item.url;
   return item.type === 'video' && !item.thumbnailUrl ? (
     <video muted className="de-gallery-media" preload="metadata" src={src} />
   ) : (
     <img
-      alt={item.name ?? 'Gallery item'}
+      alt={item.name ?? fallbackName}
       className="de-gallery-media"
       draggable={false}
       src={src}
@@ -36,6 +43,7 @@ function Preview({ item }: { item: GalleryItem }) {
 }
 
 export function UploadPanel({ provider, widget, onAddToCanvas }: Props) {
+  const m = useMessages().gallery;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const [isUploading, setIsUploading] = useState(false);
@@ -47,16 +55,16 @@ export function UploadPanel({ provider, widget, onAddToCanvas }: Props) {
     e.target.value = '';
     if (!file || !upload) return;
     if (file.size > MAX_FILE_SIZE) {
-      toast.error('File size must be less than 50MB');
+      toast.error(m.tooLarge);
       return;
     }
     setIsUploading(true);
     try {
       const item = await upload(file);
       if (item) onAddToCanvas(item.url);
-      toast.success('Upload complete');
+      toast.success(m.uploaded);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Upload failed');
+      toast.error(err instanceof Error ? err.message : m.uploadFailed);
     } finally {
       setIsUploading(false);
     }
@@ -91,11 +99,9 @@ export function UploadPanel({ provider, widget, onAddToCanvas }: Props) {
               <CloudUpload size={28} />
             )}
             <span className="de-gallery-upload-title">
-              {isUploading ? 'Uploading…' : 'Click to upload'}
+              {isUploading ? m.uploading : m.upload}
             </span>
-            <span className="de-gallery-upload-hint">
-              PNG · JPG · SVG · MP4 · max 50 MB
-            </span>
+            <span className="de-gallery-upload-hint">{m.hint}</span>
           </button>
         </React.Fragment>
       ) : null}
@@ -108,27 +114,25 @@ export function UploadPanel({ provider, widget, onAddToCanvas }: Props) {
         ) : error ? (
           <div className="de-gallery-empty">{error}</div>
         ) : items.length === 0 ? (
-          <div className="de-gallery-empty">
-            Uploaded files will appear here
-          </div>
+          <div className="de-gallery-empty">{m.empty}</div>
         ) : (
           <div className="de-gallery-grid">
             {items.map((item) => (
               <div key={item.id} className="de-gallery-item">
                 <button
-                  aria-label={`Add ${item.name ?? 'item'} to canvas`}
+                  aria-label={m.add(item.name ?? m.item)}
                   className="de-gallery-add"
                   onClick={() => onAddToCanvas(item.url)}
                   type="button"
                 >
-                  <Preview item={item} />
+                  <Preview fallbackName={m.item} item={item} />
                 </button>
                 {remove ? (
                   <button
-                    aria-label={`Remove ${item.name ?? 'item'}`}
+                    aria-label={m.remove(item.name ?? m.item)}
                     className="de-gallery-remove"
                     onClick={() => void remove(item.id)}
-                    title="Remove from gallery"
+                    title={m.removeHint}
                     type="button"
                   >
                     <Trash2 size={13} />

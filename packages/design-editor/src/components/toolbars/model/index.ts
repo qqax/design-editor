@@ -1,4 +1,4 @@
-export { AD_SIZES, useCanvasSize } from './useCanvasSize';
+export { defaultCanvasSizes, useCanvasSize } from './useCanvasSize';
 export {
   DEFAULT_EXPORT_SETTINGS,
   describeOutput,

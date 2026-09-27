@@ -93,10 +93,13 @@ const round = (value: number, digits = 1) => {
 };
 
 export interface OutputSummary {
-  pixels: string;
-  /** Physical page size for PDF */
-  page?: string;
-  trim?: string;
+  /** Output pixels */
+  width: number;
+  height: number;
+  /** PDF page in millimetres */
+  page?: { width: number; height: number; dpi: number };
+  /** PDF trim box in millimetres */
+  trim?: { width: number; height: number };
 }
 
 export function describeOutput(
@@ -105,25 +108,25 @@ export function describeOutput(
   offsets: PageOffsets
 ): OutputSummary {
   const { width, height } = frame;
-  if (settings.format === 'svg') return { pixels: `${width} × ${height} px` };
-
-  const pixels = `${Math.round(width * settings.scale)} × ${Math.round(
-    height * settings.scale
-  )} px`;
-  if (settings.format !== 'pdf') return { pixels };
+  const scale = settings.format === 'svg' ? 1 : settings.scale;
+  const pixels = {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
+  };
+  if (settings.format !== 'pdf') return pixels;
 
   const { dpi } = settings;
   const mm = (px: number) => round(pxToMm(px, dpi));
-  const trimmed =
-    settings.trimAtOffsets && hasOffsets(offsets)
-      ? `${mm(width - offsets.left - offsets.right)} × ${mm(
-          height - offsets.top - offsets.bottom
-        )} mm`
-      : undefined;
   return {
-    pixels,
-    page: `${mm(width)} × ${mm(height)} mm at ${dpi} dpi`,
-    ...(trimmed && { trim: trimmed }),
+    ...pixels,
+    page: { width: mm(width), height: mm(height), dpi },
+    ...(settings.trimAtOffsets &&
+      hasOffsets(offsets) && {
+        trim: {
+          width: mm(width - offsets.left - offsets.right),
+          height: mm(height - offsets.top - offsets.bottom),
+        },
+      }),
   };
 }
 

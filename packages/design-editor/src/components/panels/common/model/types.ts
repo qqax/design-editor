@@ -63,3 +63,11 @@ export type PanelsConfigType = Record<
       renderProp?: RenderPropType;
     };
   };
+
+/** A plain text block added from the Text panel */
+export interface TextPreset {
+  key: 'heading' | 'subheading' | 'body';
+  text: string;
+  fontSize: number;
+  fontWeight: number;
+}

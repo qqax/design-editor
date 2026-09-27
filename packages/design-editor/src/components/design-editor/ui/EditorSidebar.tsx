@@ -2,6 +2,7 @@ import React from 'react';
 
 import { X } from 'lucide-react';
 
+import { useMessages } from '../../../messages';
 import { useEditorContext } from '../../EditorContext';
 import {
   getItemsFactory,
@@ -14,7 +15,7 @@ import {
   UploadPanel,
 } from '../../panels';
 
-import type { PanelKey } from '../../panels';
+import type { PanelKey, TextPreset } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { DesignResource } from '../../panels/common/provider';
 
@@ -26,7 +27,7 @@ interface EditorSidebarProps {
   handleApplyTemplate: (template: any) => void;
   addImageToCanvas: (src: string) => void;
   handleApplyTextDesign: (design: DesignResource) => void;
-  handleAddText: (text: string, size: number) => void;
+  handleAddText: (preset: TextPreset) => void;
   handleAddMedia: (url: string) => Promise<void>;
   // setActivePanel: (panel: PanelKey | null) => void;
 }
@@ -50,14 +51,24 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
     galleryWidget,
   } = useEditorContext();
 
+  const m = useMessages();
+
   if (!activePanel) return null;
+
+  const titles: Record<PanelKey, string> = {
+    templates: m.templates.title,
+    text: m.textDesigns.title,
+    shapes: m.shapes.title,
+    stickers: m.stickers.title,
+    upload: m.gallery.title,
+  };
 
   return (
     <div data-canvas-overlay className="de-sidebar">
       <div className="de-sidebar-header">
-        <span>{activePanel}</span>
+        <span>{titles[activePanel]}</span>
         <button
-          aria-label="Close panel"
+          aria-label={m.panel.close}
           className="de-icon-btn"
           onClick={onClose}
           type="button"
@@ -76,13 +87,13 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
             )
           ) : (
             <ResourcePanel
-              emptyMessage="No templates in this category"
-              errorLoadMoreMessage="Failed to load more templates"
-              errorMessage="Failed to load more templates"
-              noMatchMessage="No templates match"
-              noResourceAvailableMessage="No templates available. Host apps can supply a templateProvider."
+              emptyMessage={m.templates.empty}
+              errorLoadMoreMessage={m.templates.errorLoadMore}
+              errorMessage={m.templates.error}
+              noMatchMessage={m.templates.noMatch}
+              noResourceAvailableMessage={m.templates.unavailable}
               onApplyResource={handleApplyTemplate}
-              placeholder="Search templates"
+              placeholder={m.templates.search}
               provider={templateProvider}
             />
           ))}
@@ -99,19 +110,15 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
         {activePanel === 'text' && (
           <ResourcePanel
-            emptyMessage="No text designs in this category"
-            errorLoadMoreMessage="Failed to load more text designs"
-            errorMessage="Failed to load text designs"
-            noMatchMessage="No text designs match"
-            noResourceAvailableMessage="No text designs available. Host apps can supply a textDesignProvider."
+            emptyMessage={m.textDesigns.empty}
+            errorLoadMoreMessage={m.textDesigns.errorLoadMore}
+            errorMessage={m.textDesigns.error}
+            noMatchMessage={m.textDesigns.noMatch}
+            noResourceAvailableMessage={m.textDesigns.unavailable}
+            onAddPlainText={handleAddText}
             onApplyResource={handleApplyTextDesign}
-            placeholder="Search text designs"
+            placeholder={m.textDesigns.search}
             provider={textDesignProvider}
-            title="Text Designs"
-            onAddPlainText={(preset) => {
-              const map = { heading: 72, subheading: 48, body: 28 } as const;
-              handleAddText(preset, map[preset]);
-            }}
           />
         )}
 
@@ -123,7 +130,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 ...shape,
                 src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/shapes/${shape.category}/${shape.file}`,
               })),
-              SHAPES_ORDER
+              SHAPES_ORDER.map((category) => ({
+                ...category,
+                label: m.shapes.categories[category.key],
+              }))
             )}
           />
         )}
@@ -136,7 +146,10 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
                 ...sticker,
                 src: `https://cdn.jsdelivr.net/gh/qqax/design-editor/assets/stickers/${sticker.category}/${sticker.file}`,
               })),
-              STICKERS_ORDER
+              STICKERS_ORDER.map((category) => ({
+                ...category,
+                label: m.stickers.categories[category.key],
+              }))
             )}
           />
         )}

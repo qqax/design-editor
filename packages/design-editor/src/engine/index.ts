@@ -95,4 +95,6 @@ export * from './core/utils/image-loader';
 export * from './core/utils/object-exporter';
 export * from './core/utils/object-importer';
 export * from './core/utils/text';
+export { setLayerLabels } from './core/utils/layer-name';
+export type { LayerLabels } from './core/utils/layer-name';
 export * from './core/utils/get-selection-type';

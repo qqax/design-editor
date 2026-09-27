@@ -12,6 +12,7 @@ import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
 import { Zoom } from './Zoom';
+import { useMessages } from '../../../messages';
 import { UnifiedColorPicker } from '../../panels';
 import { HDivider, Tooltip } from '../../primitives';
 
@@ -71,6 +72,7 @@ export function Toolbar({
   hasUnsavedChanges,
   adSizes,
 }: Props) {
+  const m = useMessages().toolbar;
   return (
     <div className="de-toolbar scrollbar-hide">
       {onBack ? (
@@ -101,10 +103,10 @@ export function Toolbar({
         alpha
         activeObjId={undefined}
         gradient={typeof canvasBg === 'string' ? null : canvasBg}
-        label="Background"
+        label={m.background}
         onChange={onBgChange}
         onGradientChange={onBgChange}
-        tooltip="Canvas frame interior color"
+        tooltip={m.backgroundHint}
         variant="tool-bar"
         color={
           typeof canvasBg === 'string'
@@ -116,9 +118,9 @@ export function Toolbar({
         activeObjId={undefined}
         color={workspaceBg}
         emptySwatch="var(--de-color-workspace)"
-        label="Workspace"
+        label={m.workspace}
         onChange={onWorkspaceBgChange}
-        tooltip="Outer workspace background"
+        tooltip={m.workspaceHint}
         variant="tool-bar"
       />
 
@@ -138,9 +140,9 @@ export function Toolbar({
       />
 
       {/* Layers toggle */}
-      <Tooltip placement="bottom" title="Toggle layers panel">
+      <Tooltip placement="bottom" title={m.layersHint}>
         <button
-          aria-label="Layers"
+          aria-label={m.layers}
           aria-pressed={layerPanelOpen}
           className="de-tool-btn"
           data-active={layerPanelOpen}

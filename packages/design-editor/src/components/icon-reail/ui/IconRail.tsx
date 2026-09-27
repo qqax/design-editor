@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { IconRailButton } from './IconRailButton';
+import { useMessages } from '../../../messages';
 import { DEFAULT_PANELS_CONFIG, ICONS } from '../model';
 
 import type { PanelKey, PanelsConfigType } from '../../panels';
@@ -19,18 +20,21 @@ export const IconRail = ({
   onTogglePanel,
   panelsConfig = DEFAULT_PANELS_CONFIG,
   side = 'left',
-}: Props) => (
-  <div data-canvas-overlay className="de-rail" data-side={side}>
-    {ICONS.filter(({ key }) => panelsConfig[key].showPanel).map(
-      ({ key, icon, label }) => (
-        <IconRailButton
-          key={key}
-          active={activePanel === key}
-          icon={icon}
-          label={label}
-          onClick={() => onTogglePanel(key)}
-        />
-      )
-    )}
-  </div>
-);
+}: Props) => {
+  const m = useMessages().rail;
+  return (
+    <div data-canvas-overlay className="de-rail" data-side={side}>
+      {ICONS.filter(({ key }) => panelsConfig[key].showPanel).map(
+        ({ key, icon }) => (
+          <IconRailButton
+            key={key}
+            active={activePanel === key}
+            icon={icon}
+            label={m[key]}
+            onClick={() => onTogglePanel(key)}
+          />
+        )
+      )}
+    </div>
+  );
+};
