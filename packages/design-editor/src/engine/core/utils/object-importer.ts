@@ -170,7 +170,7 @@ class ObjectImporter {
     inGroup: boolean
   ): Promise<StaticImage> {
     const baseOptions = this.getBaseOptions(item, options, inGroup);
-    const { src, cropX, cropY } = item as IStaticImage;
+    const { src, cropX, cropY, cornerRadius } = item as IStaticImage;
 
     const image: any = await loadImageFromURL(src);
 
@@ -184,6 +184,7 @@ class ObjectImporter {
       ...baseOptions,
       cropX: cropX || 0,
       cropY: cropY || 0,
+      cornerRadius: cornerRadius ?? 0,
     });
 
     updateObjectBounds(element, options);

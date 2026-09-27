@@ -7,8 +7,8 @@ interface UseImageControlsOptions {
 }
 
 const cornerRadius = (object: FabricObject | null | undefined): number => {
-  const rx: unknown = object ? object.get('rx') : undefined;
-  return typeof rx === 'number' ? rx : 0;
+  const radius: unknown = object ? object.get('cornerRadius') : undefined;
+  return typeof radius === 'number' ? radius : 0;
 };
 
 export const useImageControls = ({ activeObj }: UseImageControlsOptions) => {

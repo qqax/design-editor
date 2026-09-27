@@ -124,6 +124,8 @@ export interface IStaticImage extends LayerBaseOptions {
   src: string;
   cropX?: number;
   cropY?: number;
+  /** Rounded corners, in page pixels */
+  cornerRadius?: number;
 }
 
 export type IBackgroundImage = IStaticImage;

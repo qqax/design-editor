@@ -108,12 +108,13 @@ class ObjectExporter {
     inGroup: boolean
   ): IStaticImage {
     const baseOptions = this.getBaseOptions(item, options, inGroup);
-    const { src, cropX, cropY, metadata } = item as IStaticImage;
+    const { src, cropX, cropY, cornerRadius, metadata } = item as IStaticImage;
     return {
       ...baseOptions,
       src,
       cropX,
       cropY,
+      ...(cornerRadius ? { cornerRadius } : {}),
       metadata,
     };
   }
@@ -226,6 +227,7 @@ class ObjectExporter {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this -- public API of the exporter
   public getBaseOptions(
     item: ILayer,
     options: Required<ILayer>,
