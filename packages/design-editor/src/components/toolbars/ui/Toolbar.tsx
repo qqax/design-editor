@@ -95,6 +95,7 @@ export function Toolbar({
 
       {/* ── BG + Canvas color pickers ────────────────────────────────────── */}
       <UnifiedColorPicker
+        alpha
         activeObjId={undefined}
         gradient={typeof canvasBg === 'string' ? null : canvasBg}
         label="Background"

@@ -1,13 +1,6 @@
-import { classRegistry, Rect, Shadow } from 'fabric';
+import { Canvas, classRegistry, Rect } from 'fabric';
 
-import type { ObjectEvents, RectProps, SerializedRectProps } from 'fabric';
-
-const defaultShadow = {
-  blur: 10,
-  color: '#C7C7C7',
-  offsetX: 0,
-  offsetY: 0,
-};
+import type { RectProps } from 'fabric';
 
 export interface BackgroundOptions extends Partial<RectProps> {
   id: string;
@@ -15,24 +8,26 @@ export interface BackgroundOptions extends Partial<RectProps> {
   description?: string;
 }
 
+declare module 'fabric' {
+  interface CanvasEvents {
+    'background:selected': Record<string, never>;
+  }
+}
+
 export class Background extends Rect {
   static type = 'Background';
 
+  // eslint-disable-next-line class-methods-use-this -- fabric reads the type per instance
   get type() {
     return 'Background';
   }
 
+  // eslint-disable-next-line class-methods-use-this -- written by fabric while deserializing
   set type(_value: string) {
     // fixed value — intentional no-op
   }
 
   constructor(options: BackgroundOptions) {
-    const shadowOptions = options.shadow ? options.shadow : defaultShadow;
-    const shadow = new Shadow({
-      affectStroke: false,
-      ...(shadowOptions as any),
-    });
-
     super({
       ...options,
       selectable: false,
@@ -43,36 +38,21 @@ export class Background extends Rect {
       strokeWidth: 0,
       evented: true,
       hoverCursor: 'default',
-      shadow,
+      // The page shadow lives on the Frame; here it would tint translucent fills.
+      shadow: null,
     });
 
     this.on('mouseup', ({ target }) => {
-      // @ts-ignore — vendored: canvas is non-null at runtime when object is on canvas
-      const activeSelection = this.canvas?.getActiveObject();
-      if (!activeSelection && target === this) {
-        // @ts-ignore — vendored
-        this.canvas?.fire('background:selected');
+      const { canvas } = this;
+      if (
+        canvas instanceof Canvas &&
+        !canvas.getActiveObject() &&
+        target === this
+      ) {
+        canvas.fire('background:selected', {});
       }
     });
-  }
-
-  // @ts-ignore
-  toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
-  }
-
-  // @ts-ignore
-  toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
-  }
-
-  static async fromObject(options: BackgroundOptions) {
-    return new Background(options);
   }
 }
 
 classRegistry.setClass(Background, Background.type);
-
-declare module 'fabric' {
-  export interface Background {}
-}

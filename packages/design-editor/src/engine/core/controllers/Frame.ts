@@ -1,3 +1,5 @@
+import { Shadow } from 'fabric';
+
 import Base from './Base';
 import { Background as BackgroundObject } from '../../objects/Background';
 import { Frame as FrameObject } from '../../objects/Frame';
@@ -6,6 +8,7 @@ import {
   defaultBackgroundOptions,
   defaultFrameOptions,
 } from '../common/constants';
+import { checkerCellSize, createCheckerPattern } from '../utils/checkerboard';
 import setObjectGradient from '../utils/fabric';
 
 import type { FabricObject } from 'fabric';
@@ -23,6 +26,8 @@ class Frame extends Base {
   private listeners = new Map<string, Set<() => void>>();
 
   private gradient: GradientFill | null = null;
+
+  private checkerCell = 0;
 
   constructor(props: ControllerOptions) {
     super(props);
@@ -50,15 +55,16 @@ class Frame extends Base {
       originX: 'left',
       originY: 'top',
       absolutePositioned: this.config.clipToFrame,
+      shadow: new Shadow({ affectStroke: false, ...this.config.shadow }),
     } as any);
 
     const background = new BackgroundObject({
       ...defaultBackgroundOptions,
       originX: 'left',
       originY: 'top',
-      shadow: this.config.shadow,
     } as any);
 
+    this.updateChecker(frame);
     this.canvas.add(frame, background);
 
     this.canvas.centerObject(frame);
@@ -114,6 +120,7 @@ class Frame extends Base {
       width,
       height,
     });
+    this.updateChecker(frame);
 
     (this.canvas as any).centerObject(frame);
     frame.setCoords();
@@ -134,6 +141,14 @@ class Frame extends Base {
 
     // Trigger the modified event
     this.emit('modified');
+  }
+
+  /** The frame shows through a (semi-)transparent background */
+  private updateChecker(frame: FabricObject) {
+    const cell = checkerCellSize(frame.width, frame.height);
+    if (cell === this.checkerCell) return;
+    this.checkerCell = cell;
+    frame.set({ fill: createCheckerPattern(cell), dirty: true });
   }
 
   public setHoverCursor = (cursor: string) => {
@@ -166,7 +181,6 @@ class Frame extends Base {
         top: this.frame.top,
         originX: this.frame.originX,
         originY: this.frame.originY,
-        shadow: this.config.shadow,
       });
 
       this.canvas.insertAt(1, background);
@@ -213,7 +227,6 @@ class Frame extends Base {
         top: this.frame.top,
         originX: this.frame.originX,
         originY: this.frame.originY,
-        shadow: this.config.shadow,
       });
 
       this.canvas.insertAt(1, background);

@@ -221,16 +221,7 @@ class Scene extends Base {
     if (isStale()) return;
 
     const objectImporter = new ObjectImporter(this.editor);
-    const updatedTemplateLayers = template.layers.map((layer) => {
-      if (layer.type === LayerType.BACKGROUND) {
-        return {
-          ...layer,
-          shadow: this.config.shadow,
-        };
-      }
-      return layer;
-    });
-    await (updatedTemplateLayers as Required<ILayer>[]).reduce(
+    await (template.layers as Required<ILayer>[]).reduce(
       async (previous, layer) => {
         await previous;
         if (isStale()) return;

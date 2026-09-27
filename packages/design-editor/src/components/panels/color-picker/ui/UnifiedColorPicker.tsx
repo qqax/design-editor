@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { ColorPickerPanel } from './ColorPickerPanel';
 import { GradientEditor } from './GradientEditor';
 import { gradientToCss } from '../../../../engine';
 import { Popover, Tooltip } from '../../../primitives';
+import { solidLayer } from '../lib';
 import { SWATCHES } from '../model';
 
 import type { GradientFill } from '../../../../engine';
@@ -15,7 +16,8 @@ interface UnifiedColorPickerProps {
   variant: 'property-bar' | 'tool-bar';
   activeObjId?: string;
   label?: string;
-  checkerboard?: boolean;
+  /** Adds an opacity slider; the swatch is drawn over a checkerboard */
+  alpha?: boolean;
   /** Enables the Linear/Radial modes */
   onGradientChange?: (gradient: GradientFill) => void;
   gradient?: GradientFill | null;
@@ -38,7 +40,7 @@ export function UnifiedColorPicker({
   variant,
   activeObjId,
   label,
-  checkerboard,
+  alpha = false,
   onGradientChange,
   gradient = null,
   emptySwatch = 'transparent',
@@ -54,7 +56,10 @@ export function UnifiedColorPicker({
   const placement = variant === 'property-bar' ? 'top' : 'bottom';
 
   const mode: FillMode = gradient ? gradient.type : 'solid';
-  const swatch = gradient ? gradientToCss(gradient) : color || emptySwatch;
+  const fill = gradient ? gradientToCss(gradient) : color || emptySwatch;
+  const swatch = alpha
+    ? `${gradient ? fill : solidLayer(fill)}, var(--de-checker)`
+    : fill;
 
   const selectMode = (next: FillMode) => {
     if (next === mode) return;
@@ -81,46 +86,36 @@ export function UnifiedColorPicker({
   };
 
   const panel = (
-    <ColorPickerPanel color={color} onChange={onChange} swatches={SWATCHES} />
+    <ColorPickerPanel
+      alpha={alpha}
+      color={color}
+      onChange={onChange}
+      swatches={SWATCHES}
+    />
   );
 
   const content = onGradientChange ? (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div role="tablist" style={{ display: 'flex', gap: 4 }}>
+      <div className="de-segmented" role="tablist">
         {MODES.map((option) => (
           <button
             key={option.value}
             aria-selected={mode === option.value}
+            className="de-segment"
             onClick={() => selectMode(option.value)}
             role="tab"
             type="button"
-            style={{
-              flex: 1,
-              height: 28,
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: 'pointer',
-              border:
-                mode === option.value
-                  ? '1.5px solid var(--de-color-primary)'
-                  : '1px solid var(--de-color-border)',
-              background:
-                mode === option.value
-                  ? 'color-mix(in srgb, var(--de-color-primary) 15%, transparent)'
-                  : 'var(--de-color-bg)',
-              color:
-                mode === option.value
-                  ? 'var(--de-color-primary)'
-                  : 'var(--de-color-text-muted)',
-            }}
           >
             {option.label}
           </button>
         ))}
       </div>
       {gradient ? (
-        <GradientEditor gradient={gradient} onChange={onGradientChange} />
+        <GradientEditor
+          alpha={alpha}
+          gradient={gradient}
+          onChange={onGradientChange}
+        />
       ) : (
         panel
       )}
@@ -140,52 +135,12 @@ export function UnifiedColorPicker({
         <Tooltip placement={placement} title={tooltip}>
           {variant === 'property-bar' ? (
             <button
-              aria-label="Color picker"
+              aria-label={label || 'Color picker'}
+              className="de-swatch-btn"
+              data-active={open}
               type="button"
-              onMouseEnter={(e) => {
-                if (!open) {
-                  e.currentTarget.style.borderColor =
-                    'color-mix(in srgb, var(--de-color-text) 30%, var(--de-color-border))';
-                  e.currentTarget.style.background =
-                    'color-mix(in srgb, var(--de-color-text) 4%, var(--de-color-bg))';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!open) {
-                  e.currentTarget.style.borderColor = 'var(--de-color-border)';
-                  e.currentTarget.style.background = 'var(--de-color-bg)';
-                }
-              }}
-              style={{
-                height: 30,
-                width: 38,
-                padding: 3,
-                borderRadius: 8,
-                border: open
-                  ? '1.5px solid var(--de-color-primary)'
-                  : '1px solid var(--de-color-border)',
-                background: open
-                  ? 'color-mix(in srgb, var(--de-color-primary) 8%, var(--de-color-bg))'
-                  : 'var(--de-color-bg)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                transition: 'all 0.15s ease',
-                outline: 'none',
-              }}
             >
-              <div
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: 5,
-                  border: '1px solid rgba(0,0,0,0.12)',
-                  background: swatch,
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
-                }}
-              />
+              <span className="de-swatch" style={{ background: swatch }} />
             </button>
           ) : (
             <button
@@ -195,19 +150,8 @@ export function UnifiedColorPicker({
               type="button"
             >
               <span
-                style={{
-                  display: 'inline-block',
-                  width: 18,
-                  height: 18,
-                  borderRadius: 5,
-                  border: '1.5px solid rgba(0,0,0,0.15)',
-                  background: checkerboard
-                    ? `linear-gradient(${color}, ${color}), repeating-conic-gradient(#bbb 0% 25%, #fff 0% 50%) 0 0 / 8px 8px`
-                    : swatch,
-                  flexShrink: 0,
-                  boxShadow: '0 1px 5px rgba(0,0,0,0.22)',
-                  overflow: 'hidden',
-                }}
+                className="de-swatch de-swatch-sm"
+                style={{ background: swatch }}
               />
               <span className="de-hide-mobile">{label}</span>
             </button>

@@ -11,12 +11,14 @@ export interface FrameOptions extends RectProps {
 export class Frame extends Rect {
   static type = 'Frame';
 
+  // eslint-disable-next-line class-methods-use-this -- fabric reads the type per instance
   get type() {
     return 'Frame';
   }
 
   // No-op setter — required so Fabric's _setOptions can write `type` during
   // deserialization (loadFromJSON / enlivenObjects) without crashing.
+  // eslint-disable-next-line class-methods-use-this -- written by fabric while deserializing
   set type(_value: string) {
     // fixed value
   }
@@ -31,21 +33,9 @@ export class Frame extends Rect {
       strokeWidth: 0,
       padding: 0,
       evented: false,
+      // It doubles as every layer's clipPath, which leaves its own cache blank.
+      objectCaching: false,
     });
-  }
-
-  // @ts-ignore
-  toObject(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
-  }
-
-  // @ts-ignore
-  toJSON(propertiesToInclude: string[] = []) {
-    return super.toObject(propertiesToInclude as any);
-  }
-
-  static async fromObject(options: FrameOptions) {
-    return new Frame(options);
   }
 }
 
