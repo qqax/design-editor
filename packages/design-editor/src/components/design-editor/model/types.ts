@@ -22,12 +22,18 @@ export interface DesignEditorProps {
   /**
    * "Save to library" in the Export dialog: receives the rendered file, its
    * format and the scene JSON. Without it the dialog only offers Download.
+   * A handler typed for fewer formats is accepted; list them in
+   * `exportFormats` so the dialog offers only those.
    */
-  onExport?: (
+  // Method syntax keeps the parameters bivariant, so narrower handlers type-check.
+  // eslint-disable-next-line @typescript-eslint/method-signature-style
+  onExport?(
     blob: Blob,
     format: ExportFormat,
     scene: IScene
-  ) => void | Promise<void>;
+  ): void | Promise<void>;
+  /** Formats offered in the Export dialog, in this order. Defaults to all. */
+  exportFormats?: readonly ExportFormat[];
   /** Font provider. Defaults to a Google Fonts provider. */
   fontProvider?: FontProvider;
   /** Background removal provider. Defaults to `@imgly/background-removal` if installed. */

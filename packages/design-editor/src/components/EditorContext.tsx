@@ -26,6 +26,7 @@ export interface EditorContextValue {
     format: ExportFormat,
     scene: IScene
   ) => void | Promise<void>;
+  exportFormats: readonly ExportFormat[];
   onBack?: () => void;
 }
 

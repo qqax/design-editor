@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { DesignEditorInner } from './DesignEditorInner';
-import { fontLoader, setLayerLabels } from '../../../engine';
+import { EXPORT_FORMATS, fontLoader, setLayerLabels } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
 import { en, mergeMessages, MessagesProvider } from '../../../messages';
 import {
@@ -15,6 +15,7 @@ import {
   DEFAULT_PANELS_CONFIG,
 } from '../../icon-reail/model';
 
+import type { ExportFormat } from '../../../engine';
 import type { PanelsConfigType } from '../../panels';
 import type { DesignEditorProps } from '../model';
 
@@ -40,6 +41,7 @@ export function DesignEditor({
   sceneKey,
   onBack,
   onExport,
+  exportFormats,
 
   fontProvider: fontProviderProp,
   backgroundRemovalProvider,
@@ -93,6 +95,16 @@ export function DesignEditor({
   fontLoader.setResolver(async (family) => fontProvider.load(family));
   setLayerLabels(messages.layers.names);
 
+  // Keyed by content: a new array with the same formats keeps the context.
+  const formatsKey = exportFormats?.join(',') ?? '';
+  const formats = useMemo(
+    () =>
+      formatsKey
+        ? [...new Set(formatsKey.split(',') as ExportFormat[])]
+        : (Object.keys(EXPORT_FORMATS) as ExportFormat[]),
+    [formatsKey]
+  );
+
   const persistence = useMemo(
     () => persistenceProvider ?? createIndexedDBPersistence(),
     [persistenceProvider]
@@ -109,6 +121,7 @@ export function DesignEditor({
       galleryWidget,
       sceneKey,
       onExport,
+      exportFormats: formats,
       onBack,
     }),
     [
@@ -121,6 +134,7 @@ export function DesignEditor({
       galleryWidget,
       sceneKey,
       onExport,
+      formats,
       onBack,
     ]
   );

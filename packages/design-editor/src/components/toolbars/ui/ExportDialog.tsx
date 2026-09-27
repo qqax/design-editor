@@ -6,6 +6,7 @@ import { Download, Loader2 } from 'lucide-react';
 
 import { useMessages } from '../../../messages';
 import { getStorageSafe, setStorageSafe } from '../../design-editor/lib';
+import { useEditorContext } from '../../EditorContext';
 import {
   Dialog,
   DialogContent,
@@ -34,13 +35,13 @@ import type { ExportSettings, ExportTarget } from '../model';
 
 const STORAGE_KEY = 'studio_export';
 
-const FORMATS: readonly (readonly [ExportFormat, string])[] = [
-  ['png', 'PNG'],
-  ['jpg', 'JPG'],
-  ['webp', 'WebP'],
-  ['pdf', 'PDF'],
-  ['svg', 'SVG'],
-];
+const FORMAT_LABELS: Record<ExportFormat, string> = {
+  png: 'PNG',
+  jpg: 'JPG',
+  webp: 'WebP',
+  pdf: 'PDF',
+  svg: 'SVG',
+};
 
 interface ExportDialogProps {
   editor: Editor | null;
@@ -59,12 +60,17 @@ export function ExportDialog({
   const m = useMessages().export;
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<ExportTarget | null>(null);
-  const [settings, setSettings] = useState<ExportSettings>(() =>
+  const { exportFormats } = useEditorContext();
+  const [stored, setStored] = useState<ExportSettings>(() =>
     sanitizeExportSettings(getStorageSafe<unknown>(STORAGE_KEY, null))
   );
+  // The remembered format may be one the host does not offer.
+  const settings: ExportSettings = exportFormats.includes(stored.format)
+    ? stored
+    : { ...stored, format: exportFormats[0] ?? 'png' };
 
   const update = (patch: Partial<ExportSettings>) => {
-    setSettings((prev) => {
+    setStored((prev) => {
       const next = { ...prev, ...patch };
       setStorageSafe(STORAGE_KEY, next);
       return next;
@@ -114,8 +120,10 @@ export function ExportDialog({
           <Segmented
             label={m.format}
             onChange={(next) => update({ format: next })}
-            options={FORMATS}
             value={format}
+            options={exportFormats.map(
+              (option) => [option, FORMAT_LABELS[option]] as const
+            )}
           />
           <DialogDescription className="de-form-hint">
             {m.hints[format]}
