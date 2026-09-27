@@ -47,7 +47,10 @@ let labels: LayerLabels = DEFAULT_LABELS;
 
 /** Localizes the names given to new layers ("Text 1" → "Текст 1") */
 export function setLayerLabels(next: Partial<LayerLabels> | null): void {
-  labels = { ...DEFAULT_LABELS, ...next };
+  const known = Object.keys(DEFAULT_LABELS) as (keyof LayerLabels)[];
+  labels = Object.fromEntries(
+    known.map((key) => [key, next?.[key] || DEFAULT_LABELS[key]])
+  ) as unknown as LayerLabels;
 }
 
 /** Type names and labels in any language set so far are all "generic" */

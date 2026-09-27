@@ -119,4 +119,15 @@ describe('setLayerLabels', () => {
     }
     expect(getLayerLabel('StaticText')).toBe('Text');
   });
+
+  it('ignores extra entries, so custom names stay meaningful', () => {
+    setLayerLabels({ backdrop: 'Backdrop' } as never);
+    try {
+      expect(createLayerName('StaticPath', 'Backdrop', new Set())).toBe(
+        'Backdrop'
+      );
+    } finally {
+      setLayerLabels(null);
+    }
+  });
 });
