@@ -145,11 +145,7 @@ export class ObjectsManager {
         this.context.editor.objects.sendToBack(currentBackgroundImage.id);
       }
     } else if (item.skipCentering) {
-      object.set({
-        left: item.left,
-        top: item.top,
-      });
-
+      // The importer already placed it: item.left/top are relative to the frame.
       object.setCoords();
     } else {
       canvas.centerObject(object);

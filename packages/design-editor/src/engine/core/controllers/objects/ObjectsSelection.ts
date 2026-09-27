@@ -1,15 +1,13 @@
-import {
-  ActiveSelection,
-} from 'fabric';
+import { ActiveSelection } from 'fabric';
 
 import { LayerType } from '../../../types';
+
+import type { FabricObject } from 'fabric';
 
 import type { ObjectsContext } from './ObjectsContext';
 
 export class ObjectsSelection {
-  constructor(
-    private readonly context: ObjectsContext,
-  ) {}
+  constructor(private readonly context: ObjectsContext) {}
 
   public select = (id?: string) => {
     const { canvas, state } = this.context;
@@ -35,29 +33,25 @@ export class ObjectsSelection {
 
       canvas.requestRenderAll();
 
-      state.setActiveObject(
-        canvas.getActiveObject() ?? null,
-      );
+      state.setActiveObject(canvas.getActiveObject() ?? null);
 
       return;
     }
 
-    const selectableObjects = canvas
-      .getObjects()
-      .filter((object) => {
-        if (
-          object.type === LayerType.FRAME ||
-          object.type === LayerType.BACKGROUND
-        ) {
-          return false;
-        }
+    const selectableObjects = canvas.getObjects().filter((object) => {
+      if (
+        object.type === LayerType.FRAME ||
+        object.type === LayerType.BACKGROUND
+      ) {
+        return false;
+      }
 
-        if (!object.evented) {
-          return false;
-        }
+      if (!object.evented) {
+        return false;
+      }
 
-        return !object.locked;
-      });
+      return !object.locked;
+    });
 
     if (!selectableObjects.length) {
       state.setActiveObject(null);
@@ -75,17 +69,39 @@ export class ObjectsSelection {
       return;
     }
 
-    const activeSelection = new ActiveSelection(
-      selectableObjects,
-      {
-        canvas,
-      },
-    );
+    const activeSelection = new ActiveSelection(selectableObjects, {
+      canvas,
+    });
 
     canvas.setActiveObject(activeSelection);
     canvas.requestRenderAll();
 
     state.setActiveObject(activeSelection);
+  };
+
+  /** Selects the given objects together; unknown ids are skipped */
+  public selectMany = (ids: readonly string[]) => {
+    const { canvas, state } = this.context;
+    const objects = ids
+      .map((id) => this.context.findOneById(id))
+      .filter((object): object is FabricObject => object !== null);
+
+    canvas.discardActiveObject();
+
+    if (objects.length === 0) {
+      state.setActiveObject(null);
+      canvas.requestRenderAll();
+      return;
+    }
+
+    const target =
+      objects.length === 1
+        ? objects[0]
+        : new ActiveSelection(objects, { canvas });
+
+    canvas.setActiveObject(target);
+    canvas.requestRenderAll();
+    state.setActiveObject(target);
   };
 
   public deselect = () => {

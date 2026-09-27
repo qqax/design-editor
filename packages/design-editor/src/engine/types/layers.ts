@@ -136,7 +136,8 @@ export interface IGroup extends LayerBaseOptions {
 }
 
 export interface IStaticPath extends LayerBaseOptions {
-  path: number[][];
+  /** Fabric path commands, e.g. `[['M', 0, 0], ['L', 10, 0], ['Z']]` */
+  path: (string | number)[][];
   fill: string;
 }
 

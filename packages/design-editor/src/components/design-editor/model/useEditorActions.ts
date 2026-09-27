@@ -4,6 +4,7 @@ import { StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
 import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
+import { buildTextDesignLayers } from '../lib/textDesignLayers';
 
 import type { FabricObject } from 'fabric';
 
@@ -129,32 +130,26 @@ export function useEditorActions(
   const handleApplyTextDesign = useCallback(
     (design: DesignResource) => {
       if (!editor) return;
-      const frameOpts = editor.frame?.options;
-      const dx = ((frameOpts?.width ?? 1080) - design.scene.frame.width) / 2;
-      const dy = ((frameOpts?.height ?? 1080) - design.scene.frame.height) / 2;
-
-      const textLayers = design.scene.layers.filter((l: any) =>
-        new Set(['StaticText', 'DynamicText']).has(l.type)
+      const { width = 1080, height = 1080 } = editor.frame.options;
+      const layers = buildTextDesignLayers(
+        design,
+        { width, height },
+        generateId
       );
-      const layersToAdd =
-        textLayers.length === 1 && design.scene.layers.length === 1
-          ? textLayers
-          : design.scene.layers;
 
-      void layersToAdd
+      void layers
         .reduce<Promise<unknown>>(
           async (previous, layer) =>
             previous.then(async () =>
-              editor.objects.add({
-                ...layer,
-                id: generateId(),
-                left: ((layer.left as number) ?? 0) + dx,
-                top: ((layer.top as number) ?? 0) + dy,
-                skipCentering: true,
-              })
+              editor.objects.add({ ...layer, skipCentering: true })
             ),
           Promise.resolve()
         )
+        .then(() => {
+          editor.objects.selectMany(
+            layers.flatMap((layer) => (layer.id ? [layer.id] : []))
+          );
+        })
         .catch(() => {
           message.error('Failed to add text design');
         });
