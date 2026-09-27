@@ -59,4 +59,29 @@ describe('StaticImage cornerRadius', () => {
     expect(ctx.getImageData(0, 0, 1, 1).data[3]).toBe(0);
     expect(ctx.getImageData(20, 10, 1, 1).data[3]).toBe(255);
   });
+
+  it('rounds the image in SVG as well', () => {
+    const image = new StaticImage(source(), {
+      id: 'img',
+      cornerRadius: 5,
+      scaleX: 2,
+      scaleY: 1,
+    });
+    const svg = image.toSVG();
+    const clip = /<clipPath id="(imageRound_\d+)">\s*<rect ([^>]*)\/>/.exec(
+      svg
+    );
+    expect(clip).not.toBeNull();
+    expect(clip?.[2]).toContain('rx="2.5"');
+    expect(clip?.[2]).toContain('ry="5"');
+    expect(svg).toContain(`clip-path="url(#${clip?.[1]})"`);
+    expect(svg.indexOf('<image')).toBeGreaterThan(
+      svg.indexOf('clip-path="url(#')
+    );
+  });
+
+  it('leaves square images untouched in SVG', () => {
+    const image = new StaticImage(source(), { id: 'img' });
+    expect(image.toSVG()).not.toContain('imageRound_');
+  });
 });

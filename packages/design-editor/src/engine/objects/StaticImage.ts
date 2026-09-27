@@ -57,6 +57,8 @@ function roundedRectPath(
   ctx.closePath();
 }
 
+let clipIds = 0;
+
 export class StaticImage extends FabricImageClass {
   static type = 'StaticImage';
 
@@ -87,20 +89,46 @@ export class StaticImage extends FabricImageClass {
     }
   }
 
-  _render(ctx: CanvasRenderingContext2D) {
+  /** Corner radii in object units, so the rounding is `cornerRadius` page pixels */
+  private cornerRadii(): { rx: number; ry: number } | null {
     const radius = this.cornerRadius;
-    if (!(radius > 0)) {
+    if (!(radius > 0)) return null;
+    return {
+      rx: Math.min(radius / Math.abs(this.scaleX || 1), this.width / 2),
+      ry: Math.min(radius / Math.abs(this.scaleY || 1), this.height / 2),
+    };
+  }
+
+  _render(ctx: CanvasRenderingContext2D) {
+    const radii = this.cornerRadii();
+    if (!radii) {
       super._render(ctx);
       return;
     }
     const { width, height } = this;
-    const rx = Math.min(radius / Math.abs(this.scaleX || 1), width / 2);
-    const ry = Math.min(radius / Math.abs(this.scaleY || 1), height / 2);
+    const { rx, ry } = radii;
     ctx.save();
     roundedRectPath(ctx, width, height, rx, ry);
     ctx.clip();
     super._render(ctx);
     ctx.restore();
+  }
+
+  _toSVG() {
+    const markup = super._toSVG();
+    const radii = this.cornerRadii();
+    if (!radii || markup.length === 0) return markup;
+    clipIds += 1;
+    const id = `imageRound_${clipIds}`;
+    const { width, height } = this;
+    return [
+      `<clipPath id="${id}">\n`,
+      `\t<rect x="${-width / 2}" y="${-height / 2}" width="${width}" height="${height}" rx="${radii.rx}" ry="${radii.ry}" />\n`,
+      '</clipPath>\n',
+      `<g clip-path="url(#${id})">\n`,
+      ...markup,
+      '</g>\n',
+    ];
   }
 
   static async fromObject(options: any): Promise<StaticImage> {
