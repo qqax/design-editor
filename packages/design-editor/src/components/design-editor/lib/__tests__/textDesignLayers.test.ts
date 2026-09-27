@@ -49,7 +49,12 @@ describe('buildTextDesignLayers', () => {
       height: 200,
       fill: '#0277bd',
     });
-    expect(title).toMatchObject({ id: 'id-1', name: 'Title', left: 580, top: 470 });
+    expect(title).toMatchObject({
+      id: 'id-1',
+      name: 'Title',
+      left: 580,
+      top: 470,
+    });
   });
 
   it('skips the backdrop without a visible canvas colour', () => {
@@ -70,15 +75,15 @@ describe('buildTextDesignLayers', () => {
   it('turns a page Background layer into the backdrop instead of replacing the page', () => {
     const layers = buildTextDesignLayers(
       {
-        scene: scene([
-          { id: 'bg', type: 'Background', fill: '#111111' },
-          text,
-        ]),
+        scene: scene([{ id: 'bg', type: 'Background', fill: '#111111' }, text]),
       },
       { width: 800, height: 200 },
       ids()
     );
-    expect(layers.map((layer) => layer.type)).toEqual(['StaticPath', 'StaticText']);
+    expect(layers.map((layer) => layer.type)).toEqual([
+      'StaticPath',
+      'StaticText',
+    ]);
     expect(layers[0]).toMatchObject({ fill: '#111111', left: 0, top: 0 });
   });
 });

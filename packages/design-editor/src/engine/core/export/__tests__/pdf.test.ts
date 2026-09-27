@@ -12,7 +12,16 @@ import type { PdfImage } from '../pdf';
 const latin1 = (bytes: Uint8Array) => Buffer.from(bytes).toString('latin1');
 
 const image = (withAlpha = false): PdfImage => {
-  const rgba = new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 255, withAlpha ? 0 : 255]);
+  const rgba = new Uint8ClampedArray([
+    255,
+    0,
+    0,
+    255,
+    0,
+    0,
+    255,
+    withAlpha ? 0 : 255,
+  ]);
   const { rgb, alpha } = splitChannels(rgba);
   return {
     width: 2,
@@ -40,12 +49,16 @@ describe('buildPdf', () => {
     expect(entries.length).toBe(6);
     entries.forEach(([, offset], index) => {
       const at = Number(offset);
-      expect(text.slice(at, at + `${index + 1} 0 obj`.length)).toBe(`${index + 1} 0 obj`);
+      expect(text.slice(at, at + `${index + 1} 0 obj`.length)).toBe(
+        `${index + 1} 0 obj`
+      );
     });
   });
 
   it('adds a soft mask only for transparent pixels', () => {
-    expect(latin1(buildPdf(image(), { width: 10, height: 10 }))).not.toContain('/SMask');
+    expect(latin1(buildPdf(image(), { width: 10, height: 10 }))).not.toContain(
+      '/SMask'
+    );
     const text = latin1(buildPdf(image(true), { width: 10, height: 10 }));
     expect(text).toContain('/SMask 6 0 R');
     expect(text).toContain('/ColorSpace /DeviceGray');
@@ -61,8 +74,12 @@ describe('buildPdf', () => {
         cropMarks: true,
       })
     );
-    expect(text).toContain(`/MediaBox [0 0 ${100 + margin * 2} ${50 + margin * 2}]`);
-    expect(text).toContain(`/BleedBox [${margin} ${margin} ${margin + 100} ${margin + 50}]`);
+    expect(text).toContain(
+      `/MediaBox [0 0 ${100 + margin * 2} ${50 + margin * 2}]`
+    );
+    expect(text).toContain(
+      `/BleedBox [${margin} ${margin} ${margin + 100} ${margin + 50}]`
+    );
     expect(text).toContain(
       `/TrimBox [${margin + 5} ${margin + 5} ${margin + 95} ${margin + 45}]`
     );

@@ -59,7 +59,7 @@ describe('createGradient', () => {
       y2: 200,
       r1: 0,
     });
-    expect(g.coords.r2).toBeCloseTo(250);
+    expect((g.coords as { r2?: number }).r2).toBeCloseTo(250);
   });
 
   it('keeps every stop in order', () => {

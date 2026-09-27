@@ -2,12 +2,12 @@
 import { Pattern } from 'fabric';
 import { describe, expect, it } from 'vitest';
 
-import { Background } from '../objects/Background';
-import { Frame } from '../objects/Frame';
 import {
   checkerCellSize,
   createCheckerPattern,
 } from '../core/utils/checkerboard';
+import { Background } from '../objects/Background';
+import { Frame } from '../objects/Frame';
 
 describe('checkerboard', () => {
   it('scales the cell with the page but keeps a minimum', () => {

@@ -9,7 +9,11 @@ describe('svgFontCss', () => {
       ['Brand Sans', 'Bebas Neue', 'Bebas Neue', 'Unknown'],
       [
         { family: 'Bebas Neue', source: 'google' },
-        { family: 'Brand Sans', source: 'custom', url: 'https://cdn.test/brand.woff2' },
+        {
+          family: 'Brand Sans',
+          source: 'custom',
+          url: 'https://cdn.test/brand.woff2',
+        },
       ]
     );
     expect(css.split('\n')).toEqual([

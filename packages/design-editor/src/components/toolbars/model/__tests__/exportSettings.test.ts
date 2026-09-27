@@ -22,18 +22,28 @@ describe('sanitizeExportSettings', () => {
 
   it('keeps valid values', () => {
     expect(
-      sanitizeExportSettings({ format: 'pdf', scale: 2, quality: 0.5, dpi: 150 })
+      sanitizeExportSettings({
+        format: 'pdf',
+        scale: 2,
+        quality: 0.5,
+        dpi: 150,
+      })
     ).toMatchObject({ format: 'pdf', scale: 2, quality: 0.5, dpi: 150 });
   });
 });
 
 describe('toExportOptions', () => {
   it('passes only what each format uses', () => {
-    expect(toExportOptions({ ...DEFAULT_EXPORT_SETTINGS, format: 'svg' }, BLEED)).toEqual({
+    expect(
+      toExportOptions({ ...DEFAULT_EXPORT_SETTINGS, format: 'svg' }, BLEED)
+    ).toEqual({
       format: 'svg',
     });
     expect(
-      toExportOptions({ ...DEFAULT_EXPORT_SETTINGS, format: 'jpg', scale: 2 }, BLEED)
+      toExportOptions(
+        { ...DEFAULT_EXPORT_SETTINGS, format: 'jpg', scale: 2 },
+        BLEED
+      )
     ).toEqual({ format: 'jpg', scale: 2, quality: 0.92 });
   });
 
@@ -41,7 +51,9 @@ describe('toExportOptions', () => {
     const pdf = { ...DEFAULT_EXPORT_SETTINGS, format: 'pdf' as const };
     expect(toExportOptions(pdf, BLEED).trim).toEqual(BLEED);
     expect(toExportOptions(pdf, NONE).trim).toBeUndefined();
-    expect(toExportOptions({ ...pdf, trimAtOffsets: false }, BLEED).trim).toBeUndefined();
+    expect(
+      toExportOptions({ ...pdf, trimAtOffsets: false }, BLEED).trim
+    ).toBeUndefined();
   });
 });
 

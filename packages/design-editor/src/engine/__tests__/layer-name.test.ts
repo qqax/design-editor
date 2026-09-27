@@ -1,15 +1,16 @@
 // Created by Claude (Claude Code).
 import { describe, expect, it } from 'vitest';
 
-import { StaticText } from '../objects';
 import {
   createLayerName,
   getLayerLabel,
   setLayerLabels,
 } from '../core/utils/layer-name';
 import ObjectImporter from '../core/utils/object-importer';
+import { StaticText } from '../objects';
 
 import type { FabricObject } from 'fabric';
+
 import type { Editor } from '../core/editor';
 import type { ILayer } from '../types';
 
@@ -83,7 +84,9 @@ describe('ObjectImporter layer names', () => {
   });
 
   it('skips names already used on the canvas', async () => {
-    const existing = new StaticText({ text: 'x', name: 'Text 1' });
+    const existing = Object.assign(new StaticText({ text: 'x' }), {
+      name: 'Text 1',
+    });
     const importer = new ObjectImporter(editorWith([existing]));
     const text = await importer.staticText(textLayer('c'), frame, false);
 
@@ -111,9 +114,15 @@ describe('setLayerLabels', () => {
   it('localizes new names and still treats English labels as generic', () => {
     setLayerLabels({ text: 'Текст', shape: 'Фигура' });
     try {
-      expect(createLayerName('StaticText', undefined, new Set())).toBe('Текст 1');
-      expect(createLayerName('StaticPath', 'Shape', new Set())).toBe('Фигура 1');
-      expect(createLayerName('StaticImage', undefined, new Set())).toBe('Image 1');
+      expect(createLayerName('StaticText', undefined, new Set())).toBe(
+        'Текст 1'
+      );
+      expect(createLayerName('StaticPath', 'Shape', new Set())).toBe(
+        'Фигура 1'
+      );
+      expect(createLayerName('StaticImage', undefined, new Set())).toBe(
+        'Image 1'
+      );
     } finally {
       setLayerLabels(null);
     }

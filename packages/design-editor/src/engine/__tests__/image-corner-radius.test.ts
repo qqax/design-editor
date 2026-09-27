@@ -27,14 +27,14 @@ describe('StaticImage cornerRadius', () => {
       left: 0,
       top: 0,
     });
-    const json = image.toObject(PROPERTIES_TO_INCLUDE) as ILayer & {
+    const json = image.toObject(PROPERTIES_TO_INCLUDE) as unknown as ILayer & {
       cornerRadius?: number;
     };
     expect(json.cornerRadius).toBe(6);
 
     const frame = { left: 0, top: 0, width: 100, height: 100 };
     const exported = new ObjectExporter().export(
-      { ...json, type: 'StaticImage' } as ILayer,
+      { ...json, type: 'StaticImage' },
       frame as never
     ) as ILayer & { cornerRadius?: number };
     expect(exported.cornerRadius).toBe(6);
