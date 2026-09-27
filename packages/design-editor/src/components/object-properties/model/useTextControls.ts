@@ -1,65 +1,66 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Editor } from '../../../engine';
+import { useCallback, useEffect, useState } from 'react';
+
+import { transformText } from './transformText';
+
+import type { Textbox, TextStyleDeclaration } from 'fabric';
+
+import type { TextTransform } from './types';
+import type { Editor } from '../../../engine';
 
 interface UseTextControlsOptions {
   editor: Editor | null;
-  activeObj: any;
-
+  activeObj: Textbox | null | undefined;
 }
 
-export const useTextControls = ({ activeObj, editor }: UseTextControlsOptions) => {
-  // ── Text-specific state ──────────────────────────────────────────────────
-  const [fontFamily, setFontFamily] = useState<string | undefined>(
-    () => activeObj?.fontFamily as string | undefined,
+export const useTextControls = ({
+  activeObj,
+  editor,
+}: UseTextControlsOptions) => {
+  const [fontFamily, setFontFamily] = useState(activeObj?.fontFamily);
+  const [charSpacing, setCharSpacing] = useState(
+    (activeObj?.charSpacing ?? 0) / 1000
   );
-  const [charSpacing, setCharSpacing] = useState<number>(
-    () => ((activeObj?.charSpacing as number | undefined) ?? 0) / 1000,
-  );
-  const [lineHeight, setLineHeight] = useState<number>(
-    () => (activeObj?.lineHeight as number | undefined) ?? 1.2,
-  );
-  type TextTransform = 'none' | 'upper' | 'lower' | 'title';
+  const [lineHeight, setLineHeight] = useState(activeObj?.lineHeight ?? 1.2);
   const [textTransform, setTextTransform] = useState<TextTransform>('none');
-  const originalTextRef = useRef<string | undefined>(undefined);
+  const [originalText, setOriginalText] = useState<string | undefined>();
 
-  // ── Text-editing / per-character selection state ─────────────────────────
-  // Tracks the styles of the currently selected characters so the toolbar
-  // reflects and applies changes to just the selection.
+  // Styles of the selected characters while the text is being edited, so the
+  // toolbar reflects and changes just the selection.
   const [isEditingText, setIsEditingText] = useState(false);
-  const [selStyle, setSelStyle] = useState<Record<string, any>>({});
+  const [selStyle, setSelStyle] = useState<Partial<TextStyleDeclaration>>({});
 
-  // Read selection styles from the active Fabric text object
+  const [prevObj, setPrevObj] = useState(activeObj);
+  if (activeObj !== prevObj) {
+    setPrevObj(activeObj);
+    setFontFamily(activeObj?.fontFamily);
+    setCharSpacing((activeObj?.charSpacing ?? 0) / 1000);
+    setLineHeight(activeObj?.lineHeight ?? 1.2);
+    setTextTransform('none');
+    setOriginalText(undefined);
+    setIsEditingText(false);
+    setSelStyle({});
+  }
+
   const readSelectionStyles = useCallback(() => {
-    const obj = activeObj;
-    if (!obj?.isEditing) return;
-    const selStart: number = obj.selectionStart ?? 0;
-    const selEnd: number = obj.selectionEnd ?? 0;
-    if (selEnd <= selStart) {
+    if (!activeObj?.isEditing) return;
+    const { selectionStart, selectionEnd } = activeObj;
+    if (selectionEnd <= selectionStart) {
       setSelStyle({});
       return;
     }
-    // getSelectionStyles returns an array of per-char style objects; merge/pick first
-    const styles: Record<string, any>[] =
-      obj.getSelectionStyles?.(selStart, selEnd) ?? [];
-    if (!styles.length) {
-      setSelStyle({});
-      return;
-    }
-    // Merge: if all chars agree on a value, show it; otherwise show the first
-    const merged: Record<string, any> = {};
-    const keys = new Set(styles.flatMap((s) => Object.keys(s)));
-    keys.forEach((k) => {
-      const values = styles.map((s) => s[k]).filter((v) => v !== undefined);
-      merged[k] = values[0]; // use first char's value as representative
-    });
-    setSelStyle(merged);
+    // First defined value per property, starting at the first character
+    const styles = activeObj.getSelectionStyles(selectionStart, selectionEnd);
+    setSelStyle(
+      styles.reduce<Partial<TextStyleDeclaration>>(
+        (merged, style) => ({ ...style, ...merged }),
+        {}
+      )
+    );
   }, [activeObj]);
 
-  // Subscribe to Fabric text editing events on the active canvas
   useEffect(() => {
     if (!editor) return;
-    const fabricCanvas = editor.canvas?.canvas;
-    if (!fabricCanvas) return;
+    const fabricCanvas = editor.canvas.canvas;
 
     const onEditingEntered = () => {
       setIsEditingText(true);
@@ -69,40 +70,34 @@ export const useTextControls = ({ activeObj, editor }: UseTextControlsOptions) =
       setIsEditingText(false);
       setSelStyle({});
     };
-    const onSelectionChanged = () => {
-      readSelectionStyles();
-    };
 
     fabricCanvas.on('text:editing:entered', onEditingEntered);
     fabricCanvas.on('text:editing:exited', onEditingExited);
-    fabricCanvas.on('text:selection:changed', onSelectionChanged);
+    fabricCanvas.on('text:selection:changed', readSelectionStyles);
 
     return () => {
       fabricCanvas.off('text:editing:entered', onEditingEntered);
       fabricCanvas.off('text:editing:exited', onEditingExited);
-      fabricCanvas.off('text:selection:changed', onSelectionChanged);
+      fabricCanvas.off('text:selection:changed', readSelectionStyles);
     };
   }, [editor, readSelectionStyles]);
 
-  useEffect(() => {
-    setFontFamily(activeObj?.fontFamily as string | undefined);
-    setCharSpacing(
-      ((activeObj?.charSpacing as number | undefined) ?? 0) / 1000,
-    );
-    setLineHeight((activeObj?.lineHeight as number | undefined) ?? 1.2);
-    setTextTransform('none');
-    originalTextRef.current = undefined;
-    // Reset editing state when object changes
-    setIsEditingText(false);
-    setSelStyle({});
-  }, [activeObj?.id]);
+  const applyTextTransform = useCallback(
+    (transform: TextTransform) => {
+      const base = originalText ?? activeObj?.text ?? '';
+      setOriginalText(transform === 'none' ? undefined : base);
+      setTextTransform(transform);
+      editor?.objects.update({ text: transformText(base, transform) });
+    },
+    [activeObj, editor, originalText]
+  );
 
   const handleFontChange = useCallback(
     (family: string) => {
       setFontFamily(family);
       editor?.objects.update({ fontFamily: family });
     },
-    [editor],
+    [editor]
   );
 
   return {
@@ -114,8 +109,7 @@ export const useTextControls = ({ activeObj, editor }: UseTextControlsOptions) =
     lineHeight,
     setLineHeight,
     textTransform,
-    setTextTransform,
+    applyTextTransform,
     handleFontChange,
-    originalTextRef,
-  }
+  };
 };

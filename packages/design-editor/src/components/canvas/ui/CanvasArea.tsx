@@ -4,7 +4,7 @@ import { CanvasContextBridge } from './CanvasContextBridge';
 
 import type { CanvasBackground, EditorConfig } from '../../../engine';
 
-const WORKSPACE_BG = 'var(--de-color-bg)';
+const WORKSPACE_BG = 'var(--de-color-workspace)';
 
 export const CanvasArea = memo(
   ({
@@ -32,7 +32,7 @@ export const CanvasArea = memo(
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundColor: workspaceBg ?? WORKSPACE_BG,
+          backgroundColor: workspaceBg || WORKSPACE_BG,
           backgroundImage: settings.showGrid
             ? 'radial-gradient(color-mix(in srgb, var(--de-color-text) 8%, transparent) 1.5px, transparent 1.5px)'
             : 'none',

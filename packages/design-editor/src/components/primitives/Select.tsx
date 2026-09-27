@@ -5,6 +5,8 @@ import * as React from 'react';
 import * as RadixSelect from '@radix-ui/react-select';
 import { clsx } from 'clsx';
 
+import { usePortalContainer } from './PortalContainer';
+
 export interface SelectOption {
   value: string;
   label: React.ReactNode;
@@ -83,6 +85,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
     },
     ref
   ) => {
+    const container = usePortalContainer();
     return (
       <RadixSelect.Root
         defaultValue={defaultValue}
@@ -112,7 +115,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
             </svg>
           </RadixSelect.Icon>
         </RadixSelect.Trigger>
-        <RadixSelect.Portal>
+        <RadixSelect.Portal container={container}>
           <RadixSelect.Content
             className="de-select-content"
             position="popper"

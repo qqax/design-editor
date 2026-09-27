@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 
 import { ResourceThumbnail } from './ResourceThumbnail';
+import { MoreLink } from '../../../primitives';
 
 import type {
   DesignResource,
@@ -104,19 +105,7 @@ export function ResourceCategoryRow({
           {category.name}
         </h3>
 
-        <button
-          onClick={() => onSeeMore(category.id)}
-          type="button"
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: 12,
-            fontWeight: 600,
-            color: 'var(--de-color-primary)',
-          }}
-        >
-          See more
-        </button>
+        <MoreLink onClick={() => onSeeMore(category.id)}>See all</MoreLink>
       </div>
 
       {error ? (

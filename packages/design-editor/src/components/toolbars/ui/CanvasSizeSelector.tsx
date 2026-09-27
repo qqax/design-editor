@@ -68,9 +68,9 @@ export const CanvasSizeSelector = ({
             Custom Canvas Size
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div className="relative flex-1">
+            <div className="de-size-field">
               <input
-                className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] py-1.5 pr-5 pl-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
+                className="de-size-input"
                 max={8000}
                 min={100}
                 onChange={(e) => setCustomW(Number(e.target.value) || 100)}
@@ -78,16 +78,16 @@ export const CanvasSizeSelector = ({
                 type="number"
                 value={customW}
               />
-              <span className="absolute top-1/2 right-1.5 -translate-y-1/2 text-xs text-(--de-color-text-muted)">
-                px
-              </span>
+              <span className="de-size-unit">px</span>
             </div>
-            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>
+            <span
+              style={{ color: 'var(--de-color-text-muted)', fontWeight: 600 }}
+            >
               ×
             </span>
-            <div className="relative flex-1">
+            <div className="de-size-field">
               <input
-                className="w-full rounded-md border border-transparent bg-[color-mix(in_srgb,var(--de-color-text)_5%,transparent)] py-1.5 pr-5 pl-1.5 text-sm outline-none focus:border-[var(--de-color-primary)]"
+                className="de-size-input"
                 max={8000}
                 min={100}
                 onChange={(e) => setCustomH(Number(e.target.value) || 100)}
@@ -95,9 +95,7 @@ export const CanvasSizeSelector = ({
                 type="number"
                 value={customH}
               />
-              <span className="absolute top-1/2 right-1.5 -translate-y-1/2 text-xs text-(--de-color-text-muted)">
-                px
-              </span>
+              <span className="de-size-unit">px</span>
             </div>
           </div>
           <Button
@@ -112,7 +110,6 @@ export const CanvasSizeSelector = ({
       }
     >
       <Select
-        className="studio-size-select flex-1 md:flex-none"
         onValueChange={handleSizeChange}
         options={options}
         style={{ width: 'auto', minWidth: 160, maxWidth: 220 }}

@@ -1,21 +1,3 @@
-import type { CSSProperties } from 'react';
-
-export const TOOL_BTN: CSSProperties = {
-  width: 34,
-  height: 34,
-  border: 'none',
-  borderRadius: 9,
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 15,
-  background: 'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
-  color: 'var(--de-color-text-muted)',
-  transition: 'all 0.15s',
-  outline: 'none',
-};
-
 // ─── Modern Property Color Picker (fixed: no nested Radix Tooltip in trigger) ──
 export const SWATCHES = [
   // Row 1 — Neutrals

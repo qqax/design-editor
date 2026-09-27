@@ -12,10 +12,8 @@ import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
 import { Zoom } from './Zoom';
-import { TOOL_BTN, UnifiedColorPicker } from '../../panels';
+import { UnifiedColorPicker } from '../../panels';
 import { HDivider, Tooltip } from '../../primitives';
-
-import type { CSSProperties } from 'react';
 
 import type {
   CanvasBackground,
@@ -36,6 +34,9 @@ interface Props {
   onSettings: (patch: Partial<SettingsType>) => void;
   offsets: PageOffsets;
   onOffsetsChange: (offsets: PageOffsets) => void;
+  /** Omit to hide the theme switcher */
+  theme?: 'dark' | 'light';
+  onThemeChange?: (theme: 'dark' | 'light') => void;
   canvasBg: CanvasBackground;
   onBgChange: (background: CanvasBackground) => void;
   workspaceBg: string;
@@ -44,13 +45,6 @@ interface Props {
   hasUnsavedChanges?: boolean;
   adSizes?: SelectOptions;
 }
-
-const TOOL_BTN_ACTIVE: CSSProperties = {
-  ...TOOL_BTN,
-  background: 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)',
-  color: 'var(--de-color-primary)',
-  boxShadow: '0 0 0 1px var(--de-color-primary)',
-};
 
 export function Toolbar({
   editor,
@@ -64,6 +58,8 @@ export function Toolbar({
   onSettings,
   offsets,
   onOffsetsChange,
+  theme,
+  onThemeChange,
   canvasBg,
   onBgChange,
   workspaceBg,
@@ -73,17 +69,7 @@ export function Toolbar({
   adSizes,
 }: Props) {
   return (
-    <div
-      className="scrollbar-hide z-50 flex h-14 shrink-0 items-center gap-1 overflow-x-auto px-4 whitespace-nowrap"
-      style={{
-        background: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
-        borderBottom: '1px solid var(--color-border)',
-        boxShadow:
-          '0 1px 0 var(--color-border), 0 4px 20px var(--shadow-color)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-      }}
-    >
+    <div className="de-toolbar scrollbar-hide">
       {onBack ? (
         hasUnsavedChanges ? (
           <UnsavedChangesProtector
@@ -125,13 +111,14 @@ export function Toolbar({
       <UnifiedColorPicker
         activeObjId={undefined}
         color={workspaceBg}
+        emptySwatch="var(--de-color-workspace)"
         label="Workspace"
         onChange={onWorkspaceBgChange}
         tooltip="Outer workspace background"
         variant="tool-bar"
       />
 
-      <div style={{ flex: 1 }} />
+      <div className="de-spacer" />
 
       <CanvasSizeSelector adSizes={adSizes} editor={editor} />
 
@@ -141,14 +128,19 @@ export function Toolbar({
         offsets={offsets}
         onOffsetsChange={onOffsetsChange}
         onSettings={onSettings}
+        onThemeChange={onThemeChange}
         settings={settings}
+        theme={theme}
       />
 
       {/* Layers toggle */}
       <Tooltip placement="bottom" title="Toggle layers panel">
         <button
+          aria-label="Layers"
+          aria-pressed={layerPanelOpen}
+          className="de-tool-btn"
+          data-active={layerPanelOpen}
           onClick={onToggleLayers}
-          style={layerPanelOpen ? TOOL_BTN_ACTIVE : TOOL_BTN}
           type="button"
         >
           <LayoutGrid size={18} />

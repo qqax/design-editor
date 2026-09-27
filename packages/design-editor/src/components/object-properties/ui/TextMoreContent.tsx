@@ -1,8 +1,10 @@
 // ── More popover for text (spacing, leading, case) ───────────────────────
 import React, { useCallback } from 'react';
-import { Editor } from '../../../engine';
-import { TextTransform } from '../model';
+
 import { Opacity } from './Opacity';
+
+import type { Editor } from '../../../engine';
+import type { TextTransform } from '../model';
 
 interface TextMoreContentProps {
   charSpacing: number;
@@ -13,10 +15,8 @@ interface TextMoreContentProps {
   setCharSpacing: (val: number) => void;
   setOpacity: (val: number) => void;
   setLineHeight: (val: number) => void;
-  setTextTransform: (val: TextTransform) => void;
-  activeObj: any;
+  onTextTransformChange: (val: TextTransform) => void;
   multiple: boolean;
-  originalTextRef: React.MutableRefObject<string | undefined>;
 }
 
 export const TextMoreContent = ({
@@ -28,10 +28,8 @@ export const TextMoreContent = ({
   setCharSpacing,
   setOpacity,
   setLineHeight,
-  setTextTransform,
-  activeObj,
+  onTextTransformChange,
   multiple,
-  originalTextRef
 }: TextMoreContentProps) => {
   const handleCharSpacingChange = useCallback(
     (val: number) => {
@@ -39,7 +37,7 @@ export const TextMoreContent = ({
       setCharSpacing(clamped);
       editor?.objects.update({ charSpacing: Math.round(clamped * 1000) });
     },
-    [editor]
+    [editor, setCharSpacing]
   );
 
   const handleLineHeightChange = useCallback(
@@ -48,54 +46,16 @@ export const TextMoreContent = ({
       setLineHeight(clamped);
       editor?.objects.update({ lineHeight: clamped });
     },
-    [editor]
+    [editor, setLineHeight]
   );
 
-  const handleTextTransformChange = useCallback(
-    (transform: TextTransform) => {
-      const currentText = (activeObj?.text as string | undefined) ?? '';
-      if (transform !== 'none' && originalTextRef.current === undefined) {
-        originalTextRef.current = currentText;
-      }
-      const base = originalTextRef.current ?? currentText;
-      let transformed: string;
-      switch (transform) {
-        case 'upper':
-          transformed = base.toUpperCase();
-          break;
-        case 'lower':
-          transformed = base.toLowerCase();
-          break;
-        case 'title':
-          transformed = base.replace(
-            /\w\S*/g,
-            (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-          );
-          break;
-        case 'none':
-        default:
-          transformed = base;
-          originalTextRef.current = undefined;
-          break;
-      }
-      setTextTransform(transform);
-      editor?.objects.update({ text: transformed });
-    },
-    [editor, activeObj]
-  );
-
-  return(
+  return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
-        padding: '14px 16px',
         minWidth: 220,
-        background: 'var(--de-color-surface)',
-        border: '1px solid var(--de-color-border)',
-        borderRadius: 12,
-        boxShadow: '0 8px 32px var(--shadow-color)',
       }}
     >
       <div
@@ -209,8 +169,9 @@ export const TextMoreContent = ({
             ).map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => handleTextTransformChange(opt.value)}
+                onClick={() => onTextTransformChange(opt.value)}
                 title={opt.title}
+                type="button"
                 style={{
                   flex: 1,
                   height: 30,
@@ -241,7 +202,7 @@ export const TextMoreContent = ({
         </div>
       )}
       {/* Opacity (also available here for convenience) */}
-      <Opacity opacity={opacity} setOpacity={setOpacity} editor={editor} />
+      <Opacity editor={editor} opacity={opacity} setOpacity={setOpacity} />
     </div>
   );
-}
+};

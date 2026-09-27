@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { X } from 'lucide-react';
+
 import { useEditorContext } from '../../EditorContext';
 import {
   getItemsFactory,
@@ -51,69 +53,20 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   if (!activePanel) return null;
 
   return (
-    <div
-      data-canvas-overlay
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 64,
-        bottom: 0,
-        width: 320,
-        background: 'var(--de-color-bg-elevated)',
-        borderRight: '1px solid var(--de-color-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 10,
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px 12px 0 12px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            textTransform: 'capitalize',
-            color: 'var(--de-color-text)',
-          }}
-        >
-          {activePanel}
-        </span>
+    <div data-canvas-overlay className="de-sidebar">
+      <div className="de-sidebar-header">
+        <span>{activePanel}</span>
         <button
+          aria-label="Close panel"
+          className="de-icon-btn"
           onClick={onClose}
           type="button"
-          style={{
-            all: 'unset',
-            cursor: 'pointer',
-            fontSize: 18,
-            color: 'var(--de-color-text-muted)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 24,
-            height: 24,
-            borderRadius: 4,
-          }}
         >
-          ×
+          <X size={16} />
         </button>
       </div>
 
-      {/* Content Switcher */}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <div className="de-sidebar-body">
         {activePanel === 'templates' &&
           (templatesPanel ? (
             typeof templatesPanel === 'function' ? (

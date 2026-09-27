@@ -43,68 +43,33 @@ export function LayerRow({
   return (
     <React.Fragment>
       <div
+        className="de-layer-row"
+        data-active={isActive}
+        data-hidden={!layer.visible}
+        data-selected={isSelected}
         onDoubleClick={() => setEditing(true)}
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
+        style={{ paddingLeft: 10 + depth * 14 }}
         onClick={(e) => {
           if (!editing) onSelect(layer.id, e.shiftKey);
-        }}
-        style={{
-          height: 36,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          paddingLeft: 12 + depth * 16,
-          paddingRight: 8,
-          cursor: 'pointer',
-          background: isSelected
-            ? 'color-mix(in srgb, var(--de-color-primary) 22%, transparent)'
-            : isActive
-              ? 'color-mix(in srgb, var(--de-color-primary) 10%, transparent)'
-              : hov
-                ? 'color-mix(in srgb, var(--de-color-text) 3%, transparent)'
-                : 'transparent',
-          transition: 'all 0.12s',
-          borderLeft: isActive
-            ? '2px solid var(--de-color-primary)'
-            : '2px solid transparent',
-          boxShadow: isActive
-            ? 'inset 0 0 20px color-mix(in srgb, var(--de-color-primary) 6%, transparent)'
-            : 'none',
         }}
       >
         {hasChildren ? (
           <span
+            className="de-layer-toggle"
             onClick={(e) => {
               e.stopPropagation();
               setCollapsed((v) => !v);
-            }}
-            style={{
-              fontSize: 10,
-              color: 'var(--de-color-text-muted)',
-              flexShrink: 0,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
             }}
           >
             {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
           </span>
         ) : (
-          <span style={{ width: 10 }} />
+          <span className="de-layer-toggle" />
         )}
 
-        <span
-          style={{
-            fontSize: 12,
-            color: isActive
-              ? 'var(--de-color-primary)'
-              : 'var(--de-color-text-muted)',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
+        <span className="de-layer-icon">
           {TYPE_ICONS[layer.type] ?? <Shapes size={14} />}
         </span>
 
@@ -132,11 +97,11 @@ export function LayerRow({
         ) : null}
       </div>
 
-      {hasChildren && !collapsed ? (
+      {layer.children && hasChildren && !collapsed ? (
         <LayerChildren
           activeId={activeId}
-          children={layer.children!}
           depth={depth + 1}
+          items={layer.children}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
           onRename={onRename}

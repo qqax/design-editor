@@ -41,7 +41,9 @@ const LABELS: Record<ObjectKind, string> = {
   object: 'Object',
 };
 
-export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOptions) => {
+export const useObjectPropertiesBar = ({
+  activeObj,
+}: UseObjectPropertiesBarOptions) => {
   const kind = getObjectKind(activeObj);
   const selected: any[] = isActiveSelection(activeObj)
     ? activeObj.getObjects()
@@ -50,11 +52,13 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
   const target = kind === 'text' && multiple ? selected[0] : activeObj;
 
   const [opacity, setOpacity] = useState(() =>
-    Math.round((target?.opacity ?? 1) * 100),
+    Math.round((target?.opacity ?? 1) * 100)
   );
-  useEffect(() => {
+  const [prevTarget, setPrevTarget] = useState(target);
+  if (target !== prevTarget) {
+    setPrevTarget(target);
     setOpacity(Math.round((target?.opacity ?? 1) * 100));
-  }, [target]);
+  }
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   useEffect(() => {
@@ -78,8 +82,9 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
       (e.target as HTMLElement).tagName === 'SELECT'
     )
       return;
+    const bar = e.currentTarget.parentElement;
+    if (!bar) return;
     e.preventDefault();
-    const bar = (e.currentTarget as HTMLDivElement).parentElement!;
     const rect = bar.getBoundingClientRect();
     dragRef.current = {
       startX: e.clientX,
@@ -108,27 +113,27 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
 
   const posStyle: React.CSSProperties = isMobile
     ? {
-      position: 'absolute',
-      bottom: 12,
-      left: 12,
-      right: 12,
-      transform: 'none',
-      width: 'auto',
-    }
+        position: 'absolute',
+        bottom: 12,
+        left: 12,
+        right: 12,
+        transform: 'none',
+        width: 'auto',
+      }
     : pos
       ? {
-        position: 'absolute',
-        left: pos.x,
-        top: pos.y,
-        transform: 'none',
-        bottom: 'auto',
-      }
+          position: 'absolute',
+          left: pos.x,
+          top: pos.y,
+          transform: 'none',
+          bottom: 'auto',
+        }
       : {
-        position: 'absolute',
-        bottom: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-      };
+          position: 'absolute',
+          bottom: 20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+        };
 
   return {
     posStyle,
@@ -139,5 +144,5 @@ export const useObjectPropertiesBar = ({ activeObj }: UseObjectPropertiesBarOpti
     opacity,
     setOpacity,
     onDragStart,
-  }
+  };
 };

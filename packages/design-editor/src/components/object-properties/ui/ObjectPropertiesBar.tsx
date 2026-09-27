@@ -41,57 +41,17 @@ export function ObjectPropertiesBar({
 
   return (
     <div
-      className="scrollbar-hide"
-      style={{
-        ...posStyle,
-        zIndex: 30,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 4,
-        padding: '6px 10px',
-        background:
-          'color-mix(in srgb, var(--de-color-surface) 94%, transparent)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid var(--de-color-border)',
-        borderRadius: 14,
-        boxShadow: '0 8px 32px var(--shadow-color)',
-        whiteSpace: 'nowrap',
-        overflowX: 'visible',
-      }}
+      className="de-props-bar scrollbar-hide"
+      style={{ ...posStyle, zIndex: 30 }}
     >
-      {/* Drag handle */}
       <div
+        className="de-props-grip"
         onMouseDown={onDragStart}
         title="Drag to move"
-        style={{
-          cursor: 'grab',
-          padding: '0 4px',
-          color: 'var(--de-color-text-muted)',
-          fontSize: 12,
-          flexShrink: 0,
-          userSelect: 'none',
-        }}
       >
         ⠿
       </div>
-      {/* Type badge */}
-      <div
-        style={{
-          background:
-            'color-mix(in srgb, var(--de-color-primary) 12%, transparent)',
-          borderRadius: 6,
-          padding: '3px 9px',
-          fontSize: 10,
-          fontWeight: 800,
-          color: 'var(--de-color-primary)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.07em',
-          flexShrink: 0,
-        }}
-      >
-        {label}
-      </div>
+      <div className="de-props-badge">{label}</div>
 
       <PDivider />
 

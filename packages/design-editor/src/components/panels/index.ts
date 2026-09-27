@@ -1,4 +1,4 @@
-export { SWATCHES, TOOL_BTN, UnifiedColorPicker } from './color-picker';
+export { SWATCHES, UnifiedColorPicker } from './color-picker';
 export {
   createDefaultDesignProvider,
   getItemsFactory,

@@ -8,3 +8,5 @@ export * from './Helpers';
 export * from './Toast';
 export * from './Dialog';
 export * from './Switch';
+export * from './PortalContainer';
+export * from './MoreButton';

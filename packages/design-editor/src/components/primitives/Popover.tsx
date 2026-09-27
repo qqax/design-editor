@@ -5,6 +5,8 @@ import * as React from 'react';
 import * as RadixPopover from '@radix-ui/react-popover';
 import { clsx } from 'clsx';
 
+import { usePortalContainer } from './PortalContainer';
+
 export interface PopoverProps {
   children: React.ReactNode;
   content: React.ReactNode;
@@ -22,10 +24,11 @@ export function Popover({
   placement = 'bottom',
   contentClassName,
 }: PopoverProps) {
+  const container = usePortalContainer();
   return (
     <RadixPopover.Root onOpenChange={onOpenChange} open={open}>
       <RadixPopover.Trigger asChild>{children}</RadixPopover.Trigger>
-      <RadixPopover.Portal>
+      <RadixPopover.Portal container={container}>
         <RadixPopover.Content
           className={clsx('de-popover-content', contentClassName)}
           side={placement}

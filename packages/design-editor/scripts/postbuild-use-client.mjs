@@ -1,10 +1,6 @@
 /**
- * Post-build script:
- * 1. Prepend 'use client' directive to all .js and .cjs files in dist/ so
- *    Next.js App Router treats them as client components.
- * 2. Copy src/theme/theme.css → dist/theme.css to satisfy the
- *    "./theme.css": "./dist/theme.css" export map entry. tsup does not process
- *    static CSS assets, so the copy must happen here.
+ * Post-build script: prepend the 'use client' directive to all .js and .cjs
+ * files in dist/ so Next.js App Router treats them as client components.
  */
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'

@@ -22,11 +22,13 @@ export function LayerName({
   onCancel,
 }: LayerNameProps) {
   const [val, setVal] = useState(name);
+  const [prevName, setPrevName] = useState(name);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  if (prevName !== name) {
+    setPrevName(name);
     setVal(name);
-  }, [name]);
+  }
 
   useEffect(() => {
     if (editing) {

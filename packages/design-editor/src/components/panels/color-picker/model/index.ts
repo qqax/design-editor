@@ -1,1 +1,1 @@
-export { SWATCHES, TOOL_BTN } from './constants';
+export { SWATCHES } from './constants';

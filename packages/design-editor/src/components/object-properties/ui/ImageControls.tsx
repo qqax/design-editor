@@ -1,9 +1,12 @@
-import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
-import { FlipHorizontal, FlipVertical, MoreHorizontal, Scissors } from 'lucide-react';
-import { ImageMoreContent } from './ImageMoreContent';
 import React from 'react';
-import { Editor } from '../../../engine';
+
+import { FlipHorizontal, FlipVertical, Scissors } from 'lucide-react';
+
+import { ImageMoreContent } from './ImageMoreContent';
+import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useImageControls } from '../model/useImageControls';
+
+import type { Editor } from '../../../engine';
 
 interface Props {
   editor: Editor | null;
@@ -15,63 +18,41 @@ interface Props {
 }
 
 export const ImageControls = ({
-                                editor,
-                                opacity,
-                                setOpacity,
-                                removingBg,
-                                onRemoveBg,
-                                activeObj,
-                              }: Props) => {
-  const {
-    borderRadius,
-    setBorderRadius,
-    shadowEnabled,
-    setShadowEnabled,
-  } = useImageControls({ activeObj });
+  editor,
+  opacity,
+  setOpacity,
+  removingBg,
+  onRemoveBg,
+  activeObj,
+}: Props) => {
+  const { borderRadius, setBorderRadius, shadowEnabled, setShadowEnabled } =
+    useImageControls({ activeObj });
 
   return (
     <React.Fragment>
       <Tooltip placement="top" title="Flip horizontal">
         <PBtn
-          onClick={() =>
-            editor?.objects.update({ flipX: !activeObj?.flipX })
-          }
+          onClick={() => editor?.objects.update({ flipX: !activeObj?.flipX })}
         >
           <FlipHorizontal size={14} />
         </PBtn>
       </Tooltip>
       <Tooltip placement="top" title="Flip vertical">
         <PBtn
-          onClick={() =>
-            editor?.objects.update({ flipY: !activeObj?.flipY })
-          }
+          onClick={() => editor?.objects.update({ flipY: !activeObj?.flipY })}
         >
           <FlipVertical size={14} />
         </PBtn>
       </Tooltip>
       <PDivider />
       <button
+        className="de-btn"
+        data-size="sm"
+        data-variant="secondary"
+        disabled={removingBg}
         onClick={onRemoveBg}
         title="Remove image background"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 5,
-          padding: '4px 10px',
-          borderRadius: 7,
-          cursor: removingBg ? 'wait' : 'pointer',
-          fontSize: 11,
-          fontWeight: 600,
-          background: removingBg
-            ? 'color-mix(in srgb, var(--de-color-text) 5%, transparent)'
-            : 'color-mix(in srgb, var(--de-color-primary) 12%, transparent)',
-          border: `1px solid ${removingBg ? 'var(--de-color-border)' : 'var(--de-color-primary)'}`,
-          color: removingBg
-            ? 'var(--de-color-text-muted)'
-            : 'var(--de-color-primary)',
-          outline: 'none',
-          transition: 'all 0.15s',
-        }}
+        type="button"
       >
         <Scissors size={13} />
         {removingBg ? 'Removing…' : 'Remove BG'}
@@ -79,31 +60,20 @@ export const ImageControls = ({
       <PDivider />
       {/* Image More options */}
       <Popover
-        content={<ImageMoreContent editor={editor} borderRadius={borderRadius} setBorderRadius={setBorderRadius}
-                                   opacity={opacity} setOpacity={setOpacity} shadowEnabled={shadowEnabled}
-                                   setShadowEnabled={setShadowEnabled} />} placement="top">
-        <button
-          title="More image options"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '4px 8px',
-            borderRadius: 7,
-            cursor: 'pointer',
-            fontSize: 11,
-            fontWeight: 600,
-            background:
-              'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
-            border: '1px solid var(--de-color-border)',
-            color: 'var(--de-color-text-muted)',
-            outline: 'none',
-            transition: 'all 0.15s',
-          }}
-        >
-          <MoreHorizontal size={14} />
-          <span style={{ fontSize: 10 }}>More</span>
-        </button>
+        placement="top"
+        content={
+          <ImageMoreContent
+            borderRadius={borderRadius}
+            editor={editor}
+            opacity={opacity}
+            setBorderRadius={setBorderRadius}
+            setOpacity={setOpacity}
+            setShadowEnabled={setShadowEnabled}
+            shadowEnabled={shadowEnabled}
+          />
+        }
+      >
+        <MoreButton label="More image options" />
       </Popover>
     </React.Fragment>
   );

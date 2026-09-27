@@ -47,7 +47,6 @@ export function useEditorActions(
   ) => Promise<boolean>,
   message: typeof toastApi,
   setCanvasBg: (bg: CanvasBackground) => void,
-  setWorkspaceBg: (bg: string) => void,
   setHasUnsavedChanges: (val: boolean) => void,
   persistenceProvider: PersistenceProvider
 ) {
@@ -180,7 +179,6 @@ export function useEditorActions(
               /* empty */
             }
           }
-          if (template.workspaceBg) setWorkspaceBg(template.workspaceBg);
           void clearAutosave(persistenceProvider, sceneKey);
           setHasUnsavedChanges(false);
           setTimeout(() => {
@@ -192,7 +190,6 @@ export function useEditorActions(
       editor,
       sceneKey,
       setCanvasBg,
-      setWorkspaceBg,
       setHasUnsavedChanges,
       message,
       persistenceProvider,

@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Settings } from 'lucide-react';
 
-import { TOOL_BTN } from '../../panels/color-picker';
 import { Popover, Switch } from '../../primitives';
 
 import type { PageOffsets, SettingsType } from '../../../engine';
@@ -12,6 +11,8 @@ interface SettingsProps {
   onSettings: (s: Partial<SettingsType>) => void;
   offsets: PageOffsets;
   onOffsetsChange: (offsets: PageOffsets) => void;
+  theme?: 'dark' | 'light';
+  onThemeChange?: (theme: 'dark' | 'light') => void;
 }
 
 const SECTION_TITLE: React.CSSProperties = {
@@ -89,6 +90,8 @@ const SettingsContent = ({
   onSettings,
   offsets,
   onOffsetsChange,
+  theme,
+  onThemeChange,
 }: SettingsProps) => (
   <div
     style={{
@@ -110,6 +113,17 @@ const SettingsContent = ({
     >
       Editor Settings
     </div>
+    {theme && onThemeChange ? (
+      <Segmented
+        label="Theme"
+        onChange={onThemeChange}
+        value={theme}
+        options={[
+          ['dark', 'Dark'],
+          ['light', 'Light'],
+        ]}
+      />
+    ) : null}
     {[
       { label: 'Grid overlay', key: 'showGrid' as const },
       { label: 'Rulers', key: 'showRulers' as const },
@@ -257,7 +271,7 @@ const SettingsContent = ({
 
 export const CanvasSettings = (props: SettingsProps) => (
   <Popover content={<SettingsContent {...props} />} placement="bottom">
-    <button style={TOOL_BTN} type="button">
+    <button aria-label="Settings" className="de-tool-btn" type="button">
       <Settings size={18} />
     </button>
   </Popover>

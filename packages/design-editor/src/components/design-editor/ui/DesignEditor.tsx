@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
 
-import { Toaster } from 'sonner';
-
 import { DesignEditorInner } from './DesignEditorInner';
 import { fontLoader } from '../../../engine';
 import { Provider as EngineProvider } from '../../../engine/react';
@@ -52,6 +50,8 @@ export function DesignEditor({
   adSizes,
 
   className,
+  theme = 'dark',
+  appearance,
 }: DesignEditorProps) {
   const resolvedBackgroundRemovalProvider =
     backgroundRemovalProvider ?? createImglyBackgroundRemoval();
@@ -117,13 +117,15 @@ export function DesignEditor({
       <EditorContextProvider value={ctx}>
         <DesignEditorInner
           adSizes={adSizes}
+          appearance={appearance}
           className={className}
           initialScene={initialScene}
           libraryPanel={libraryPanel}
+          panelsConfig={innerConfig}
           templatesPanel={templatesPanel}
+          theme={theme}
           title={title}
         />
-        <Toaster position="bottom-right" />
       </EditorContextProvider>
     </EngineProvider>
   );

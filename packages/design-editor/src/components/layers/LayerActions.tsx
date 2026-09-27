@@ -5,7 +5,6 @@ import React from 'react';
 import { Copy, Eye, EyeOff, Trash2 } from 'lucide-react';
 
 import { Tooltip } from '../primitives';
-import { ICON_BTN } from './layer-panel.types';
 
 interface LayerActionsProps {
   id: string;
@@ -28,7 +27,9 @@ export function LayerActions({
     <div style={{ display: 'flex', gap: 1, flexShrink: 0 }}>
       <Tooltip title={visible ? 'Hide' : 'Show'}>
         <button
-          style={ICON_BTN}
+          aria-label={visible ? 'Hide' : 'Show'}
+          className="de-icon-btn de-icon-btn-sm"
+          type="button"
           onClick={(e) => {
             stop(e);
             onVisibilityChange(id, !visible);
@@ -40,7 +41,9 @@ export function LayerActions({
 
       <Tooltip title="Duplicate">
         <button
-          style={ICON_BTN}
+          aria-label="Duplicate"
+          className="de-icon-btn de-icon-btn-sm"
+          type="button"
           onClick={(e) => {
             stop(e);
             onDuplicate(id);
@@ -52,7 +55,10 @@ export function LayerActions({
 
       <Tooltip title="Delete">
         <button
-          style={{ ...ICON_BTN, color: 'var(--de-color-danger)' }}
+          data-danger
+          aria-label="Delete"
+          className="de-icon-btn de-icon-btn-sm"
+          type="button"
           onClick={(e) => {
             stop(e);
             onDelete(id);

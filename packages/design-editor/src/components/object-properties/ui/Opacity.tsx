@@ -9,7 +9,9 @@ interface Props {
 }
 
 export const Opacity = ({ opacity, setOpacity, editor }: Props) => (
-  <div style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}>
+  <div
+    style={{ borderTop: '1px solid var(--de-color-border)', paddingTop: 12 }}
+  >
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div
         style={{

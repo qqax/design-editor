@@ -1,18 +1,11 @@
 import React from 'react';
 
-import {
-  AlignCenter,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Italic,
-  MoreHorizontal,
-} from 'lucide-react';
+import { AlignCenter, AlignLeft, AlignRight, Bold, Italic } from 'lucide-react';
 
 import { FontPickerPopover } from './FontPickerPopover';
 import { TextMoreContent } from './TextMoreContent';
 import { UnifiedColorPicker } from '../../panels';
-import { PBtn, PDivider, Popover, Tooltip } from '../../primitives';
+import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useTextControls } from '../model';
 
 import type { Editor } from '../../../engine';
@@ -41,9 +34,8 @@ export const TextControls = ({
     lineHeight,
     setLineHeight,
     textTransform,
-    setTextTransform,
+    applyTextTransform,
     handleFontChange,
-    originalTextRef,
   } = useTextControls({ editor, activeObj });
 
   return (
@@ -164,44 +156,20 @@ export const TextControls = ({
         placement="top"
         content={
           <TextMoreContent
-            activeObj={activeObj}
             charSpacing={charSpacing}
             editor={editor}
             lineHeight={lineHeight}
             multiple={multiple}
+            onTextTransformChange={applyTextTransform}
             opacity={opacity}
-            originalTextRef={originalTextRef}
             setCharSpacing={setCharSpacing}
             setLineHeight={setLineHeight}
             setOpacity={setOpacity}
-            setTextTransform={setTextTransform}
             textTransform={textTransform}
           />
         }
       >
-        <button
-          title="More text options"
-          type="button"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-            padding: '4px 8px',
-            borderRadius: 7,
-            cursor: 'pointer',
-            fontSize: 11,
-            fontWeight: 600,
-            background:
-              'color-mix(in srgb, var(--de-color-text) 5%, transparent)',
-            border: '1px solid var(--de-color-border)',
-            color: 'var(--de-color-text-muted)',
-            outline: 'none',
-            transition: 'all 0.15s',
-          }}
-        >
-          <MoreHorizontal size={14} />
-          <span style={{ fontSize: 10 }}>More</span>
-        </button>
+        <MoreButton label="More text options" />
       </Popover>
     </React.Fragment>
   );

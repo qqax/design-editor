@@ -1,26 +1,33 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
+import type { FabricObject } from 'fabric';
 
 interface UseImageControlsOptions {
-  activeObj: any;
+  activeObj: FabricObject | null | undefined;
 }
 
-export const useImageControls = ({ activeObj }: UseImageControlsOptions) => {
-  const [borderRadius, setBorderRadius] = useState<number>(
-    () => (activeObj?.rx as number | undefined) ?? 0,
-  );
-  const [shadowEnabled, setShadowEnabled] = useState<boolean>(
-    () => !!activeObj?.shadow,
-  );
+const cornerRadius = (object: FabricObject | null | undefined): number => {
+  const rx: unknown = object ? object.get('rx') : undefined;
+  return typeof rx === 'number' ? rx : 0;
+};
 
-  useEffect(() => {
-    setBorderRadius((activeObj?.rx as number | undefined) ?? 0);
+export const useImageControls = ({ activeObj }: UseImageControlsOptions) => {
+  const [borderRadius, setBorderRadius] = useState(() =>
+    cornerRadius(activeObj)
+  );
+  const [shadowEnabled, setShadowEnabled] = useState(() => !!activeObj?.shadow);
+
+  const [prevObj, setPrevObj] = useState(activeObj);
+  if (activeObj !== prevObj) {
+    setPrevObj(activeObj);
+    setBorderRadius(cornerRadius(activeObj));
     setShadowEnabled(!!activeObj?.shadow);
-  }, [activeObj?.id]);
+  }
 
   return {
     borderRadius,
     setBorderRadius,
     shadowEnabled,
     setShadowEnabled,
-  }
+  };
 };

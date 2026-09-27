@@ -20,14 +20,7 @@ export function LayerList({
 }: LayerListProps) {
   if (layers.length === 0) {
     return (
-      <div
-        style={{
-          padding: '32px 16px',
-          textAlign: 'center',
-          color: 'var(--de-color-text-muted)',
-          fontSize: 12,
-        }}
-      >
+      <div className="de-panel-empty">
         No layers yet.
         <br />
         Add content to the canvas.

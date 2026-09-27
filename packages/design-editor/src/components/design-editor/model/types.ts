@@ -1,5 +1,6 @@
 import type React from 'react';
 
+import type { EditorAppearance, EditorTheme } from './appearance';
 import type { IScene } from '../../../engine';
 import type {
   BackgroundRemovalProvider,
@@ -27,10 +28,14 @@ export interface DesignEditorProps {
   fontProvider?: FontProvider;
   /** Background removal provider. Defaults to `@imgly/background-removal` if installed. */
   backgroundRemovalProvider?: BackgroundRemovalProvider;
-  /** Autosave/scene persistence provider. Defaults to a `localStorage` provider. */
+  /** Autosave/scene persistence provider. Defaults to an IndexedDB provider. */
   persistenceProvider?: PersistenceProvider;
   /** Optional className applied to the editor root for outer styling. */
   className?: string;
+  /** Initial built-in theme; users can switch it unless `appearance.colors` is set. */
+  theme?: EditorTheme;
+  /** UI colors and fonts; with `colors` the Dark/Light switcher is hidden. */
+  appearance?: EditorAppearance;
   /** Optional title to display in the toolbar. Defaults to "Design Studio". */
   title?: React.ReactNode;
   adSizes?: SelectOptions;

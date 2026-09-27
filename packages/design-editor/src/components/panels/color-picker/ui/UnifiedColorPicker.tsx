@@ -4,7 +4,7 @@ import { ColorPickerPanel } from './ColorPickerPanel';
 import { GradientEditor } from './GradientEditor';
 import { gradientToCss } from '../../../../engine';
 import { Popover, Tooltip } from '../../../primitives';
-import { SWATCHES, TOOL_BTN } from '../model';
+import { SWATCHES } from '../model';
 
 import type { GradientFill } from '../../../../engine';
 
@@ -19,6 +19,8 @@ interface UnifiedColorPickerProps {
   /** Enables the Linear/Radial modes */
   onGradientChange?: (gradient: GradientFill) => void;
   gradient?: GradientFill | null;
+  /** Swatch shown while `color` is empty */
+  emptySwatch?: string;
 }
 
 type FillMode = 'solid' | GradientFill['type'];
@@ -39,6 +41,7 @@ export function UnifiedColorPicker({
   checkerboard,
   onGradientChange,
   gradient = null,
+  emptySwatch = 'transparent',
 }: UnifiedColorPickerProps) {
   const [open, setOpen] = useState(false);
   const [prevActiveObjId, setPrevActiveObjId] = useState(activeObjId);
@@ -51,7 +54,7 @@ export function UnifiedColorPicker({
   const placement = variant === 'property-bar' ? 'top' : 'bottom';
 
   const mode: FillMode = gradient ? gradient.type : 'solid';
-  const swatch = gradient ? gradientToCss(gradient) : color;
+  const swatch = gradient ? gradientToCss(gradient) : color || emptySwatch;
 
   const selectMode = (next: FillMode) => {
     if (next === mode) return;
@@ -187,17 +190,9 @@ export function UnifiedColorPicker({
           ) : (
             <button
               aria-label={label || 'Select color'}
+              className="de-tool-btn"
+              data-active={open}
               type="button"
-              style={{
-                ...TOOL_BTN,
-                padding: '4px 8px',
-                gap: 6,
-                width: 'auto',
-                background: open
-                  ? 'color-mix(in srgb, var(--de-color-primary) 18%, transparent)'
-                  : TOOL_BTN?.background,
-                boxShadow: open ? '0 0 0 1px var(--de-color-primary)' : 'none',
-              }}
             >
               <span
                 style={{
@@ -214,16 +209,7 @@ export function UnifiedColorPicker({
                   overflow: 'hidden',
                 }}
               />
-              <span
-                className="hidden md:inline"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  color: 'var(--de-color-text-muted)',
-                }}
-              >
-                {label}
-              </span>
+              <span className="de-hide-mobile">{label}</span>
             </button>
           )}
         </Tooltip>
