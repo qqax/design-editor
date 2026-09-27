@@ -87,14 +87,9 @@ const SettingsContent = ({
         <div className="de-form-grid">
           {EDGES.map((edge) => (
             <div key={edge} className="de-form-row">
-              <span
-                className="de-form-label"
-                style={{ textTransform: 'capitalize' }}
-              >
-                {edge}
-              </span>
+              <span className="de-form-label">{m.edges[edge]}</span>
               <input
-                aria-label={`${edge} offset`}
+                aria-label={m.offset(m.edges[edge])}
                 className="de-num-input"
                 min={0}
                 type="number"

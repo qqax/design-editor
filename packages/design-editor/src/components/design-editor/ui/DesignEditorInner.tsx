@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { clsx } from 'clsx';
 import { Toaster } from 'sonner';
@@ -26,6 +26,7 @@ import { LayerPanel } from '../../layers';
 import { ObjectPropertiesBar } from '../../object-properties';
 import { PortalContainerProvider } from '../../primitives';
 import { Toolbar } from '../../toolbars';
+import { DEFAULT_DPI, sanitizeDpi } from '../../toolbars/model';
 import { getStorageSafe, setStorageSafe } from '../lib';
 import {
   appearanceStyle,
@@ -47,6 +48,7 @@ import type { AutosaveViewport } from '../../../hooks/useAutoSave';
 import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { SelectOptions } from '../../primitives';
+import type { PageSetup } from '../../toolbars/model';
 import type { EditorAppearance, EditorTheme } from '../model';
 
 const WORKSPACE_BG = 'var(--de-color-workspace)';
@@ -143,17 +145,33 @@ export function DesignEditorInner({
   }, [settings]);
 
   const rulersKey = sceneKey ? `studio_rulers_${sceneKey}` : 'studio_rulers';
+  // Page setup of this scene: guides, offsets (also the bleed) and resolution
   const [rulers, setRulers] = useState<{
     guides: Guide[];
     offsets: PageOffsets;
-  }>(() => ({
-    guides: [],
-    offsets: NO_OFFSETS,
-    ...getStorageSafe<Partial<{ guides: Guide[]; offsets: PageOffsets }>>(
-      rulersKey,
-      {}
-    ),
-  }));
+    dpi: number;
+  }>(() => {
+    const stored = getStorageSafe<
+      Partial<{ guides: Guide[]; offsets: PageOffsets; dpi: number }>
+    >(rulersKey, {});
+    return {
+      guides: [],
+      offsets: NO_OFFSETS,
+      ...stored,
+      dpi: sanitizeDpi(stored.dpi ?? DEFAULT_DPI),
+    };
+  });
+
+  const handlePageSetup = useCallback((setup: PageSetup) => {
+    setRulers((prev) => {
+      const { top, right, bottom, left } = prev.offsets;
+      const wasBleed = top === right && right === bottom && bottom === left;
+      // Uneven offsets are the user's margins; only a bleed replaces them.
+      const offsets =
+        setup.offsets.top > 0 || wasBleed ? setup.offsets : prev.offsets;
+      return { ...prev, offsets, dpi: setup.dpi };
+    });
+  }, []);
 
   useEffect(() => {
     setStorageSafe(rulersKey, rulers);
@@ -315,12 +333,14 @@ export function DesignEditorInner({
             adSizes={adSizes}
             canSaveToLibrary={canSaveToLibrary}
             canvasBg={canvasBg}
+            dpi={rulers.dpi}
             editor={editor}
             hasUnsavedChanges={hasUnsavedChanges}
             layerPanelOpen={layerPanelOpen}
             offsets={rulers.offsets}
             onBgChange={setCanvasBg}
             onExport={handleExport}
+            onPageSetup={handlePageSetup}
             onSettings={(patch) => setSettings((p) => ({ ...p, ...patch }))}
             onThemeChange={themeSwitchable ? setUiTheme : undefined}
             onToggleLayers={() => setLayerPanelOpen((p) => !p)}
@@ -337,6 +357,9 @@ export function DesignEditorInner({
                     onBack();
                   }
                 : undefined
+            }
+            onDpiChange={(dpi) =>
+              setRulers((prev) => ({ ...prev, dpi: sanitizeDpi(dpi) }))
             }
             onOffsetsChange={(offsets) =>
               setRulers((prev) => ({ ...prev, offsets }))
@@ -476,7 +499,11 @@ export function DesignEditorInner({
           onRemoveBg={handleRemoveBg}
           removingBg={removingBg}
         />
-        <Toaster position="bottom-right" theme={uiTheme} />
+        <Toaster
+          containerAriaLabel={messages.notifications}
+          position="bottom-right"
+          theme={uiTheme}
+        />
       </PortalContainerProvider>
     </div>
   );

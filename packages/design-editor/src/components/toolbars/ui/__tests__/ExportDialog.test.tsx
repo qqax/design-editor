@@ -27,8 +27,10 @@ const open = (context: Partial<EditorContextValue>, onExport = vi.fn()) => {
     >
       <ExportDialog
         canSaveToLibrary={false}
+        dpi={300}
         editor={editor}
         offsets={NO_OFFSETS}
+        onDpiChange={() => {}}
         onExport={onExport}
       />
     </EditorContextProvider>

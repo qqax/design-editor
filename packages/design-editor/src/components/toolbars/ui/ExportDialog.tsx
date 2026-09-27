@@ -18,7 +18,7 @@ import {
 } from '../../primitives';
 import {
   describeOutput,
-  EXPORT_DPIS,
+  dpiChoices,
   EXPORT_SCALES,
   hasOffsets,
   sanitizeExportSettings,
@@ -46,6 +46,9 @@ const FORMAT_LABELS: Record<ExportFormat, string> = {
 interface ExportDialogProps {
   editor: Editor | null;
   offsets: PageOffsets;
+  /** Document resolution; sets the physical size of a PDF page */
+  dpi: number;
+  onDpiChange: (dpi: number) => void;
   /** Shows "Save to library" (the host's onExport) next to Download */
   canSaveToLibrary: boolean;
   onExport: (options: ExportOptions, target: ExportTarget) => Promise<boolean>;
@@ -54,6 +57,8 @@ interface ExportDialogProps {
 export function ExportDialog({
   editor,
   offsets,
+  dpi,
+  onDpiChange,
   canSaveToLibrary,
   onExport,
 }: ExportDialogProps) {
@@ -80,7 +85,7 @@ export function ExportDialog({
   const frame = editor
     ? { width: editor.frame.frame.width, height: editor.frame.frame.height }
     : { width: 0, height: 0 };
-  const summary = describeOutput(settings, frame, offsets);
+  const summary = describeOutput(settings, frame, offsets, dpi);
   const { format } = settings;
   const isRaster = format !== 'svg';
   const usesQuality =
@@ -91,7 +96,7 @@ export function ExportDialog({
   const run = async (target: ExportTarget) => {
     setBusy(target);
     try {
-      if (await onExport(toExportOptions(settings, offsets), target)) {
+      if (await onExport(toExportOptions(settings, offsets, dpi), target)) {
         setOpen(false);
       }
     } finally {
@@ -169,10 +174,10 @@ export function ExportDialog({
               <div className="de-form-section-title">{m.print}</div>
               <Segmented
                 label={m.pageResolution}
-                onChange={(next) => update({ dpi: Number(next) })}
-                value={String(settings.dpi)}
-                options={EXPORT_DPIS.map(
-                  (dpi) => [String(dpi), m.dpi(dpi)] as const
+                onChange={(next) => onDpiChange(Number(next))}
+                value={String(dpi)}
+                options={dpiChoices(dpi).map(
+                  (choice) => [String(choice), m.dpi(choice)] as const
                 )}
               />
               <Segmented

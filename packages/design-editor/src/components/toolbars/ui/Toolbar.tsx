@@ -24,7 +24,7 @@ import type {
   SettingsType,
 } from '../../../engine';
 import type { SelectOptions } from '../../primitives';
-import type { ExportTarget } from '../model';
+import type { ExportTarget, PageSetup } from '../model';
 
 interface Props {
   editor: Editor | null;
@@ -38,6 +38,10 @@ interface Props {
   onSettings: (patch: Partial<SettingsType>) => void;
   offsets: PageOffsets;
   onOffsetsChange: (offsets: PageOffsets) => void;
+  /** Document resolution, for physical sizes and PDF */
+  dpi: number;
+  onDpiChange: (dpi: number) => void;
+  onPageSetup: (setup: PageSetup) => void;
   /** Omit to hide the theme switcher */
   theme?: 'dark' | 'light';
   onThemeChange?: (theme: 'dark' | 'light') => void;
@@ -62,6 +66,9 @@ export function Toolbar({
   onSettings,
   offsets,
   onOffsetsChange,
+  dpi,
+  onDpiChange,
+  onPageSetup,
   theme,
   onThemeChange,
   canvasBg,
@@ -126,7 +133,14 @@ export function Toolbar({
 
       <div className="de-spacer" />
 
-      <CanvasSizeSelector adSizes={adSizes} editor={editor} />
+      <CanvasSizeSelector
+        adSizes={adSizes}
+        dpi={dpi}
+        editor={editor}
+        offsets={offsets}
+        onDpiChange={onDpiChange}
+        onPageSetup={onPageSetup}
+      />
 
       <HDivider />
 
@@ -157,8 +171,10 @@ export function Toolbar({
 
       <ExportDialog
         canSaveToLibrary={canSaveToLibrary}
+        dpi={dpi}
         editor={editor}
         offsets={offsets}
+        onDpiChange={onDpiChange}
         onExport={onExport}
       />
     </div>

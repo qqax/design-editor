@@ -10,8 +10,6 @@ export interface ExportSettings {
   scale: number;
   /** 0.1…1 */
   quality: number;
-  /** PDF page resolution */
-  dpi: number;
   pdfImage: 'lossless' | 'jpeg';
   /** PDF: page offsets become the trim box, the rest is bleed */
   trimAtOffsets: boolean;
@@ -21,11 +19,14 @@ export interface ExportSettings {
 export const EXPORT_SCALES = [1, 2, 3, 4] as const;
 export const EXPORT_DPIS = [72, 150, 300] as const;
 
+/** Standard resolutions plus the document's own, ascending */
+export const dpiChoices = (dpi: number): number[] =>
+  [...new Set([...EXPORT_DPIS, dpi])].sort((a, b) => a - b);
+
 export const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   format: 'png',
   scale: 1,
   quality: 0.92,
-  dpi: 300,
   pdfImage: 'lossless',
   trimAtOffsets: true,
   cropMarks: false,
@@ -52,7 +53,6 @@ export function sanitizeExportSettings(raw: unknown): ExportSettings {
       Number.isFinite(quality) && quality >= 0.1 && quality <= 1
         ? quality
         : d.quality,
-    dpi: pick(value.dpi, EXPORT_DPIS, d.dpi),
     pdfImage: pick(value.pdfImage, ['lossless', 'jpeg'] as const, d.pdfImage),
     trimAtOffsets:
       typeof value.trimAtOffsets === 'boolean'
@@ -69,11 +69,13 @@ export const hasOffsets = (offsets: PageOffsets) =>
   offsets.bottom > 0 ||
   offsets.left > 0;
 
+/** `dpi` is the document's: it sets the physical size of a PDF page */
 export function toExportOptions(
   settings: ExportSettings,
-  offsets: PageOffsets
+  offsets: PageOffsets,
+  dpi: number
 ): ExportOptions {
-  const { format, scale, quality, dpi, pdfImage, cropMarks } = settings;
+  const { format, scale, quality, pdfImage, cropMarks } = settings;
   if (format === 'svg') return { format };
   if (format !== 'pdf') return { format, scale, quality };
   return {
@@ -105,7 +107,8 @@ export interface OutputSummary {
 export function describeOutput(
   settings: ExportSettings,
   frame: { width: number; height: number },
-  offsets: PageOffsets
+  offsets: PageOffsets,
+  dpi: number
 ): OutputSummary {
   const { width, height } = frame;
   const scale = settings.format === 'svg' ? 1 : settings.scale;
@@ -115,7 +118,6 @@ export function describeOutput(
   };
   if (settings.format !== 'pdf') return pixels;
 
-  const { dpi } = settings;
   const mm = (px: number) => round(pxToMm(px, dpi));
   return {
     ...pixels,

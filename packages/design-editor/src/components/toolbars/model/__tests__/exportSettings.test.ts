@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_EXPORT_SETTINGS,
   describeOutput,
+  dpiChoices,
   exportFileName,
   sanitizeExportSettings,
   toExportOptions,
@@ -16,7 +17,7 @@ describe('sanitizeExportSettings', () => {
   it('falls back to defaults for missing or broken values', () => {
     expect(sanitizeExportSettings(null)).toEqual(DEFAULT_EXPORT_SETTINGS);
     expect(
-      sanitizeExportSettings({ format: 'gif', scale: 7, quality: 3, dpi: 96 })
+      sanitizeExportSettings({ format: 'gif', scale: 7, quality: 3 })
     ).toEqual(DEFAULT_EXPORT_SETTINGS);
   });
 
@@ -26,33 +27,33 @@ describe('sanitizeExportSettings', () => {
         format: 'pdf',
         scale: 2,
         quality: 0.5,
-        dpi: 150,
       })
-    ).toMatchObject({ format: 'pdf', scale: 2, quality: 0.5, dpi: 150 });
+    ).toMatchObject({ format: 'pdf', scale: 2, quality: 0.5 });
   });
 });
 
 describe('toExportOptions', () => {
   it('passes only what each format uses', () => {
     expect(
-      toExportOptions({ ...DEFAULT_EXPORT_SETTINGS, format: 'svg' }, BLEED)
+      toExportOptions({ ...DEFAULT_EXPORT_SETTINGS, format: 'svg' }, BLEED, 300)
     ).toEqual({
       format: 'svg',
     });
     expect(
       toExportOptions(
         { ...DEFAULT_EXPORT_SETTINGS, format: 'jpg', scale: 2 },
-        BLEED
+        BLEED,
+        300
       )
     ).toEqual({ format: 'jpg', scale: 2, quality: 0.92 });
   });
 
   it('uses page offsets as the PDF trim only when set and enabled', () => {
     const pdf = { ...DEFAULT_EXPORT_SETTINGS, format: 'pdf' as const };
-    expect(toExportOptions(pdf, BLEED).trim).toEqual(BLEED);
-    expect(toExportOptions(pdf, NONE).trim).toBeUndefined();
+    expect(toExportOptions(pdf, BLEED, 300).trim).toEqual(BLEED);
+    expect(toExportOptions(pdf, NONE, 300).trim).toBeUndefined();
     expect(
-      toExportOptions({ ...pdf, trimAtOffsets: false }, BLEED).trim
+      toExportOptions({ ...pdf, trimAtOffsets: false }, BLEED, 300).trim
     ).toBeUndefined();
   });
 });
@@ -62,7 +63,7 @@ describe('describeOutput', () => {
 
   it('reports pixels for raster output', () => {
     expect(
-      describeOutput({ ...DEFAULT_EXPORT_SETTINGS, scale: 2 }, a4, NONE)
+      describeOutput({ ...DEFAULT_EXPORT_SETTINGS, scale: 2 }, a4, NONE, 300)
     ).toEqual({ width: 4960, height: 7016 });
   });
 
@@ -70,10 +71,18 @@ describe('describeOutput', () => {
     const summary = describeOutput(
       { ...DEFAULT_EXPORT_SETTINGS, format: 'pdf' },
       { width: 2550, height: 3578 },
-      BLEED
+      BLEED,
+      300
     );
     expect(summary.page).toEqual({ width: 215.9, height: 302.9, dpi: 300 });
     expect(summary.trim).toEqual({ width: 210, height: 297 });
+  });
+});
+
+describe('dpiChoices', () => {
+  it('adds the document resolution to the standard ones', () => {
+    expect(dpiChoices(300)).toEqual([72, 150, 300]);
+    expect(dpiChoices(200)).toEqual([72, 150, 200, 300]);
   });
 });
 

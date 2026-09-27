@@ -45,6 +45,12 @@ export const ru: EditorMessages = {
     customTitle: 'Свой размер холста',
     width: 'Ширина',
     height: 'Высота',
+    units: 'Единицы',
+    unitNames: { px: 'px', mm: 'мм', in: 'дюймы' },
+    bleed: 'Вылет',
+    resolution: 'Разрешение',
+    result: (width, height, bleed) =>
+      `Холст ${width} × ${height} px${bleed ? ' с вылетами' : ''}`,
     apply: 'Применить',
   },
   settings: {
@@ -257,6 +263,7 @@ export const ru: EditorMessages = {
     defaultFont: 'По умолчанию',
     searchFonts: 'Поиск шрифтов…',
     customFont: 'Свой',
+    fontSample: 'Аа Бб Вв 123',
     noFonts: 'Шрифты не найдены',
     uploadFont: 'Загрузить шрифт',
   },
@@ -322,4 +329,5 @@ export const ru: EditorMessages = {
     horizontalGuide: (at) => `Горизонтальная направляющая: ${at}`,
   },
   badge: 'В разработке',
+  notifications: 'Уведомления',
 };

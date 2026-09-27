@@ -74,6 +74,7 @@ export const TextControls = ({
       {/* Text Color — reflects selection color when editing */}
       <UnifiedColorPicker
         activeObjId={activeObj?.id}
+        label={m.color}
         onChange={(c) => editor?.objects.update({ fill: c })}
         tooltip={m.color}
         variant="property-bar"

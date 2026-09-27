@@ -45,6 +45,12 @@ export const en = {
     customTitle: 'Custom Canvas Size',
     width: 'Width',
     height: 'Height',
+    units: 'Units',
+    unitNames: { px: 'px', mm: 'mm', in: 'in' },
+    bleed: 'Bleed',
+    resolution: 'Resolution',
+    result: (width: number, height: number, bleed: boolean) =>
+      `Canvas ${width} × ${height} px${bleed ? ', bleed included' : ''}`,
     apply: 'Apply',
   },
   settings: {
@@ -258,6 +264,7 @@ export const en = {
     defaultFont: 'Default',
     searchFonts: 'Search fonts…',
     customFont: 'Custom',
+    fontSample: 'Aa Bb Cc 123',
     noFonts: 'No fonts found',
     uploadFont: 'Upload font',
   },
@@ -323,6 +330,7 @@ export const en = {
     horizontalGuide: (at: number) => `Horizontal guide at ${at}`,
   },
   badge: 'In Development',
+  notifications: 'Notifications',
 };
 
 export type EditorMessages = typeof en;
