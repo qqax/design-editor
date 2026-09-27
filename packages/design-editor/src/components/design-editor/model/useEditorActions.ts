@@ -3,7 +3,10 @@ import { useCallback, useState } from 'react';
 import { collectFonts, exportScene, StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
+import { useStudioExport } from '../../../hooks/useStudioExport';
+import { useToast } from '../../../hooks/useToast';
 import { useMessages } from '../../../messages';
+import { useEditorContext } from '../../EditorContext';
 import { exportFileName } from '../../toolbars/model';
 import { downloadBlob } from '../lib/download';
 import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
@@ -12,21 +15,9 @@ import { buildTextDesignLayers } from '../lib/textDesignLayers';
 
 import type { FabricObject } from 'fabric';
 
-import type {
-  CanvasBackground,
-  Editor,
-  ExportFormat,
-  ExportOptions,
-  IScene,
-} from '../../../engine';
-import type {
-  BackgroundRemovalProvider,
-  FontProvider,
-  PersistenceProvider,
-} from '../../../providers';
+import type { CanvasBackground, Editor, ExportOptions } from '../../../engine';
 import type { TextPreset } from '../../panels';
 import type { DesignResource } from '../../panels/common/provider';
-import type { toastApi } from '../../primitives/Toast';
 import type { ExportTarget } from '../../toolbars/model';
 
 const blobToDataUrl = async (blob: Blob) =>
@@ -49,22 +40,28 @@ const toScreenRect = (editor: Editor, object: FabricObject) => {
   };
 };
 
-export function useEditorActions(
-  editor: Editor | null,
-  activeObj: FabricObject | null,
-  sceneKey: string | undefined,
-  backgroundRemovalProvider: BackgroundRemovalProvider,
-  exportToLibrary: (
-    blob: Blob,
-    format: ExportFormat,
-    scene: IScene
-  ) => Promise<boolean>,
-  message: typeof toastApi,
-  setCanvasBg: (bg: CanvasBackground) => void,
-  setHasUnsavedChanges: (val: boolean) => void,
-  persistenceProvider: PersistenceProvider,
-  fontProvider: FontProvider
-) {
+interface EditorActionsOptions {
+  editor: Editor | null;
+  activeObj: FabricObject | null;
+  setCanvasBg: (background: CanvasBackground) => void;
+  setHasUnsavedChanges: (value: boolean) => void;
+}
+
+/** Canvas actions of the editor UI; providers and texts come from context */
+export function useEditorActions({
+  editor,
+  activeObj,
+  setCanvasBg,
+  setHasUnsavedChanges,
+}: EditorActionsOptions) {
+  const {
+    backgroundRemovalProvider,
+    persistenceProvider,
+    fontProvider,
+    sceneKey,
+  } = useEditorContext();
+  const message = useToast();
+  const { exportToLibrary } = useStudioExport();
   const m = useMessages();
   const [removingBg, setRemovingBg] = useState(false);
   const [shimmerRect, setShimmerRect] = useState<{

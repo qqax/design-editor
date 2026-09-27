@@ -18,7 +18,6 @@ import {
   useAutoSave,
 } from '../../../hooks/useAutoSave';
 import { useStudioExport } from '../../../hooks/useStudioExport';
-import { useToast } from '../../../hooks/useToast';
 import { useMessages } from '../../../messages';
 import { CanvasArea, Rulers } from '../../canvas';
 import { useEditorContext } from '../../EditorContext';
@@ -98,15 +97,9 @@ export function DesignEditorInner({
   const editor = useEditor();
   const activeObj = useActiveObject<FabricImage>();
   const zoomRatio = useZoomRatio<number>();
-  const message = useToast();
-  const { exportToLibrary, canSaveToLibrary } = useStudioExport();
-  const {
-    backgroundRemovalProvider,
-    persistenceProvider,
-    fontProvider,
-    sceneKey,
-    onBack,
-  } = useEditorContext();
+  const { canSaveToLibrary } = useStudioExport();
+  const { persistenceProvider, fontProvider, sceneKey, onBack } =
+    useEditorContext();
 
   const messages = useMessages();
 
@@ -191,18 +184,12 @@ export function DesignEditorInner({
     handleApplyTemplate,
     handleRemoveBg,
     handleExport,
-  } = useEditorActions(
+  } = useEditorActions({
     editor,
     activeObj,
-    sceneKey,
-    backgroundRemovalProvider,
-    exportToLibrary,
-    message,
     setCanvasBg,
     setHasUnsavedChanges,
-    persistenceProvider,
-    fontProvider
-  );
+  });
 
   const {
     spaceDown,
