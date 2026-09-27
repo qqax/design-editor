@@ -7,7 +7,7 @@ import { LayoutGrid } from 'lucide-react';
 import { Brand } from './Brand';
 import { CanvasSizeSelector } from './CanvasSizeSelector';
 import { ExitButton } from './ExitButton';
-import { SaveButton } from './SaveButton';
+import { ExportDialog } from './ExportDialog';
 import { CanvasSettings } from './SettingsContent';
 import { UndoRedo } from './UndoRedo';
 import { UnsavedChangesProtector } from './UnsavedChangesProtector';
@@ -17,18 +17,21 @@ import { HDivider, Tooltip } from '../../primitives';
 
 import type {
   CanvasBackground,
+  Editor,
+  ExportOptions,
   PageOffsets,
   SettingsType,
 } from '../../../engine';
 import type { SelectOptions } from '../../primitives';
+import type { ExportTarget } from '../model';
 
 interface Props {
-  editor: any;
+  editor: Editor | null;
   zoomPct: number;
   layerPanelOpen: boolean;
   onToggleLayers: () => void;
-  exporting: boolean;
-  onExport: () => void;
+  canSaveToLibrary: boolean;
+  onExport: (options: ExportOptions, target: ExportTarget) => Promise<boolean>;
   onBack?: () => void;
   settings: SettingsType;
   onSettings: (patch: Partial<SettingsType>) => void;
@@ -51,7 +54,7 @@ export function Toolbar({
   zoomPct,
   layerPanelOpen,
   onToggleLayers,
-  exporting,
+  canSaveToLibrary,
   onExport,
   onBack,
   settings,
@@ -150,8 +153,12 @@ export function Toolbar({
 
       <HDivider />
 
-      {/* Save */}
-      <SaveButton exporting={exporting} onExport={onExport} />
+      <ExportDialog
+        canSaveToLibrary={canSaveToLibrary}
+        editor={editor}
+        offsets={offsets}
+        onExport={onExport}
+      />
     </div>
   );
 }

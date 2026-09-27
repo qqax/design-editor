@@ -1,7 +1,7 @@
 import type React from 'react';
 
 import type { EditorAppearance, EditorTheme } from './appearance';
-import type { IScene } from '../../../engine';
+import type { ExportFormat, IScene } from '../../../engine';
 import type {
   BackgroundRemovalProvider,
   FontProvider,
@@ -18,10 +18,13 @@ export interface DesignEditorProps {
   sceneKey?: string;
   /** Called when the user clicks the back button in the toolbar. */
   onBack?: () => void;
-  /** Called when the user exports the design. Receives the rendered Blob, output format, and raw scene JSON. */
+  /**
+   * "Save to library" in the Export dialog: receives the rendered file, its
+   * format and the scene JSON. Without it the dialog only offers Download.
+   */
   onExport?: (
     blob: Blob,
-    format: 'png' | 'jpg' | 'svg',
+    format: ExportFormat,
     scene: IScene
   ) => void | Promise<void>;
   /** Font provider. Defaults to a Google Fonts provider. */

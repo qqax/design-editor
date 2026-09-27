@@ -15,4 +15,4 @@ export * from './providers';
 export * from './components/design-editor';
 
 /** Re-export the engine's public types for consumers who need to interact with scenes/layers. */
-export type { ILayer, IScene } from './engine';
+export type { ExportFormat, ILayer, IScene } from './engine';

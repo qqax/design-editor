@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useToast } from './useToast';
 import { useEditorContext } from '../components/EditorContext';
 
+import type { ExportFormat, IScene } from '../engine';
+
 export function useStudioExport() {
   const [exporting, setExporting] = useState(false);
   const toast = useToast();
@@ -12,14 +14,13 @@ export function useStudioExport() {
 
   async function exportToLibrary(
     blob: Blob,
-    filename: string,
-    scene: any
+    format: ExportFormat,
+    scene: IScene
   ): Promise<boolean> {
+    if (!onExport) return false;
     setExporting(true);
     try {
-      if (onExport) {
-        await onExport(blob, filename.endsWith('.png') ? 'png' : 'jpg', scene);
-      }
+      await onExport(blob, format, scene);
       toast.success('Saved to Media Library');
       return true;
     } catch {
@@ -30,5 +31,5 @@ export function useStudioExport() {
     }
   }
 
-  return { exportToLibrary, exporting };
+  return { exportToLibrary, exporting, canSaveToLibrary: Boolean(onExport) };
 }

@@ -1,20 +1,31 @@
 import { useCallback, useState } from 'react';
 
-import { StaticImage } from '../../../engine';
+import { exportScene, fontLoader, StaticImage } from '../../../engine';
 import { generateId } from '../../../engine/core/utils/id';
 import { clearAutosave } from '../../../hooks/useAutoSave';
+import { exportFileName } from '../../toolbars/model';
+import { downloadBlob } from '../lib/download';
 import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
+import { svgFontCss } from '../lib/svgFonts';
 import { buildTextDesignLayers } from '../lib/textDesignLayers';
 
 import type { FabricObject } from 'fabric';
 
-import type { CanvasBackground, Editor, IScene } from '../../../engine';
+import type {
+  CanvasBackground,
+  Editor,
+  ExportFormat,
+  ExportOptions,
+  IScene,
+} from '../../../engine';
 import type {
   BackgroundRemovalProvider,
+  FontProvider,
   PersistenceProvider,
 } from '../../../providers';
 import type { DesignResource } from '../../panels/common/provider';
 import type { toastApi } from '../../primitives/Toast';
+import type { ExportTarget } from '../../toolbars/model';
 
 const blobToDataUrl = async (blob: Blob) =>
   new Promise<string>((resolve, reject) => {
@@ -43,13 +54,14 @@ export function useEditorActions(
   backgroundRemovalProvider: BackgroundRemovalProvider,
   exportToLibrary: (
     blob: Blob,
-    filename: string,
+    format: ExportFormat,
     scene: IScene
   ) => Promise<boolean>,
   message: typeof toastApi,
   setCanvasBg: (bg: CanvasBackground) => void,
   setHasUnsavedChanges: (val: boolean) => void,
-  persistenceProvider: PersistenceProvider
+  persistenceProvider: PersistenceProvider,
+  fontProvider: FontProvider
 ) {
   const [removingBg, setRemovingBg] = useState(false);
   const [shimmerRect, setShimmerRect] = useState<{
@@ -227,31 +239,45 @@ export function useEditorActions(
     }
   }, [editor, activeObj, backgroundRemovalProvider, message]);
 
-  const handleExport = useCallback(async () => {
-    if (!editor) return;
-    try {
-      const scene = editor.scene.exportToJSON();
-      const dataUrl = await editor.renderer.toDataURL(scene, {
-        format: 'png',
-        quality: 1,
-        multiplier: 2,
-      });
-      const blob = await (await fetch(dataUrl)).blob();
-      if (await exportToLibrary(blob, `design-${Date.now()}.png`, scene)) {
+  const handleExport = useCallback(
+    async (options: ExportOptions, target: ExportTarget): Promise<boolean> => {
+      if (!editor) return false;
+      try {
+        const scene = editor.scene.exportToJSON();
+        const svgCss =
+          options.format === 'svg'
+            ? svgFontCss(
+                fontLoader.collect(scene).map((ref) => ref.family),
+                await fontProvider.list().catch(() => [])
+              )
+            : undefined;
+        const blob = await exportScene(editor.renderer, scene, {
+          ...options,
+          ...(svgCss && { svgCss }),
+        });
+        if (target === 'download') {
+          downloadBlob(blob, exportFileName(scene.name, options.format));
+          return true;
+        }
+        if (!(await exportToLibrary(blob, options.format, scene))) return false;
         setHasUnsavedChanges(false);
         void clearAutosave(persistenceProvider, sceneKey);
+        return true;
+      } catch {
+        message.error('Failed to export');
+        return false;
       }
-    } catch {
-      message.error('Failed to export');
-    }
-  }, [
-    editor,
-    exportToLibrary,
-    setHasUnsavedChanges,
-    sceneKey,
-    message,
-    persistenceProvider,
-  ]);
+    },
+    [
+      editor,
+      exportToLibrary,
+      setHasUnsavedChanges,
+      sceneKey,
+      message,
+      persistenceProvider,
+      fontProvider,
+    ]
+  );
 
   return {
     removingBg,

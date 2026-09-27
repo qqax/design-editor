@@ -98,9 +98,14 @@ export function DesignEditorInner({
   const activeObj = useActiveObject<FabricImage>();
   const zoomRatio = useZoomRatio<number>();
   const message = useToast();
-  const { exportToLibrary, exporting } = useStudioExport();
-  const { backgroundRemovalProvider, persistenceProvider, sceneKey, onBack } =
-    useEditorContext();
+  const { exportToLibrary, canSaveToLibrary } = useStudioExport();
+  const {
+    backgroundRemovalProvider,
+    persistenceProvider,
+    fontProvider,
+    sceneKey,
+    onBack,
+  } = useEditorContext();
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
@@ -183,7 +188,8 @@ export function DesignEditorInner({
     message,
     setCanvasBg,
     setHasUnsavedChanges,
-    persistenceProvider
+    persistenceProvider,
+    fontProvider
   );
 
   const {
@@ -308,9 +314,9 @@ export function DesignEditorInner({
         >
           <Toolbar
             adSizes={adSizes}
+            canSaveToLibrary={canSaveToLibrary}
             canvasBg={canvasBg}
             editor={editor}
-            exporting={exporting}
             hasUnsavedChanges={hasUnsavedChanges}
             layerPanelOpen={layerPanelOpen}
             offsets={rulers.offsets}

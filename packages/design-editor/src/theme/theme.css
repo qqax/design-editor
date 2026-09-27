@@ -1386,3 +1386,74 @@
 .de-num-input:focus {
   border-color: var(--de-color-primary);
 }
+
+/* ── Forms (settings, export) ───────────────────────────────────────────── */
+.de-popover-title {
+  color: var(--de-color-text-muted);
+  font-size: var(--de-font-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.de-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.de-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--de-color-border);
+}
+.de-form-section-title {
+  color: var(--de-color-text-muted);
+  font-size: var(--de-font-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.de-form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 24px;
+}
+.de-form-label {
+  color: var(--de-color-text);
+  font-size: var(--de-font-md);
+}
+.de-form-hint {
+  color: var(--de-color-text-muted);
+  font-size: var(--de-font-sm);
+  line-height: 1.45;
+}
+.de-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+.de-form-value {
+  color: var(--de-color-text-muted);
+  font-family: var(--de-font-mono);
+  font-size: var(--de-font-sm);
+}
+.de-export-dialog {
+  max-width: 400px;
+}
+.de-export-dialog .de-dialog-actions {
+  margin-top: 16px;
+}
+.de-export-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--de-radius-md);
+  background: var(--de-color-surface-2);
+  color: var(--de-color-text-muted);
+  font-family: var(--de-font-mono);
+  font-size: var(--de-font-sm);
+}

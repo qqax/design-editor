@@ -52,6 +52,7 @@ export default function App() {
   libraryPanel={({ onAddMedia }) => <MyCustomLibraryPanel onAddMedia={onAddMedia} />}
   fontProvider={myFontProvider}
   persistenceProvider={myPersistenceProvider}
+  // "Save to library" in the Export dialog; format: png | jpg | webp | pdf | svg
   onExport={async (blob, format, scene) => {
     const url = await uploadToS3(blob)
     await saveToDatabase(scene) // Save raw JSON to re-edit later

@@ -10,3 +10,4 @@ export * from './Dialog';
 export * from './Switch';
 export * from './PortalContainer';
 export * from './MoreButton';
+export * from './Segmented';

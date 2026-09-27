@@ -1,10 +1,29 @@
 /* eslint-disable no-console */
-import { StaticCanvas } from 'fabric';
+import { config, StaticCanvas } from 'fabric';
 
 import { fontLoader } from '../utils/font-loader';
 import ObjectImporter from '../utils/object-importer-render';
 
 import type { ILayer, IScene } from '../../types';
+
+function collectFontPaths(
+  layers: readonly Partial<ILayer>[]
+): Record<string, string> {
+  return layers.reduce<Record<string, string>>((paths, layer) => {
+    const nested =
+      'objects' in layer && Array.isArray(layer.objects)
+        ? collectFontPaths(layer.objects)
+        : {};
+    const own =
+      'fontFamily' in layer &&
+      'fontURL' in layer &&
+      layer.fontFamily &&
+      layer.fontURL
+        ? { [layer.fontFamily]: layer.fontURL }
+        : {};
+    return { ...paths, ...nested, ...own };
+  }, {});
+}
 
 class Renderer {
   public async render(template: IScene) {
@@ -37,6 +56,40 @@ class Renderer {
       height: staticCanvas.getHeight(),
       width: staticCanvas.getWidth(),
     });
+  }
+
+  /** Renders the scene at `multiplier` × its frame size */
+  public async toCanvasElement(
+    template: IScene,
+    multiplier = 1
+  ): Promise<HTMLCanvasElement> {
+    const staticCanvas = new StaticCanvas();
+    try {
+      await this.loadTemplate(staticCanvas, template, {});
+      return staticCanvas.toCanvasElement(multiplier);
+    } finally {
+      void staticCanvas.dispose();
+    }
+  }
+
+  /** Vector export; fonts with a `fontURL` are declared via @font-face, `css` goes into <defs> */
+  public async toSVG(template: IScene, css?: string): Promise<string> {
+    const staticCanvas = new StaticCanvas();
+    const fonts = collectFontPaths(template.layers);
+    try {
+      await this.loadTemplate(staticCanvas, template, {});
+      config.addFonts(fonts);
+      const svg = staticCanvas.toSVG();
+      return css
+        ? svg.replace(
+            '<defs>',
+            `<defs>\n<style type="text/css"><![CDATA[\n${css}\n]]></style>`
+          )
+        : svg;
+    } finally {
+      config.removeFonts(Object.keys(fonts));
+      void staticCanvas.dispose();
+    }
   }
 
   public renderLayer = async (
@@ -81,22 +134,20 @@ class Renderer {
 
     const objectImporter = new ObjectImporter();
 
-    const importPromises = template.layers.map(async (layer) =>
-      objectImporter
-        .import(layer, params)
-        .then((element) => {
-          if (element) {
-            staticCanvas.add(element);
-          } else {
-            console.log('UNABLE TO LOAD LAYER: ', layer);
-          }
-        })
-        .catch((err) => {
+    // Imports finish in any order; adding them afterwards keeps the z-order.
+    const elements = await Promise.all(
+      template.layers.map(async (layer) =>
+        objectImporter.import(layer, params).catch((err: unknown) => {
           console.error('ERROR LOADING LAYER: ', layer, err);
+          return null;
         })
+      )
     );
 
-    await Promise.all(importPromises);
+    elements.forEach((element, index) => {
+      if (element) staticCanvas.add(element);
+      else console.log('UNABLE TO LOAD LAYER: ', template.layers[index]);
+    });
 
     staticCanvas.renderAll();
   }

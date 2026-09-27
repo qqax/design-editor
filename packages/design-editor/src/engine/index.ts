@@ -73,6 +73,9 @@ export * from './core/controllers/Renderer';
 // parser
 export * from './core/parser';
 
+// export
+export * from './core/export';
+
 // utils
 export * from './core/utils/font-loader';
 export { gradientToCss, isGradientFill } from './core/utils/gradient';

@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from 'react';
 
+import type { ExportFormat, IScene } from '../engine';
 import type {
   BackgroundRemovalProvider,
   FontProvider,
@@ -22,8 +23,8 @@ export interface EditorContextValue {
   sceneKey?: string;
   onExport?: (
     blob: Blob,
-    format: 'png' | 'jpg' | 'svg',
-    scene: any
+    format: ExportFormat,
+    scene: IScene
   ) => void | Promise<void>;
   onBack?: () => void;
 }
