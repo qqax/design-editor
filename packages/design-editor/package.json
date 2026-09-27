@@ -39,10 +39,12 @@
     "dist",
     "README.md",
     "LICENSE",
+    "NOTICE",
     "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsup && node scripts/copy-theme.mjs && node scripts/postbuild-use-client.mjs",
+    "prepack": "node scripts/copy-docs.mjs",
     "dev:js": "tsup --watch",
     "dev:css": "node scripts/copy-theme.mjs --watch",
     "dev": "concurrently \"npm:dev:js\" \"npm:dev:css\"",
