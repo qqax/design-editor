@@ -41,7 +41,12 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
   handleAddMedia,
   // setActivePanel,
 }) => {
-  const { textDesignProvider, templateProvider } = useEditorContext();
+  const {
+    textDesignProvider,
+    templateProvider,
+    galleryProvider,
+    galleryWidget,
+  } = useEditorContext();
 
   if (!activePanel) return null;
 
@@ -191,7 +196,11 @@ export const EditorSidebar: React.FC<EditorSidebarProps> = ({
               libraryPanel
             )
           ) : (
-            <UploadPanel onUploadFile={handleAddMedia} />
+            <UploadPanel
+              onAddToCanvas={(url) => void handleAddMedia(url)}
+              provider={galleryProvider}
+              widget={galleryWidget}
+            />
           ))}
       </div>
     </div>

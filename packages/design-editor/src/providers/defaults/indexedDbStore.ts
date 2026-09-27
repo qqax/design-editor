@@ -3,6 +3,7 @@ export interface KeyValueStore {
   set: (key: string, value: unknown) => Promise<void>;
   delete: (key: string) => Promise<void>;
   keys: () => Promise<string[]>;
+  values: () => Promise<unknown[]>;
 }
 
 export const localStorageStore = (prefix = ''): KeyValueStore => ({
@@ -20,6 +21,10 @@ export const localStorageStore = (prefix = ''): KeyValueStore => ({
     Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
       .filter((key): key is string => !!key?.startsWith(prefix))
       .map((key) => key.slice(prefix.length)),
+  values: async () =>
+    Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i))
+      .filter((key): key is string => !!key?.startsWith(prefix))
+      .map((key) => JSON.parse(localStorage.getItem(key) ?? 'null') as unknown),
 });
 
 /**
@@ -83,5 +88,10 @@ export function createIndexedDbStore(
         (keys) => keys.map(String),
         async () => fallback.keys()
       ),
+    values: async () =>
+      run<unknown[]>(
+        'readonly',
+        (store) => store.getAll() as IDBRequest<unknown[]>
+      ).catch(async () => fallback.values()),
   };
 }

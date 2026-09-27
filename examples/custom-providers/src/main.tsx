@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 
 import { DesignEditor } from '@qqax/design-editor';
 import { createRoot } from 'react-dom/client';
@@ -6,6 +6,9 @@ import { createRoot } from 'react-dom/client';
 import type {
   FontDescriptor,
   FontProvider,
+  GalleryItem,
+  GalleryProvider,
+  GalleryWidgetApi,
   ResourceProvider,
 } from '@qqax/design-editor';
 
@@ -73,34 +76,52 @@ const myFontProvider: FontProvider = {
   },
 };
 
-// ── Demo library panel — custom component to inject media ──────────────────────
-function MyLibraryPanel({ onAddMedia }: { onAddMedia: (url: string) => void }) {
+// ── Demo external gallery — stands in for a server-side media library ────────
+const serverImages: GalleryItem[] = [
+  {
+    id: 'img-1',
+    name: 'Mountains',
+    url: 'https://images.unsplash.com/photo-1575936123452-b67c3203c357?q=80&w=1200&auto=format&fit=crop',
+    thumbnailUrl:
+      'https://images.unsplash.com/photo-1575936123452-b67c3203c357?q=60&w=300&auto=format&fit=crop',
+  },
+];
+
+const myGalleryProvider: GalleryProvider = {
+  async list() {
+    return [...serverImages];
+  },
+  async remove(id) {
+    const index = serverImages.findIndex((item) => item.id === id);
+    if (index >= 0) serverImages.splice(index, 1);
+  },
+};
+
+// ── Demo gallery widget — any host UI that adds images to the gallery ────────
+function AddByUrlWidget({ refresh, addToCanvas }: GalleryWidgetApi) {
+  const [url, setUrl] = useState('');
+  const add = () => {
+    if (!url) return;
+    serverImages.unshift({ id: `img-${Date.now()}`, url, name: 'From URL' });
+    setUrl('');
+    refresh();
+  };
   return (
-    <div
-      style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}
-    >
-      <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>My Library</h3>
-      <p style={{ margin: 0, fontSize: 13, color: '#666' }}>
-        Host apps can render their own media fetchers and uploader components
-        here.
-      </p>
-      <button
-        onClick={() =>
-          onAddMedia(
-            'https://images.unsplash.com/photo-1575936123452-b67c3203c357?q=80&w=600&auto=format&fit=crop'
-          )
-        }
-        style={{
-          padding: '8px 12px',
-          background: '#000',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          cursor: 'pointer',
-        }}
-      >
-        Add Unsplash Image
-      </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        onChange={(e) => setUrl(e.target.value)}
+        placeholder="Image URL"
+        style={{ padding: 6 }}
+        value={url}
+      />
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button onClick={add} type="button">
+          Add to gallery
+        </button>
+        <button disabled={!url} onClick={() => addToCanvas(url)} type="button">
+          Put on canvas
+        </button>
+      </div>
     </div>
   );
 }
@@ -111,11 +132,14 @@ createRoot(document.getElementById('root')!).render(
       <DesignEditor
         fontProvider={myFontProvider}
         sceneKey="custom-scene-1"
-        templateProvider={myTemplateProvider}
         title="Custom Design Studio"
-        libraryPanel={({ onAddMedia }) => (
-          <MyLibraryPanel onAddMedia={onAddMedia} />
-        )}
+        panelsConfig={{
+          templates: { provider: myTemplateProvider },
+          upload: {
+            provider: myGalleryProvider,
+            widget: (api) => <AddByUrlWidget {...api} />,
+          },
+        }}
         onExport={async (blob, format, scene) => {
           console.log('Export triggered!', { size: blob.size, format, scene });
           alert(

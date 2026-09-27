@@ -1,5 +1,6 @@
 import { LayoutTemplate, Shapes, Smile, Type, Upload } from 'lucide-react';
 
+import { createLocalGalleryProvider } from '../../../providers';
 import {
   createDefaultDesignProvider,
   TEMPLATES_BUNDLE_JSON,
@@ -21,6 +22,8 @@ export const ICONS: { key: PanelKey; icon: React.ReactNode; label: string }[] =
       label: 'Templates',
     },
   ];
+
+export const DEFAULT_GALLERY_PROVIDER = createLocalGalleryProvider();
 
 export const DEFAULT_PANELS_CONFIG: PanelsConfigType = {
   templates: {
@@ -45,7 +48,7 @@ export const DEFAULT_PANELS_CONFIG: PanelsConfigType = {
   },
   upload: {
     showPanel: true,
-    provider: undefined,
+    provider: DEFAULT_GALLERY_PROVIDER,
     renderProp: undefined,
   },
   // elements: { showPanel: false },

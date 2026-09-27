@@ -1,5 +1,6 @@
 import type React from 'react';
 
+import type { GalleryProvider, GalleryWidget } from '../../../../providers';
 import type {
   DesignResource,
   ResourceCategory,
@@ -45,10 +46,20 @@ export type PanelsConfigType = Record<
   }
 > &
   Record<
-    Exclude<PanelKey, 'templates' | 'text'>,
+    Exclude<PanelKey, 'templates' | 'text' | 'upload'>,
     {
       showPanel?: boolean;
       provider?: ResourceProvider;
       renderProp?: RenderPropType;
     }
-  >;
+  > & {
+    upload: {
+      showPanel?: boolean;
+      /** Gallery shown in the panel; defaults to a local IndexedDB gallery */
+      provider?: GalleryProvider;
+      /** Host-made UI at the top of the panel, e.g. an upload widget */
+      widget?: GalleryWidget;
+      /** Replaces the whole panel */
+      renderProp?: RenderPropType;
+    };
+  };

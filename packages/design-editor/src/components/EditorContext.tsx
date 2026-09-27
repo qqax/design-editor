@@ -5,6 +5,8 @@ import { createContext, useContext } from 'react';
 import type {
   BackgroundRemovalProvider,
   FontProvider,
+  GalleryProvider,
+  GalleryWidget,
   PersistenceProvider,
 } from '../providers';
 import type { ResourceProvider } from './panels/common/provider';
@@ -13,6 +15,8 @@ export interface EditorContextValue {
   fontProvider: FontProvider;
   backgroundRemovalProvider: BackgroundRemovalProvider;
   persistenceProvider: PersistenceProvider;
+  galleryProvider: GalleryProvider;
+  galleryWidget?: GalleryWidget;
   templateProvider: ResourceProvider;
   textDesignProvider: ResourceProvider;
   sceneKey?: string;

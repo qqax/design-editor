@@ -11,8 +11,12 @@ import {
   createIndexedDBPersistence,
 } from '../../../providers';
 import { EditorContextProvider } from '../../EditorContext';
-import { DEFAULT_PANELS_CONFIG } from '../../icon-reail/model';
+import {
+  DEFAULT_GALLERY_PROVIDER,
+  DEFAULT_PANELS_CONFIG,
+} from '../../icon-reail/model';
 
+import type { PanelsConfigType } from '../../panels';
 import type { DesignEditorProps } from '../model';
 
 /**
@@ -51,11 +55,23 @@ export function DesignEditor({
 }: DesignEditorProps) {
   const resolvedBackgroundRemovalProvider =
     backgroundRemovalProvider ?? createImglyBackgroundRemoval();
-  const innerConfig = { ...DEFAULT_PANELS_CONFIG, ...panelsConfig };
+  const innerConfig: PanelsConfigType = {
+    templates: {
+      ...DEFAULT_PANELS_CONFIG.templates,
+      ...panelsConfig?.templates,
+    },
+    text: { ...DEFAULT_PANELS_CONFIG.text, ...panelsConfig?.text },
+    shapes: { ...DEFAULT_PANELS_CONFIG.shapes, ...panelsConfig?.shapes },
+    stickers: { ...DEFAULT_PANELS_CONFIG.stickers, ...panelsConfig?.stickers },
+    upload: { ...DEFAULT_PANELS_CONFIG.upload, ...panelsConfig?.upload },
+  };
   const templateProvider = innerConfig.templates.provider;
   const textDesignProvider = innerConfig.text.provider;
   const templatesPanel = innerConfig.templates.renderProp;
   const libraryPanel = innerConfig.upload.renderProp;
+  const galleryProvider =
+    innerConfig.upload.provider ?? DEFAULT_GALLERY_PROVIDER;
+  const galleryWidget = innerConfig.upload.widget;
 
   // Registered during render rather than in an effect: child effects (the
   // initial scene import) run before parent effects and would beat it. There
@@ -76,6 +92,8 @@ export function DesignEditor({
       fontProvider,
       backgroundRemovalProvider: resolvedBackgroundRemovalProvider,
       persistenceProvider: persistence,
+      galleryProvider,
+      galleryWidget,
       sceneKey,
       onExport,
       onBack,
@@ -86,6 +104,8 @@ export function DesignEditor({
       fontProvider,
       resolvedBackgroundRemovalProvider,
       persistence,
+      galleryProvider,
+      galleryWidget,
       sceneKey,
       onExport,
       onBack,

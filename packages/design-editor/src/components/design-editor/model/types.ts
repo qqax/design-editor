@@ -34,5 +34,8 @@ export interface DesignEditorProps {
   /** Optional title to display in the toolbar. Defaults to "Design Studio". */
   title?: React.ReactNode;
   adSizes?: SelectOptions;
-  panelsConfig?: PanelsConfigType;
+  /** Per panel; only the given fields override the defaults */
+  panelsConfig?: {
+    [K in keyof PanelsConfigType]?: Partial<PanelsConfigType[K]>;
+  };
 }
