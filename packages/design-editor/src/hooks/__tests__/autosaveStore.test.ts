@@ -1,30 +1,31 @@
 // Created by Claude (Claude Code).
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createAutosaveStore, indexedDbBackend } from '../autosaveStore';
+import { createAutosaveStore } from '../autosaveStore';
 
-import type { AutosavePayload, KeyValueBackend } from '../autosaveStore';
+import type { AutosavePayload } from '../autosaveStore';
 import type { IScene } from '../../engine';
+import type { PersistenceProvider } from '../../providers';
 
-const memoryBackend = () => {
-  const data = new Map<string, unknown>();
-  const backend: KeyValueBackend = {
-    get: async (key) => data.get(key),
-    set: async (key, value) => {
-      data.set(key, value);
+const memoryProvider = () => {
+  const data = new Map<string, IScene>();
+  const provider: PersistenceProvider = {
+    save: async (key, scene) => {
+      data.set(key, scene);
     },
-    delete: async (key) => {
+    load: async (key) => data.get(key) ?? null,
+    remove: async (key) => {
       data.delete(key);
     },
   };
-  return { data, backend };
+  return { data, provider };
 };
 
 const scene = {
   id: 's1',
   frame: { width: 100, height: 100 },
   layers: [],
-  metadata: {},
+  metadata: { animated: false },
 } as unknown as IScene;
 
 const payload: AutosavePayload = {
@@ -44,40 +45,42 @@ const payload: AutosavePayload = {
 beforeEach(() => localStorage.clear());
 
 describe('createAutosaveStore', () => {
-  it('keeps the scene in the backend and the viewport in localStorage', async () => {
-    const { data, backend } = memoryBackend();
-    const store = createAutosaveStore(backend);
+  it('saves backgrounds in the scene metadata and the viewport locally', async () => {
+    const { data, provider } = memoryProvider();
+    const store = createAutosaveStore(provider);
     await store.save('k', payload);
 
-    expect(data.get('k')).toEqual({
-      scene,
-      canvasBg: payload.canvasBg,
-      workspaceBg: '#eee',
+    expect(data.get('k')?.metadata).toEqual({
+      animated: false,
+      editor: { canvasBg: payload.canvasBg, workspaceBg: '#eee' },
     });
     expect(JSON.parse(localStorage.getItem('k:viewport') ?? 'null')).toEqual(
       payload.viewport
     );
-    expect(await store.load('k')).toEqual(payload);
+
+    const loaded = await store.load('k');
+    expect(loaded?.canvasBg).toEqual(payload.canvasBg);
+    expect(loaded?.workspaceBg).toBe('#eee');
+    expect(loaded?.viewport).toEqual(payload.viewport);
   });
 
   it('returns null when nothing was saved', async () => {
-    const store = createAutosaveStore(memoryBackend().backend);
+    const store = createAutosaveStore(memoryProvider().provider);
     expect(await store.load('missing')).toBeNull();
   });
 
-  it('migrates a legacy localStorage autosave into the backend', async () => {
-    const { data, backend } = memoryBackend();
+  it('migrates a legacy localStorage autosave into the provider', async () => {
+    const { data, provider } = memoryProvider();
     localStorage.setItem('k', JSON.stringify({ scene, workspaceBg: '#abc' }));
-    const store = createAutosaveStore(backend);
+    const store = createAutosaveStore(provider);
 
-    expect(await store.load('k')).toEqual({ scene, workspaceBg: '#abc' });
-    expect(data.get('k')).toEqual({ scene, workspaceBg: '#abc' });
+    expect((await store.load('k'))?.workspaceBg).toBe('#abc');
+    expect(data.get('k')?.metadata.editor).toEqual({ workspaceBg: '#abc' });
     expect(localStorage.getItem('k')).toBeNull();
   });
 
   it('updates only the viewport without touching the scene', async () => {
-    const { backend } = memoryBackend();
-    const store = createAutosaveStore(backend);
+    const store = createAutosaveStore(memoryProvider().provider);
     await store.save('k', payload);
     store.saveViewport('k', { zoom: 2, x: 0, y: 0 });
 
@@ -85,23 +88,13 @@ describe('createAutosaveStore', () => {
   });
 
   it('clears the scene and the viewport', async () => {
-    const { data, backend } = memoryBackend();
-    const store = createAutosaveStore(backend);
+    const { data, provider } = memoryProvider();
+    const store = createAutosaveStore(provider);
     await store.save('k', payload);
     await store.clear('k');
 
     expect(data.has('k')).toBe(false);
     expect(localStorage.getItem('k:viewport')).toBeNull();
     expect(await store.load('k')).toBeNull();
-  });
-});
-
-describe('indexedDbBackend', () => {
-  it('falls back to localStorage without IndexedDB', async () => {
-    const backend = indexedDbBackend();
-    await backend.set('x', { a: 1 });
-    expect(await backend.get('x')).toEqual({ a: 1 });
-    await backend.delete('x');
-    expect(await backend.get('x')).toBeUndefined();
   });
 });

@@ -71,7 +71,8 @@ export function DesignEditorInner({
   const zoomRatio = useZoomRatio<number>();
   const message = useToast();
   const { exportToLibrary, exporting } = useStudioExport();
-  const { backgroundRemovalProvider, sceneKey, onBack } = useEditorContext();
+  const { backgroundRemovalProvider, persistenceProvider, sceneKey, onBack } =
+    useEditorContext();
 
   const [activePanel, setActivePanel] = useState<PanelKey | null>(null);
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
@@ -130,6 +131,7 @@ export function DesignEditorInner({
     editor,
     canvasBg,
     workspaceBg,
+    persistenceProvider,
     sceneKey
   );
 
@@ -152,7 +154,8 @@ export function DesignEditorInner({
     message,
     setCanvasBg,
     setWorkspaceBg,
-    setHasUnsavedChanges
+    setHasUnsavedChanges,
+    persistenceProvider
   );
 
   const {
@@ -219,7 +222,7 @@ export function DesignEditorInner({
       if (source.workspaceBg) setWorkspaceBg(source.workspaceBg);
     };
 
-    void loadAutosave(sceneKey).then((saved) => {
+    void loadAutosave(persistenceProvider, sceneKey).then((saved) => {
       if (cancelled) return;
       if (saved) {
         restore(saved.scene, saved);
@@ -235,7 +238,13 @@ export function DesignEditorInner({
       cancelled = true;
       editor.off('history:changed', handleChange);
     };
-  }, [editor, initialScene, setHasUnsavedChanges, sceneKey]);
+  }, [
+    editor,
+    initialScene,
+    setHasUnsavedChanges,
+    sceneKey,
+    persistenceProvider,
+  ]);
 
   const zoomPct = Math.round(zoomRatio * 100);
 
@@ -280,7 +289,7 @@ export function DesignEditorInner({
           onBack={
             onBack
               ? () => {
-                  void clearAutosave(sceneKey);
+                  void clearAutosave(persistenceProvider, sceneKey);
                   onBack();
                 }
               : undefined

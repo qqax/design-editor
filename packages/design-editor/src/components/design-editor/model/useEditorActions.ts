@@ -8,7 +8,10 @@ import { rescaleImageGeometry } from '../lib/rescaleImageGeometry';
 import type { FabricObject } from 'fabric';
 
 import type { CanvasBackground, Editor, IScene } from '../../../engine';
-import type { BackgroundRemovalProvider } from '../../../providers';
+import type {
+  BackgroundRemovalProvider,
+  PersistenceProvider,
+} from '../../../providers';
 import type { DesignResource } from '../../panels/common/provider';
 import type { toastApi } from '../../primitives/Toast';
 
@@ -45,7 +48,8 @@ export function useEditorActions(
   message: typeof toastApi,
   setCanvasBg: (bg: CanvasBackground) => void,
   setWorkspaceBg: (bg: string) => void,
-  setHasUnsavedChanges: (val: boolean) => void
+  setHasUnsavedChanges: (val: boolean) => void,
+  persistenceProvider: PersistenceProvider
 ) {
   const [removingBg, setRemovingBg] = useState(false);
   const [shimmerRect, setShimmerRect] = useState<{
@@ -177,7 +181,7 @@ export function useEditorActions(
             }
           }
           if (template.workspaceBg) setWorkspaceBg(template.workspaceBg);
-          void clearAutosave(sceneKey);
+          void clearAutosave(persistenceProvider, sceneKey);
           setHasUnsavedChanges(false);
           setTimeout(() => {
             editor.history.initialize();
@@ -191,6 +195,7 @@ export function useEditorActions(
       setWorkspaceBg,
       setHasUnsavedChanges,
       message,
+      persistenceProvider,
     ]
   );
 
@@ -242,12 +247,19 @@ export function useEditorActions(
       const blob = await (await fetch(dataUrl)).blob();
       if (await exportToLibrary(blob, `design-${Date.now()}.png`, scene)) {
         setHasUnsavedChanges(false);
-        void clearAutosave(sceneKey);
+        void clearAutosave(persistenceProvider, sceneKey);
       }
     } catch {
       message.error('Failed to export');
     }
-  }, [editor, exportToLibrary, setHasUnsavedChanges, sceneKey, message]);
+  }, [
+    editor,
+    exportToLibrary,
+    setHasUnsavedChanges,
+    sceneKey,
+    message,
+    persistenceProvider,
+  ]);
 
   return {
     removingBg,

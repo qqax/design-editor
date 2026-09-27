@@ -8,7 +8,7 @@ import { Provider as EngineProvider } from '../../../engine/react';
 import {
   createDefaultFontProvider,
   createImglyBackgroundRemoval,
-  createLocalStoragePersistence,
+  createIndexedDBPersistence,
 } from '../../../providers';
 import { EditorContextProvider } from '../../EditorContext';
 import { DEFAULT_PANELS_CONFIG } from '../../icon-reail/model';
@@ -40,7 +40,7 @@ export function DesignEditor({
 
   fontProvider = createDefaultFontProvider(),
   backgroundRemovalProvider,
-  persistenceProvider = createLocalStoragePersistence(),
+  persistenceProvider,
 
   title,
 
@@ -64,13 +64,18 @@ export function DesignEditor({
   // overwrites it here instead.
   fontLoader.setResolver(async (family) => fontProvider.load(family));
 
+  const persistence = useMemo(
+    () => persistenceProvider ?? createIndexedDBPersistence(),
+    [persistenceProvider]
+  );
+
   const ctx = useMemo(
     () => ({
       templateProvider,
       textDesignProvider,
       fontProvider,
       backgroundRemovalProvider: resolvedBackgroundRemovalProvider,
-      persistenceProvider,
+      persistenceProvider: persistence,
       sceneKey,
       onExport,
       onBack,
@@ -80,7 +85,7 @@ export function DesignEditor({
       textDesignProvider,
       fontProvider,
       resolvedBackgroundRemovalProvider,
-      persistenceProvider,
+      persistence,
       sceneKey,
       onExport,
       onBack,

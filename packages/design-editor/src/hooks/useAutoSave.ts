@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { autosaveStore } from './autosaveStore';
+import { createAutosaveStore } from './autosaveStore';
 
 import type { AutosavePayload, AutosaveViewport } from './autosaveStore';
 import type { CanvasBackground, Editor } from '../engine';
+import type { PersistenceProvider } from '../providers';
 
 export type { AutosavePayload, AutosaveViewport } from './autosaveStore';
 
@@ -50,8 +51,10 @@ export function useAutoSave(
   editor: Editor | null,
   canvasBg: CanvasBackground,
   workspaceBg: string,
+  persistence: PersistenceProvider,
   sceneKey?: string
 ) {
+  const store = useMemo(() => createAutosaveStore(persistence), [persistence]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const key = getAutosaveKey(sceneKey);
@@ -78,7 +81,7 @@ export function useAutoSave(
       timerRef.current = setTimeout(() => {
         if (!editor) return;
         try {
-          void autosaveStore
+          void store
             .save(key, {
               scene: editor.scene.exportToJSON(),
               canvasBg,
@@ -131,12 +134,12 @@ export function useAutoSave(
 
     const saveViewport = () => {
       const viewport = getViewport(editor);
-      if (viewport) autosaveStore.saveViewport(key, viewport);
+      if (viewport) store.saveViewport(key, viewport);
     };
 
     window.addEventListener('pagehide', saveViewport);
     return () => window.removeEventListener('pagehide', saveViewport);
-  }, [editor, key]);
+  }, [editor, key, store]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -155,11 +158,19 @@ export function useAutoSave(
 }
 
 export async function loadAutosave(
+  persistence: PersistenceProvider,
   sceneKey?: string
 ): Promise<AutosavePayload | null> {
-  return autosaveStore.load(getAutosaveKey(sceneKey)).catch(() => null);
+  return createAutosaveStore(persistence)
+    .load(getAutosaveKey(sceneKey))
+    .catch(() => null);
 }
 
-export async function clearAutosave(sceneKey?: string): Promise<void> {
-  return autosaveStore.clear(getAutosaveKey(sceneKey)).catch(() => {});
+export async function clearAutosave(
+  persistence: PersistenceProvider,
+  sceneKey?: string
+): Promise<void> {
+  return createAutosaveStore(persistence)
+    .clear(getAutosaveKey(sceneKey))
+    .catch(() => {});
 }

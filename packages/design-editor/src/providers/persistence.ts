@@ -2,7 +2,8 @@ import type { IScene } from '../engine';
 
 /**
  * Plug in a persistence backend for autosave/load. The default provider stores
- * scenes in `localStorage`; you can supply a server-side adapter here.
+ * scenes in IndexedDB; you can supply a server-side adapter here. The editor
+ * keeps its own state (backgrounds) in `scene.metadata.editor`.
  */
 export interface PersistenceProvider {
   /** Persist the given scene under the provided key. */
@@ -13,4 +14,6 @@ export interface PersistenceProvider {
   list?: () => Promise<
     { sceneKey: string; updatedAt: number; thumbnailUrl?: string }[]
   >;
+  /** Optional: delete a stored scene (used to clear the autosave). */
+  remove?: (sceneKey: string) => Promise<void>;
 }
