@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { ActiveSelection, Textbox } from 'fabric';
+
 import { useMessages } from '../../../messages';
 
+import type { FabricObject } from 'fabric';
+
 interface UseObjectPropertiesBarOptions {
-  activeObj: any;
+  activeObj: FabricObject | null;
 }
 
 export type ObjectKind =
@@ -14,19 +18,18 @@ const IMAGE_TYPES = ['StaticImage', 'BackgroundImage'];
 const SHAPE_TYPES = ['StaticPath', 'StaticVector'];
 const PAGE_TYPES = ['Frame', 'Background'];
 
-// Fabric 7 reports these types in lower case
-const isActiveSelection = (obj: any) =>
-  (obj?.type as string | undefined)?.toLowerCase() === 'activeselection';
+const isActiveSelection = (
+  obj: FabricObject | null | undefined
+): obj is ActiveSelection => obj instanceof ActiveSelection;
 
-const getObjectKind = (obj: any): ObjectKind | null => {
-  const type = obj?.type as string | undefined;
+const getObjectKind = (obj: FabricObject | null): ObjectKind | null => {
+  const type = obj?.type;
   if (!type || PAGE_TYPES.includes(type)) return null;
   if (TEXT_TYPES.includes(type)) return 'text';
   if (IMAGE_TYPES.includes(type)) return 'image';
   if (SHAPE_TYPES.includes(type)) return 'shape';
   if (isActiveSelection(obj)) {
-    const selected: any[] = obj.getObjects();
-    return selected.every((o) => TEXT_TYPES.includes(o.type))
+    return obj.getObjects().every((o) => TEXT_TYPES.includes(o.type))
       ? 'text'
       : 'selection';
   }
@@ -39,11 +42,11 @@ export const useObjectPropertiesBar = ({
 }: UseObjectPropertiesBarOptions) => {
   const m = useMessages();
   const kind = getObjectKind(activeObj);
-  const selected: any[] = isActiveSelection(activeObj)
-    ? activeObj.getObjects()
-    : [];
+  const selected = isActiveSelection(activeObj) ? activeObj.getObjects() : [];
   const multiple = selected.length > 1;
   const target = kind === 'text' && multiple ? selected[0] : activeObj;
+  /** The text whose styles the text controls show */
+  const textTarget = target instanceof Textbox ? target : null;
 
   const [opacity, setOpacity] = useState(() =>
     Math.round((target?.opacity ?? 1) * 100)
@@ -134,6 +137,7 @@ export const useObjectPropertiesBar = ({
     posStyle,
     kind,
     target,
+    textTarget,
     multiple,
     label,
     opacity,

@@ -7,6 +7,8 @@ import { useMessages } from '../../../messages';
 import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useImageControls } from '../model/useImageControls';
 
+import type { FabricObject } from 'fabric';
+
 import type { Editor } from '../../../engine';
 
 interface Props {
@@ -15,7 +17,7 @@ interface Props {
   setOpacity: (opacity: number) => void;
   removingBg: boolean;
   onRemoveBg: () => void;
-  activeObj: any;
+  activeObj: FabricObject | null;
 }
 
 export const ImageControls = ({

@@ -87,26 +87,9 @@ export function ResourceCategoryRow({
   }, [fetchResources]);
 
   return (
-    <div style={{ padding: '12px 12px 4px 12px' }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-          marginBottom: 8,
-        }}
-      >
-        <h3
-          style={{
-            margin: 0,
-            fontSize: 14,
-            fontWeight: 600,
-            color: 'var(--de-color-text)',
-          }}
-        >
-          {category.name}
-        </h3>
-
+    <div className="de-section">
+      <div className="de-section-header">
+        <h3 className="de-section-title">{category.name}</h3>
         <MoreLink onClick={() => onSeeMore(category.id)}>
           {m.panel.seeAll}
         </MoreLink>
@@ -120,32 +103,15 @@ export function ResourceCategoryRow({
           </button>
         </div>
       ) : loading ? (
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+        <div className="de-resource-row">
           {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              style={{
-                flex: '0 0 130px',
-                aspectRatio: '1 / 1',
-                background: 'var(--de-color-surface)',
-                borderRadius: 6,
-              }}
-            />
+            <div key={i} className="de-resource-skeleton" />
           ))}
         </div>
       ) : items.length === 0 ? (
         <div className="de-form-hint">{m.panel.noResources}</div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridAutoFlow: 'column',
-            gridAutoColumns: '130px',
-            gap: 8,
-            overflowX: 'auto',
-            paddingBottom: 4,
-          }}
-        >
+        <div className="de-resource-row scrollbar-hide">
           {items.map((resource) => (
             <ResourceThumbnail
               key={resource.id}

@@ -1,7 +1,7 @@
 import type React from 'react';
 
 import type { EditorAppearance, EditorTheme } from './appearance';
-import type { ExportFormat, IScene } from '../../../engine';
+import type { CanvasBackground, ExportFormat, IScene } from '../../../engine';
 import type { EditorMessagesOverride } from '../../../messages';
 import type {
   BackgroundRemovalProvider,
@@ -11,10 +11,20 @@ import type {
 import type { PanelsConfigType } from '../../panels';
 import type { SelectOptions } from '../../primitives';
 
+/** Page and workspace colours that may travel with a scene */
+export interface SceneColors {
+  canvasBg?: CanvasBackground;
+  workspaceBg?: string;
+}
+
+/** A scene, or a design resource wrapping one (`{ scene, canvasBg }`) */
+export type InitialScene =
+  (IScene & SceneColors) | ({ scene: IScene } & SceneColors);
+
 /** Props for the top-level {@link DesignEditor} component. */
 export interface DesignEditorProps {
-  /** A serialized scene to load on mount, or any scene-shaped object with optional `canvasBg`/`workspaceBg`. */
-  initialScene?: IScene;
+  /** Scene to load on mount when there is no autosave; may carry `canvasBg`/`workspaceBg`. */
+  initialScene?: InitialScene;
   /** Stable key identifying the scene for persistence; passed to the persistence provider. */
   sceneKey?: string;
   /** Called when the user clicks the back button in the toolbar. */

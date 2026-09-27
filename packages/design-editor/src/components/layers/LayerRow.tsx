@@ -76,10 +76,8 @@ export function LayerRow({
         <LayerName
           editing={editing}
           id={layer.id}
-          isActive={isActive}
           name={layer.name}
           onCancel={() => setEditing(false)}
-          visible={layer.visible}
           onCommit={(id, name) => {
             onRename(id, name);
             setEditing(false);

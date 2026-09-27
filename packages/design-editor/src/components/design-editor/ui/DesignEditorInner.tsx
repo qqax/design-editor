@@ -35,7 +35,7 @@ import {
   useEditorActions,
 } from '../model';
 
-import type { FabricImage } from 'fabric';
+import type { FabricObject } from 'fabric';
 
 import type {
   CanvasBackground,
@@ -49,9 +49,7 @@ import type { PanelKey, PanelsConfigType } from '../../panels';
 import type { RenderPropType } from '../../panels/common/model/types';
 import type { SelectOptions } from '../../primitives';
 import type { PageSetup } from '../../toolbars/model';
-import type { EditorAppearance, EditorTheme } from '../model';
-
-const WORKSPACE_BG = 'var(--de-color-workspace)';
+import type { EditorAppearance, EditorTheme, InitialScene } from '../model';
 
 // Earlier versions stored this default; '' lets the theme pick the workspace
 const LEGACY_DEFAULT_WORKSPACE = '#f5f5f5';
@@ -59,7 +57,7 @@ const themedWorkspace = (color: string) =>
   color.toLowerCase() === LEGACY_DEFAULT_WORKSPACE ? '' : color;
 
 interface DesignEditorInnerProps {
-  initialScene?: any;
+  initialScene?: InitialScene;
   className?: string;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
@@ -97,7 +95,7 @@ export function DesignEditorInner({
     setStorageSafe('studio_theme', uiTheme);
   }, [uiTheme]);
   const editor = useEditor();
-  const activeObj = useActiveObject<FabricImage>();
+  const activeObj = useActiveObject<FabricObject | null>();
   const zoomRatio = useZoomRatio<number>();
   const { canSaveToLibrary } = useStudioExport();
   const { persistenceProvider, fontProvider, sceneKey, onBack } =
@@ -118,13 +116,13 @@ export function DesignEditorInner({
   const [layerPanelOpen, setLayerPanelOpen] = useState(false);
   const [canvasBg, setCanvasBg] = useState<CanvasBackground>(
     () =>
-      (initialScene?.canvasBg as CanvasBackground | undefined) ||
+      initialScene?.canvasBg ||
       getStorageSafe<CanvasBackground>('studio_canvasBg', '#ffffff')
   );
 
   const [workspaceBg, setWorkspaceBg] = useState<string>(() =>
     themedWorkspace(
-      (initialScene?.workspaceBg as string | undefined) ||
+      initialScene?.workspaceBg ||
         getStorageSafe<string>('studio_workspaceBg', '')
     )
   );
@@ -280,8 +278,10 @@ export function DesignEditorInner({
       if (saved) {
         restore(saved.scene, saved);
       } else if (initialScene) {
-        const source = initialScene as RestoreSource & { scene?: IScene };
-        restore(source.scene ?? (initialScene as IScene), source);
+        restore(
+          'scene' in initialScene ? initialScene.scene : initialScene,
+          initialScene
+        );
       }
     });
 
@@ -307,28 +307,10 @@ export function DesignEditorInner({
       data-de-root
       className={clsx('de-root', className)}
       data-de-theme={uiTheme}
-      style={{
-        ...appearanceStyle(appearance),
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        background: 'var(--de-color-bg)',
-      }}
+      style={appearanceStyle(appearance)}
     >
       <PortalContainerProvider value={root}>
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            background: WORKSPACE_BG,
-          }}
-        >
+        <div className="de-app">
           <Toolbar
             adSizes={adSizes}
             canSaveToLibrary={canSaveToLibrary}
@@ -366,14 +348,7 @@ export function DesignEditorInner({
             }
           />
 
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              overflow: 'hidden',
-              position: 'relative',
-            }}
-          >
+          <div className="de-main">
             {settings.railSide === 'left' ? (
               <React.Fragment>
                 <IconRail
@@ -418,19 +393,17 @@ export function DesignEditorInner({
 
             <div
               ref={canvasWrapRef}
+              className="de-canvas-wrap"
               onMouseDown={handleMouseDown}
               onMouseLeave={handleMouseUp}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               style={{
-                flex: 1,
-                position: 'relative',
-                overflow: 'hidden',
                 cursor: spaceDown
                   ? isPanning
                     ? 'grabbing'
                     : 'grab'
-                  : 'default',
+                  : undefined,
               }}
             >
               <CanvasArea
@@ -463,22 +436,7 @@ export function DesignEditorInner({
               ) : null}
 
               {removingBg && shimmerRect ? (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: shimmerRect.top,
-                    left: shimmerRect.left,
-                    width: shimmerRect.width,
-                    height: shimmerRect.height,
-                    pointerEvents: 'none',
-                    zIndex: 20,
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    background:
-                      'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%)',
-                    animation: 'shimmer 1.5s infinite',
-                  }}
-                />
+                <div className="de-bg-removal" style={shimmerRect} />
               ) : null}
 
               <DevelopmentBadge />

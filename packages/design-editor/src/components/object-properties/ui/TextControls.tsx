@@ -9,11 +9,13 @@ import { UnifiedColorPicker } from '../../panels';
 import { MoreButton, PBtn, PDivider, Popover, Tooltip } from '../../primitives';
 import { useTextControls } from '../model';
 
+import type { Textbox } from 'fabric';
+
 import type { Editor } from '../../../engine';
 
 interface TextControlsProps {
   editor: Editor | null;
-  activeObj: any;
+  activeObj: Textbox | null;
   multiple?: boolean;
   opacity: number;
   setOpacity: (o: number) => void;

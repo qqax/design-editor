@@ -4,10 +4,12 @@ import { useMessages } from '../../../messages';
 import { UnifiedColorPicker } from '../../panels/color-picker';
 import { PDivider } from '../../primitives';
 
+import type { FabricObject } from 'fabric';
+
 import type { Editor } from '../../../engine';
 
 interface Props {
-  activeObj: any;
+  activeObj: FabricObject | null;
   editor: Editor | null;
 }
 

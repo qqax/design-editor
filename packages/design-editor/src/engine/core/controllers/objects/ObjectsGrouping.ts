@@ -1,100 +1,79 @@
-import {
-  ActiveSelection,
-  Group,
-} from 'fabric';
+import { ActiveSelection, Group } from 'fabric';
 
 import { LayerType } from '../../../types';
-
 import { generateId } from '../../utils/id';
+import { createLayerName } from '../../utils/layer-name';
 
 import type { ObjectsContext } from './ObjectsContext';
 
 export class ObjectsGrouping {
-  constructor(
-    private readonly context: ObjectsContext,
-  ) {}
+  constructor(private readonly context: ObjectsContext) {}
 
   public group = () => {
-    const activeObject =
-      this.context.canvas.getActiveObject();
+    const { canvas, editor } = this.context;
+    const activeObject = canvas.getActiveObject();
 
-    if (
-      !activeObject ||
-      activeObject.type !== LayerType.ACTIVE_SELECTION
-    ) {
+    if (!(activeObject instanceof ActiveSelection)) {
       return;
     }
 
-    const selection =
-      activeObject as ActiveSelection;
+    // The selection releases its objects but leaves them on the canvas.
+    const objects = activeObject.removeAll();
+    const stack = canvas.getObjects();
+    const topmost = Math.max(...objects.map((object) => stack.indexOf(object)));
+    canvas.discardActiveObject();
+    canvas.remove(...objects);
 
-    const objects = selection.removeAll();
-
+    const taken = new Set(
+      canvas.getObjects().map((object) => String(object.name ?? ''))
+    );
     const group = new Group(objects, {
-      name: 'group',
       id: generateId(),
+      name: createLayerName(
+        LayerType.GROUP,
+        undefined,
+        taken,
+        editor.layerLabels
+      ),
       subTargetCheck: true,
-    } as any);
+    } as never);
 
-    this.context.canvas.add(group);
-    this.context.canvas.setActiveObject(group);
+    canvas.insertAt(topmost - objects.length + 1, group);
+    canvas.setActiveObject(group);
+    canvas.requestRenderAll();
 
-    this.context.canvas.requestRenderAll();
-
-    this.context.editor.history.save();
+    editor.history.save();
     this.context.updateContextObjects();
     this.context.state.setActiveObject(group);
   };
 
   public ungroup = () => {
-    const activeObject =
-      this.context.canvas.getActiveObject();
+    const { canvas, editor, config } = this.context;
+    const group = canvas.getActiveObject();
 
-    if (
-      !activeObject ||
-      activeObject.type !==
-      LayerType.GROUP.toLowerCase()
-    ) {
+    if (!(group instanceof Group) || group instanceof ActiveSelection) {
       return;
     }
 
-    const group = activeObject as Group;
-
-    group.clipPath = undefined;
-
+    const index = canvas.getObjects().indexOf(group);
     const objects = group.removeAll();
+    canvas.remove(group);
+    canvas.insertAt(index, ...objects);
 
-    this.context.canvas.remove(group);
+    objects.forEach((object) => {
+      object.set({
+        clipPath: config.clipToFrame ? editor.frame.frame : undefined,
+      });
+      object.setCoords();
+    });
 
-    const activeSelection = new ActiveSelection(
-      objects,
-      {
-        canvas: this.context.canvas,
-      },
-    );
+    const selection = new ActiveSelection(objects, { canvas });
+    canvas.setActiveObject(selection);
+    canvas.requestRenderAll();
 
-    activeSelection.getObjects().forEach(
-      (object) => {
-        if (this.context.config.clipToFrame) {
-          object.clipPath =
-            this.context.editor.frame.frame as any;
-        }
-
-        object.setCoords();
-      },
-    );
-
-    this.context.canvas.setActiveObject(
-      activeSelection,
-    );
-
-    this.context.canvas.requestRenderAll();
-
-    this.context.editor.history.save();
+    editor.history.save();
     this.context.updateContextObjects();
-    this.context.state.setActiveObject(
-      activeSelection,
-    );
+    this.context.state.setActiveObject(selection);
   };
 }
 

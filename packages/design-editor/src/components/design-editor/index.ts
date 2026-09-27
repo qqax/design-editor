@@ -5,4 +5,6 @@ export type {
   EditorColors,
   EditorFonts,
   EditorTheme,
+  InitialScene,
+  SceneColors,
 } from './model';

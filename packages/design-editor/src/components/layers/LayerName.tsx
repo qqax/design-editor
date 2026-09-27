@@ -5,8 +5,6 @@ import React, { useEffect, useRef, useState } from 'react';
 interface LayerNameProps {
   id: string;
   name: string;
-  visible: boolean;
-  isActive: boolean;
   editing: boolean;
   onCommit: (id: string, name: string) => void;
   onCancel: () => void;
@@ -15,8 +13,6 @@ interface LayerNameProps {
 export function LayerName({
   id,
   name,
-  visible,
-  isActive,
   editing,
   onCommit,
   onCancel,
@@ -47,6 +43,8 @@ export function LayerName({
     return (
       <input
         ref={inputRef}
+        aria-label={name}
+        className="de-layer-rename"
         onBlur={commit}
         onChange={(e) => setVal(e.target.value)}
         onClick={(e) => e.stopPropagation()}
@@ -61,35 +59,9 @@ export function LayerName({
             onCancel();
           }
         }}
-        style={{
-          flex: 1,
-          minWidth: 0,
-          background: 'var(--de-color-bg)',
-          border: '1px solid var(--de-color-primary)',
-          borderRadius: 4,
-          color: 'var(--de-color-text)',
-          fontSize: 11,
-          padding: '2px 6px',
-          outline: 'none',
-        }}
       />
     );
   }
 
-  return (
-    <span
-      style={{
-        flex: 1,
-        minWidth: 0,
-        fontSize: 11,
-        color: isActive ? 'var(--de-color-text)' : 'var(--de-color-text-muted)',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        opacity: visible ? 1 : 0.45,
-      }}
-    >
-      {name}
-    </span>
-  );
+  return <span className="de-layer-name">{name}</span>;
 }

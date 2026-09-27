@@ -24,7 +24,7 @@ interface EditorSidebarProps {
   onClose: () => void;
   templatesPanel?: RenderPropType;
   libraryPanel?: RenderPropType;
-  handleApplyTemplate: (template: any) => void;
+  handleApplyTemplate: (template: DesignResource) => void;
   addImageToCanvas: (src: string) => void;
   handleApplyTextDesign: (design: DesignResource) => void;
   handleAddText: (preset: TextPreset) => void;

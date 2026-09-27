@@ -5,7 +5,11 @@ import React, { useContext, useRef } from 'react';
 import { FrozenCanvas } from './FrozenCanvas';
 import { Context } from '../../../engine';
 
-import type { CanvasBackground, EditorConfig } from '../../../engine';
+import type {
+  CanvasBackground,
+  EditorConfig,
+  IEditorState,
+} from '../../../engine';
 
 const CANVAS_CONFIG = {
   clipToFrame: true,
@@ -26,7 +30,7 @@ export function CanvasContextBridge({
   settings: Partial<EditorConfig>;
 }) {
   const context = useContext(Context);
-  const contextRef = useRef<any>(null);
+  const contextRef = useRef<IEditorState | null>(null);
   if (contextRef.current === null) contextRef.current = context;
 
   return (

@@ -15,7 +15,12 @@ import { buildTextDesignLayers } from '../lib/textDesignLayers';
 
 import type { FabricObject } from 'fabric';
 
-import type { CanvasBackground, Editor, ExportOptions } from '../../../engine';
+import type {
+  CanvasBackground,
+  Editor,
+  ExportOptions,
+  ILayer,
+} from '../../../engine';
 import type { TextPreset } from '../../panels';
 import type { DesignResource } from '../../panels/common/provider';
 import type { ExportTarget } from '../../toolbars/model';
@@ -39,6 +44,12 @@ const toScreenRect = (editor: Editor, object: FabricObject) => {
     height: height * zoomY,
   };
 };
+
+/** A point on the page, in page pixels from its top-left corner */
+export interface PagePoint {
+  left: number;
+  top: number;
+}
 
 interface EditorActionsOptions {
   editor: Editor | null;
@@ -71,53 +82,59 @@ export function useEditorActions({
     height: number;
   } | null>(null);
 
-  const handleAddMedia = useCallback(
-    async (url: string, position?: { top: number; left: number }) => {
-      if (!editor) return;
-      try {
-        const type = /\.(mp4|webm)$/i.test(url) ? 'StaticVideo' : 'StaticImage';
-        await editor.objects.add({
-          type,
-          src: url,
-          top: position?.top ?? 100,
-          left: position?.left ?? 100,
-          metadata: { source: 'qqax' },
-        });
-      } catch {
-        message.error(m.gallery.addFailed);
-      }
-    },
-    [editor, message, m]
-  );
-
+  /** Images are scaled to fit the page; `at` is where the centre lands */
   const addImageToCanvas = useCallback(
-    (url: string, top = 100, left = 100) => {
+    async (url: string, at?: PagePoint, metadata?: ILayer['metadata']) => {
       if (!editor) return;
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = url;
-      img.onload = async () => {
-        let scale = 1;
-        const frame = editor.frame?.frame;
-        const maxW = (frame?.width || 1080) * 0.8;
-        const maxH = (frame?.height || 1080) * 0.8;
-        if (img.width > maxW || img.height > maxH) {
-          scale = Math.min(maxW / img.width, maxH / img.height);
-        }
-        await editor.objects.add({
-          type: 'StaticImage',
-          src: url,
-          top,
-          left,
-          scaleX: scale,
-          scaleY: scale,
-        });
-      };
-      img.onerror = () => {
+      try {
+        await img.decode();
+      } catch {
         message.error(m.gallery.loadImageFailed);
-      };
+        return;
+      }
+      const { width: pageWidth, height: pageHeight } = editor.frame.frame;
+      const scale = Math.min(
+        1,
+        (pageWidth * 0.8) / img.width,
+        (pageHeight * 0.8) / img.height
+      );
+      await editor.objects.add({
+        type: 'StaticImage',
+        src: url,
+        scaleX: scale,
+        scaleY: scale,
+        ...(metadata && { metadata }),
+        ...(at && {
+          left: at.left - (img.width * scale) / 2,
+          top: at.top - (img.height * scale) / 2,
+          skipCentering: true,
+        }),
+      });
     },
     [editor, message, m]
+  );
+
+  const handleAddMedia = useCallback(
+    async (url: string, at?: PagePoint) => {
+      if (!editor) return;
+      try {
+        if (/\.(mp4|webm)$/i.test(url)) {
+          await editor.objects.add({
+            type: 'StaticVideo',
+            src: url,
+            metadata: { source: 'qqax' },
+          });
+          return;
+        }
+        await addImageToCanvas(url, at, { source: 'qqax' });
+      } catch {
+        message.error(m.gallery.addFailed);
+      }
+    },
+    [editor, addImageToCanvas, message, m]
   );
 
   const handleAddText = useCallback(

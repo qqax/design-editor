@@ -12,10 +12,12 @@ import { OpacityRange } from './OpacityRange';
 import { ShapeControls } from './ShapeControls';
 import { TextControls } from './TextControls';
 
+import type { FabricObject } from 'fabric';
+
 import type { Editor } from '../../../engine';
 
 interface Props {
-  activeObj: any;
+  activeObj: FabricObject | null;
   editor: Editor | null;
   removingBg: boolean;
   onRemoveBg: () => void;
@@ -31,7 +33,7 @@ export function ObjectPropertiesBar({
   const {
     posStyle,
     kind,
-    target,
+    textTarget,
     multiple,
     label,
     opacity,
@@ -77,7 +79,7 @@ export function ObjectPropertiesBar({
       {/* ── Text controls (compact primary row) ────────────────────────────── */}
       {kind === 'text' ? (
         <TextControls
-          activeObj={target}
+          activeObj={textTarget}
           editor={editor}
           multiple={multiple}
           opacity={opacity}

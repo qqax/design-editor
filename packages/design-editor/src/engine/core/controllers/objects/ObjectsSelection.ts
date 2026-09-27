@@ -82,9 +82,12 @@ export class ObjectsSelection {
   /** Selects the given objects together; unknown ids are skipped */
   public selectMany = (ids: readonly string[]) => {
     const { canvas, state } = this.context;
+    const stack = canvas.getObjects();
+    // In stacking order, so a group made from the selection keeps it.
     const objects = ids
       .map((id) => this.context.findOneById(id))
-      .filter((object): object is FabricObject => object !== null);
+      .filter((object): object is FabricObject => object !== null)
+      .sort((a, b) => stack.indexOf(a) - stack.indexOf(b));
 
     canvas.discardActiveObject();
 

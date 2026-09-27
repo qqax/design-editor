@@ -4,7 +4,11 @@ import { Editor } from '../../../engine';
 import { applyEditorSettings } from '../lib';
 import { CANVAS_ID } from '../model';
 
-import type { CanvasBackground, EditorConfig } from '../../../engine';
+import type {
+  CanvasBackground,
+  EditorConfig,
+  IEditorState,
+} from '../../../engine';
 
 export const FrozenCanvas = memo(
   ({
@@ -13,88 +17,66 @@ export const FrozenCanvas = memo(
     canvasBg,
   }: {
     config: Partial<EditorConfig>;
-    contextRef: React.RefObject<any>;
+    contextRef: React.RefObject<IEditorState | null>;
     canvasBg: CanvasBackground;
   }) => {
     // Fabric finds the element by id, so two editors on a page need two ids.
     const canvasId = `${CANVAS_ID}_${useId().replace(/[^\w-]/g, '')}`;
     const containerRef = useRef<HTMLDivElement>(null);
-    const editorRef = useRef<InstanceType<typeof Editor> | null>(null);
+    const editorRef = useRef<Editor | null>(null);
 
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
 
+      let editor: Editor | null = null;
+      let observer: ResizeObserver | null = null;
+
       const initTimer = window.setTimeout(() => {
-        if (!container || !contextRef.current) return;
-
-        const w = container.clientWidth || 800;
-        const h = container.clientHeight || 600;
-
-        let editor: InstanceType<typeof Editor> | null = null;
+        if (!contextRef.current) return;
 
         try {
           editor = new Editor({
             id: canvasId,
             config: {
               ...config,
-              size: { width: w, height: h },
+              size: {
+                width: container.clientWidth || 800,
+                height: container.clientHeight || 600,
+              },
             },
             state: contextRef.current,
           });
         } catch {
           return;
         }
+        const created = editor;
 
-        try {
-          if (canvasBg && canvasBg !== '#ffffff') {
-            editor.frame.setBackground(canvasBg);
-          }
-        } catch {
-          /* ignore */
+        if (canvasBg && canvasBg !== '#ffffff') {
+          created.frame.setBackground(canvasBg);
         }
 
-        editorRef.current = editor;
+        editorRef.current = created;
+        applyEditorSettings(created, config?.snapGrid);
 
-        applyEditorSettings(editor, config?.snapGrid);
-
-        const resizeObserver = new ResizeObserver(() => {
-          if (!container || !editor) return;
-          const nw = container.clientWidth || 800;
-          const nh = container.clientHeight || 600;
-
-          try {
-            editor.canvas.resize({ width: nw, height: nh });
-          } catch {
-            /* ignore */
-          }
+        observer = new ResizeObserver(() => {
+          created.canvas.resize({
+            width: container.clientWidth || 800,
+            height: container.clientHeight || 600,
+          });
         });
-
-        resizeObserver.observe(container);
-
-        (container as any).__layerhubEditor = editor;
-        (container as any).__layerhubObserver = resizeObserver;
+        observer.observe(container);
       }, 0);
 
       return () => {
         clearTimeout(initTimer);
-        if (!container) return;
-
-        const observer = (container as any).__layerhubObserver as
-          ResizeObserver | undefined;
         observer?.disconnect();
-
-        const editor = (container as any).__layerhubEditor as
-          InstanceType<typeof Editor> | undefined;
         try {
-          editor?.destroy?.();
+          editor?.destroy();
         } catch {
-          /* ignore */
+          /* already torn down */
         }
-
         editorRef.current = null;
-        delete (container as any).__layerhubEditor;
-        delete (container as any).__layerhubObserver;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [contextRef]);

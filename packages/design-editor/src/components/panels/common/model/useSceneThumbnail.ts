@@ -6,7 +6,7 @@ import { useEditor } from '../../../../engine';
 
 import type { RefObject } from 'react';
 
-import type { IScene } from '../../../../engine';
+import type { Editor, IScene } from '../../../../engine';
 
 const cache = new Map<string, string>();
 const inFlight = new Map<string, Promise<string>>();
@@ -25,7 +25,7 @@ export function useSceneThumbnail(
   },
   ref: RefObject<HTMLElement | HTMLButtonElement | null>,
   editorOverride?: {
-    renderer?: { toDataURL: (scene: any, opts: any) => Promise<string> };
+    renderer?: Pick<Editor['renderer'], 'toDataURL'>;
   }
 ): UseSceneThumbnailResult {
   const hookEditor = useEditor();

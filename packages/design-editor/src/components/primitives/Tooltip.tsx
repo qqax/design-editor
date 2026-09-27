@@ -14,14 +14,14 @@ export interface TooltipProps {
   className?: string;
 }
 
-export const Tooltip = React.forwardRef<HTMLElement, TooltipProps>(
+export const Tooltip = React.forwardRef<HTMLButtonElement, TooltipProps>(
   ({ children, title, placement = 'top', className }, ref) => {
     const container = usePortalContainer();
     if (!title) return <React.Fragment>{children}</React.Fragment>;
     return (
       <RadixTooltip.Provider delayDuration={200}>
         <RadixTooltip.Root>
-          <RadixTooltip.Trigger ref={ref as any} asChild>
+          <RadixTooltip.Trigger ref={ref} asChild>
             {children}
           </RadixTooltip.Trigger>
           <RadixTooltip.Portal container={container}>

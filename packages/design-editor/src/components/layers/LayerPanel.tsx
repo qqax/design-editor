@@ -9,8 +9,10 @@ import { Tooltip } from '../primitives';
 import { LayerList } from './LayerList';
 import { useLayerPanel } from './useLayerPanel';
 
+import type { Editor } from '../../engine';
+
 interface LayerPanelProps {
-  editor: any;
+  editor: Editor | null;
   onClose: () => void;
 }
 
@@ -21,33 +23,25 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   const handleSelect = useCallback(
     (id: string, multi: boolean) => {
-      setSelectedIds((prev) => {
-        if (multi) {
-          const next = new Set(prev);
-          if (next.has(id)) {
-            next.delete(id);
-          } else {
-            next.add(id);
-          }
-          return next;
-        }
-        return new Set([id]);
-      });
-      editor?.objects?.select?.(id);
+      const next = new Set(multi ? selectedIds : []);
+      if (multi && next.has(id)) next.delete(id);
+      else next.add(id);
+      setSelectedIds(next);
+      editor?.objects.selectMany([...next]);
     },
-    [editor]
+    [editor, selectedIds]
   );
 
   const handleVisibilityChange = useCallback(
     (id: string, visible: boolean) => {
-      editor?.objects?.update?.({ visible }, id);
+      editor?.objects.update({ visible }, id);
     },
     [editor]
   );
 
   const handleDelete = useCallback(
     (id: string) => {
-      editor?.objects?.remove?.(id);
+      editor?.objects.remove(id);
       setSelectedIds((prev) => {
         if (!prev.has(id)) return prev;
         const next = new Set(prev);
@@ -60,40 +54,33 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
 
   const handleDuplicate = useCallback(
     (id: string) => {
-      editor?.objects?.clone?.(id);
+      if (!editor) return;
+      editor.objects.select(id);
+      void editor.objects.clone();
     },
     [editor]
   );
 
   const handleRename = useCallback(
     (id: string, name: string) => {
-      editor?.objects?.update?.({ name }, id);
+      editor?.objects.update({ name }, id);
     },
     [editor]
   );
 
   const handleGroup = useCallback(() => {
-    if (selectedIds.size < 2) return;
-    editor?.objects?.group?.([...selectedIds]);
+    if (!editor || selectedIds.size < 2) return;
+    editor.objects.selectMany([...selectedIds]);
+    editor.objects.group();
     setSelectedIds(new Set());
   }, [editor, selectedIds]);
 
   return (
-    <div
-      className="de-layer-panel"
-      style={{
-        background: 'var(--de-color-surface)',
-        borderLeft: '1px solid var(--de-color-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        boxShadow: 'var(--de-shadow-md)',
-      }}
-    >
+    <div className="de-layer-panel">
       {/* Header */}
       <div className="de-sidebar-header">
         <span>{m.title}</span>
-        <div style={{ display: 'flex', gap: 2 }}>
+        <div className="de-header-actions">
           {selectedIds.size >= 2 && (
             <Tooltip title={m.group}>
               <button
@@ -120,7 +107,7 @@ export function LayerPanel({ editor, onClose }: LayerPanelProps) {
       </div>
 
       {/* Layer list */}
-      <div style={{ flex: 1, overflowY: 'auto' }}>
+      <div className="de-layer-list">
         <LayerList
           activeId={activeId}
           layers={layers}
